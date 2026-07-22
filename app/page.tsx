@@ -49,7 +49,7 @@ type Task = {
 };
 
 const channels: Channel[] = ["x", "discord", "linkedin", "reddit", "instagram", "tiktok"];
-const growthSkillPath = "/Users/a1234/.codex/.chatgpt-projects/g-p-6a606e4a26608191bba7525a532addfd/verdent-growth-os/skills/verdent-social-growth/SKILL.md";
+const growthSkillPath = "skills/verdent-social-growth/SKILL.md";
 const growthSkillVersion = "1.0";
 const channelNames: Record<Channel, string> = {
   x: "X / Twitter",
