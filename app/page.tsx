@@ -14,6 +14,7 @@ type Task = {
   owner: string;
   channel: string;
   accent: string;
+  raw?: string;
 };
 
 const seedTasks: Task[] = [
@@ -47,6 +48,7 @@ export default function Home() {
   const [filter, setFilter] = useState("全部任务");
   const [active, setActive] = useState("工作台");
   const [notice, setNotice] = useState("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("verdent-growth-tasks");
@@ -71,6 +73,7 @@ export default function Home() {
       due: result.kind === "版本更新" ? "Tue · 22:00" : "To schedule",
       owner: "Me",
       channel: result.kind === "版本更新" || result.kind === "新模型" ? "4 platforms" : "To decide",
+      raw: input.trim(),
     };
     setTasks((current) => [next, ...current]);
     setInput("");
@@ -83,6 +86,24 @@ export default function Home() {
     if (index === lanes.length - 1) return;
     setTasks((current) => current.map((item) => item.id === task.id ? { ...item, status: lanes[index + 1] } : item));
   }
+
+  function updateStatus(id: number, status: Status) {
+    setTasks((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+  }
+
+  function removeTask(id: number) {
+    setTasks((current) => current.filter((item) => item.id !== id));
+    setSelectedId(null);
+    setNotice("任务已删除。");
+    window.setTimeout(() => setNotice(""), 2200);
+  }
+
+  const selectedTask = tasks.find((task) => task.id === selectedId);
+  const checklist = selectedTask?.kind === "新模型"
+    ? ["模型与厂商名称", "正式上线时间", "开放状态与活动", "算法侧能力确认", "可公开 Case", "厂商 PR 安排"]
+    : selectedTask?.kind === "版本更新"
+      ? ["版本号", "核心功能", "用户使用场景", "截图或录屏", "不可公开信息", "PM 确认上线"]
+      : ["内容目标", "目标受众", "核心角度", "发布平台", "所需素材", "发布时间"];
 
   const reviewCount = tasks.filter((task) => task.status === "Review").length;
   const blockedCount = tasks.filter((task) => task.status === "Need Info").length;
@@ -149,12 +170,23 @@ export default function Home() {
                 <div className="task-name"><span className={`task-dot ${task.accent}`}></span><div><strong>{task.title}</strong><small>{task.kind}</small></div></div>
                 <span className={`status ${task.status.toLowerCase().replace(" ", "-")}`}>{task.status}</span>
                 <span className="muted">{task.due}</span><span className="muted">{task.owner}</span><span className="channel">{task.channel}</span>
-                <button className="advance" onClick={() => advance(task)} aria-label={`推进 ${task.title}`}>→</button>
+                <div className="row-actions"><button className="detail" onClick={() => setSelectedId(task.id)}>查看</button><button className="advance" onClick={() => advance(task)} aria-label={`推进 ${task.title}`}>→</button></div>
               </div>
             ))}
           </div>
         </section>
       </section>
+      {selectedTask && <div className="drawer-backdrop" onClick={() => setSelectedId(null)}>
+        <aside className="drawer" onClick={(event) => event.stopPropagation()}>
+          <div className="drawer-head"><div><small>{selectedTask.kind}</small><h2>{selectedTask.title}</h2></div><button onClick={() => setSelectedId(null)}>×</button></div>
+          <section className="drawer-section"><label>任务状态</label><select value={selectedTask.status} onChange={(event) => updateStatus(selectedTask.id, event.target.value as Status)}>{lanes.map((lane) => <option key={lane}>{lane}</option>)}</select></section>
+          <section className="drawer-section"><label>原始信息</label><div className="raw-copy">{selectedTask.raw || "这是示例任务。新建任务后，粘贴的原始信息会完整保留在这里。"}</div></section>
+          <section className="drawer-section"><label>开始制作前确认</label><div className="checklist">{checklist.map((item) => <label key={item}><input type="checkbox" /> <span>{item}</span></label>)}</div></section>
+          <section className="drawer-section"><label>默认交付</label><div className="deliverables"><span>X / Twitter</span><span>Discord</span><span>LinkedIn</span><span>Reddit</span><span>海报 brief</span></div></section>
+          <div className="drawer-tip"><b>下一步</b><p>{selectedTask.status === "Need Info" ? "先补齐上方信息，再开始写作。" : selectedTask.status === "Review" ? "等待相关负责人确认，发布前再次核对上线状态。" : "可以继续准备多平台文案与相关素材。"}</p></div>
+          <div className="drawer-actions"><button className="delete" onClick={() => removeTask(selectedTask.id)}>删除任务</button><button className="primary" onClick={() => advance(selectedTask)}>推进到下一步</button></div>
+        </aside>
+      </div>}
     </main>
   );
 }
