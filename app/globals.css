@@ -29,8 +29,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .brand div { display: flex; flex-direction: column; gap: 2px; }
 .brand b { font-size: 18px; letter-spacing: -.2px; }
 .brand small { color: #87958d; font-size: 12px; }
-.brand a { margin-left: auto; color: #aeb9b3; text-decoration: none; font-size: 12px; }
-.brand a:hover { color: var(--lime); }
+.brand > button { margin-left: auto; padding: 0; border: 0; color: #aeb9b3; background: transparent; font-size: 12px; }
+.brand > button:hover { color: var(--lime); }
 .button { min-height: 40px; padding: 9px 13px; border: 1px solid var(--line); border-radius: 9px; color: #445149; background: #fff; font-size: 13px; font-weight: 650; }
 .button:hover { border-color: #aeb8b1; }
 .button.primary { border-color: var(--dark); color: #fff; background: var(--dark); }
@@ -80,6 +80,19 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .stat-grid span { color: var(--muted); font-size: 13px; }
 .stat-grid strong { display: block; margin: 12px 0 5px; font: 700 32px Georgia, serif; }
 .stat-grid small { color: #8b958f; font-size: 11px; }
+.account-strip { max-width: 1260px; margin: 0 auto 18px; overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: #fff; box-shadow: 0 4px 16px rgba(24, 37, 30, .035); }
+.account-strip > header { display: flex; align-items: center; justify-content: space-between; padding: 17px 20px; border-bottom: 1px solid var(--line); }
+.account-strip h2 { margin: 0 0 4px; font: 700 18px Georgia, "Songti SC", serif; }
+.account-strip header p { margin: 0; color: var(--muted); font-size: 11px; }
+.account-strip > div { display: grid; grid-template-columns: repeat(4, 1fr); }
+.account-strip > div > a, .account-strip > div > button { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 13px 15px; border: 0; border-right: 1px solid #edf0ed; border-bottom: 1px solid #edf0ed; color: var(--ink); background: #fff; text-align: left; text-decoration: none; }
+.account-strip > div > a:hover, .account-strip > div > button:hover { background: #f8faf7; }
+.account-strip > div > a > i, .account-strip > div > button > i { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; color: #344238; background: var(--lime-soft); font-style: normal; font-size: 11px; font-weight: 800; }
+.account-strip > div span { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.account-strip > div small { color: #87928b; font-size: 9px; }
+.account-strip > div b { overflow: hidden; font-size: 11px; white-space: nowrap; text-overflow: ellipsis; }
+.account-strip > div em { color: #819087; font-size: 10px; font-style: normal; }
+.account-strip > div .missing-account em { padding: 4px 6px; border-radius: 5px; color: #9b622a; background: #fff0dc; }
 .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, .8fr); gap: 18px; max-width: 1260px; margin: auto; }
 .panel { overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); box-shadow: var(--shadow); }
 .panel > header { display: flex; align-items: center; justify-content: space-between; padding: 21px 22px; border-bottom: 1px solid var(--line); }
@@ -158,9 +171,10 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .check-group input { position: absolute; opacity: 0; }
 .check-group label i { display: grid; place-items: center; width: 20px; height: 20px; flex: 0 0 auto; border: 1px solid #c8d0ca; border-radius: 6px; color: #25331f; font-style: normal; font-size: 11px; }
 .check-group label.checked i { border-color: var(--lime); background: var(--lime); }
-.platform-switch { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.platform-switch { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
 .platform-switch button { display: flex; align-items: center; justify-content: space-between; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; color: #637068; background: #fafbfa; font-size: 12px; }
 .platform-switch button.active { color: #fff; border-color: var(--dark); background: var(--dark); }
+.platform-switch button.inactive:not(.active) { opacity: .55; }
 .platform-switch i { font-style: normal; font-size: 10px; }
 .platform-switch button.active i { color: var(--lime); }
 .draft-head { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 12px; }
@@ -194,12 +208,16 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .review-rules div { display: flex; gap: 7px; flex-wrap: wrap; }
 .review-rules span { padding: 6px 8px; border-radius: 6px; color: #657169; background: #edf1ee; font-size: 10px; }
 .publish-table { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }
-.publish-row { display: grid; grid-template-columns: 120px 55px 190px minmax(180px, 1fr) 100px; gap: 10px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); }
+.publish-row { display: grid; grid-template-columns: 92px 170px 48px 180px minmax(155px, 1fr) 92px; gap: 9px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); }
 .publish-row:last-child { border-bottom: 0; }
 .publish-row.disabled { opacity: .5; background: #f5f6f5; }
 .publish-header { color: #7c8880; background: #f6f8f6; font-size: 10px; font-weight: 700; }
 .publish-row b { font-size: 12px; }
 .publish-row > input { width: 100%; min-height: 38px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 7px; outline: none; font-size: 11px; }
+.account-target { display: flex; gap: 5px; align-items: center; min-width: 0; }
+.account-target select { width: 100%; min-width: 0; height: 38px; padding: 0 7px; border: 1px solid var(--line); border-radius: 7px; color: #455149; background: #fff; font-size: 10px; }
+.account-target a, .account-target button { display: grid; place-items: center; width: 27px; height: 27px; flex: 0 0 auto; border: 0; border-radius: 6px; color: #5c7148; background: var(--lime-soft); font-size: 11px; font-weight: 800; text-decoration: none; }
+.account-target button { color: #954d40; background: #ffebe8; }
 .switch { position: relative; width: 34px; height: 20px; }
 .switch input { position: absolute; opacity: 0; }
 .switch i { position: absolute; inset: 0; border-radius: 12px; background: #cbd2cd; }
@@ -268,6 +286,26 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .new-modal > footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
 .new-modal footer > span { color: #89938d; font-size: 11px; }
 .new-modal footer > div { display: flex; gap: 8px; }
+.account-modal { width: min(980px, 100%); max-height: calc(100vh - 40px); margin: auto; overflow: auto; padding: 26px; border-radius: 15px; background: #fff; box-shadow: 0 25px 70px rgba(17, 29, 22, .28); }
+.account-modal > header { display: flex; justify-content: space-between; gap: 20px; }
+.account-modal h2 { margin: 0 0 7px; font: 750 27px Georgia, "Songti SC", serif; }
+.account-modal header p { margin: 0; color: var(--muted); font-size: 13px; }
+.account-modal header > button { width: 36px; height: 36px; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 20px; }
+.account-table { overflow: hidden; margin-top: 22px; border: 1px solid var(--line); border-radius: 10px; }
+.account-table-head, .account-row { display: grid; grid-template-columns: 145px 200px minmax(260px, 1fr) 90px; gap: 10px; align-items: center; padding: 11px 13px; border-bottom: 1px solid var(--line); }
+.account-table-head { color: #7b877f; background: #f5f7f5; font-size: 10px; font-weight: 750; }
+.account-row:last-child { border-bottom: 0; }
+.account-row b { font-size: 12px; }
+.account-row input { width: 100%; height: 39px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 7px; outline: none; font-size: 12px; }
+.account-row input:focus { border-color: #93a278; box-shadow: 0 0 0 3px rgba(202, 241, 74, .2); }
+.account-row > span { justify-self: start; padding: 5px 7px; border-radius: 6px; font-size: 10px; }
+.account-row .linked { color: #5e7548; background: var(--lime-soft); }
+.account-row .linked a { color: inherit; text-decoration: none; }
+.account-row .unlinked { color: #99602a; background: #fff0dc; }
+.account-modal > footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-top: 18px; }
+.account-modal footer > div:first-child { display: flex; flex-direction: column; gap: 4px; color: #758179; font-size: 11px; }
+.account-modal footer > div:first-child b { color: var(--ink); font-size: 12px; }
+.account-modal footer > div:last-child { display: flex; gap: 8px; }
 .toast { position: fixed; z-index: 50; right: 24px; bottom: 24px; padding: 13px 17px; border-radius: 9px; color: #fff; background: var(--dark); box-shadow: 0 14px 36px rgba(20, 35, 26, .25); font-size: 12px; }
 
 @media (max-width: 1200px) {
@@ -277,7 +315,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .wide-note { grid-column: span 2; }
   .top-actions .autosaved { display: none; }
   .pipeline button small { display: none; }
-  .publish-row { grid-template-columns: 100px 48px 170px minmax(150px, 1fr) 88px; }
+  .publish-row { grid-template-columns: 82px 145px 44px 160px minmax(140px, 1fr) 82px; }
 }
 
 @media (max-width: 980px) {
@@ -292,6 +330,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .dashboard { padding: 35px 28px; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .dashboard-grid { grid-template-columns: 1fr; }
+  .account-strip > div { grid-template-columns: repeat(2, 1fr); }
   .pipeline { overflow-x: auto; grid-template-columns: repeat(6, minmax(120px, 1fr)); }
 }
 
@@ -320,9 +359,13 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .brief-form .wide { grid-column: 1; }
   .platform-switch { grid-template-columns: 1fr 1fr; }
   .publish-table { overflow-x: auto; }
-  .publish-row { min-width: 760px; }
+  .publish-row { min-width: 920px; }
   .next-panel { display: block; }
   .next-panel > section { margin-top: 12px; }
   .new-modal { padding: 20px; }
   .kind-picker { overflow-x: auto; }
+  .account-modal { padding: 20px; }
+  .account-table { overflow-x: auto; }
+  .account-table-head, .account-row { min-width: 820px; }
+  .account-modal > footer { align-items: flex-start; flex-direction: column; }
 }

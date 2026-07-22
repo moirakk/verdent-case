@@ -23,6 +23,7 @@ test("server-renders the Verdent Growth OS workspace", async () => {
   assert.match(html, /<title>Verdent Growth OS<\/title>/i);
   assert.match(html, /今天该推进什么/);
   assert.match(html, /优先工作队列/);
+  assert.match(html, /官方渠道账号/);
   assert.match(html, /版本更新默认周二 22:00 发布/);
   assert.doesNotMatch(html, /codex-preview|Building your site|react-loading-skeleton/i);
 });
@@ -37,6 +38,10 @@ test("keeps the workflow, safety scan, and local persistence in the product", as
 
   assert.match(page, /收集.*核实.*制作.*审核.*发布.*复盘/s);
   assert.match(page, /verdent-local-workspace/);
+  assert.match(page, /verdent-social-accounts/);
+  assert.match(page, /Instagram/);
+  assert.match(page, /TikTok/);
+  assert.match(page, /社媒账号中心/);
   assert.match(page, /privacyPatterns/);
   assert.match(page, /英文长破折号/);
   assert.match(page, /Verdent Writer Skill/);
