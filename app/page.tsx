@@ -15,6 +15,7 @@ type Task = {
   channel: string;
   accent: string;
   raw?: string;
+  checked?: string[];
 };
 
 const seedTasks: Task[] = [
@@ -74,6 +75,7 @@ export default function Home() {
       owner: "Me",
       channel: result.kind === "版本更新" || result.kind === "新模型" ? "4 platforms" : "To decide",
       raw: input.trim(),
+      checked: [],
     };
     setTasks((current) => [next, ...current]);
     setInput("");
@@ -96,6 +98,23 @@ export default function Home() {
     setSelectedId(null);
     setNotice("任务已删除。");
     window.setTimeout(() => setNotice(""), 2200);
+  }
+
+  function toggleCheck(id: number, item: string) {
+    setTasks((current) => current.map((task) => {
+      if (task.id !== id) return task;
+      const checked = task.checked || [];
+      return { ...task, checked: checked.includes(item) ? checked.filter((value) => value !== item) : [...checked, item] };
+    }));
+  }
+
+  async function copyForCodex(task: Task) {
+    const confirmed = task.checked?.length ? task.checked.join("、") : "暂无";
+    const prompt = `请按照 Verdent Social Ops OS 处理下面这项任务。\n\n任务：${task.title}\n类型：${task.kind}\n当前状态：${task.status}\n目标时间：${task.due}\n协作方：${task.owner}\n已确认信息：${confirmed}\n\n原始信息：\n${task.raw || "暂无原始信息，请先告诉我还需要补充什么。"}\n\n请依次输出：\n1. 信息摘要\n2. 缺失信息和待确认风险\n3. 核心传播角度\n4. X、Discord、LinkedIn、Reddit 英文文案\n5. 海报 brief\n6. 发布前检查清单`;
+    await navigator.clipboard.writeText(prompt);
+    setSelectedId(null);
+    setNotice("已复制。回到 Codex 直接粘贴即可。");
+    window.setTimeout(() => setNotice(""), 3200);
   }
 
   const selectedTask = tasks.find((task) => task.id === selectedId);
@@ -181,9 +200,10 @@ export default function Home() {
           <div className="drawer-head"><div><small>{selectedTask.kind}</small><h2>{selectedTask.title}</h2></div><button onClick={() => setSelectedId(null)}>×</button></div>
           <section className="drawer-section"><label>任务状态</label><select value={selectedTask.status} onChange={(event) => updateStatus(selectedTask.id, event.target.value as Status)}>{lanes.map((lane) => <option key={lane}>{lane}</option>)}</select></section>
           <section className="drawer-section"><label>原始信息</label><div className="raw-copy">{selectedTask.raw || "这是示例任务。新建任务后，粘贴的原始信息会完整保留在这里。"}</div></section>
-          <section className="drawer-section"><label>开始制作前确认</label><div className="checklist">{checklist.map((item) => <label key={item}><input type="checkbox" /> <span>{item}</span></label>)}</div></section>
+          <section className="drawer-section"><label>开始制作前确认</label><div className="checklist">{checklist.map((item) => <label key={item}><input type="checkbox" checked={selectedTask.checked?.includes(item) || false} onChange={() => toggleCheck(selectedTask.id, item)} /> <span>{item}</span></label>)}</div><small className="progress-note">已确认 {selectedTask.checked?.length || 0} / {checklist.length}</small></section>
           <section className="drawer-section"><label>默认交付</label><div className="deliverables"><span>X / Twitter</span><span>Discord</span><span>LinkedIn</span><span>Reddit</span><span>海报 brief</span></div></section>
           <div className="drawer-tip"><b>下一步</b><p>{selectedTask.status === "Need Info" ? "先补齐上方信息，再开始写作。" : selectedTask.status === "Review" ? "等待相关负责人确认，发布前再次核对上线状态。" : "可以继续准备多平台文案与相关素材。"}</p></div>
+          <button className="codex-copy" onClick={() => copyForCodex(selectedTask)}><span>AI</span><div><b>复制给 Codex 处理</b><small>自动带上任务信息、原文和标准交付要求</small></div><em>复制</em></button>
           <div className="drawer-actions"><button className="delete" onClick={() => removeTask(selectedTask.id)}>删除任务</button><button className="primary" onClick={() => advance(selectedTask)}>推进到下一步</button></div>
         </aside>
       </div>}
