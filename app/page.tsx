@@ -3,101 +3,529 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Kind = "版本更新" | "新模型" | "日常内容";
-type Status = "收件箱" | "待补充" | "撰写中" | "待审核" | "已排期" | "已发布";
-type DraftKey = "x" | "discord" | "linkedin" | "reddit";
+type Priority = "P0" | "P1" | "P2";
+type Channel = "x" | "discord" | "linkedin" | "reddit";
 type WriterMode = "Release Announcement" | "V-Thoughts" | "V-Tips" | "V-Playground";
-type Brief = { subject:string; launch:string; headline:string; features:string; scenarios:string; access:string; assets:string; confidential:string; missing:string[] };
-type Snapshot = { at:string; drafts:Record<DraftKey,string>; poster:string };
-type Task = { id:string; title:string; kind:Kind; status:Status; date:string; source:string; notes:string; writerMode:WriterMode; brief:Brief; drafts:Record<DraftKey,string>; poster:string; checks:Record<string,boolean>; snapshots:Snapshot[]; updatedAt:string };
+type Brief = {
+  subject: string;
+  vendor: string;
+  launch: string;
+  headline: string;
+  features: string;
+  scenarios: string;
+  access: string;
+  assets: string;
+  confidential: string;
+  evidence: string;
+  partner: string;
+  detectedSubjects: string[];
+};
+type PublishItem = { enabled: boolean; scheduledAt: string; published: boolean; url: string };
+type Metric = { impressions: string; engagements: string; notes: string };
+type Snapshot = { at: string; drafts: Record<Channel, string>; poster: string };
+type Task = {
+  id: string;
+  title: string;
+  kind: Kind;
+  priority: Priority;
+  stage: number;
+  date: string;
+  time: string;
+  source: string;
+  notes: string;
+  writerMode: WriterMode;
+  brief: Brief;
+  drafts: Record<Channel, string>;
+  poster: string;
+  video: string;
+  checks: Record<string, boolean>;
+  publishing: Record<Channel, PublishItem>;
+  metrics: Record<Channel, Metric>;
+  retrospective: string;
+  snapshots: Snapshot[];
+  updatedAt: string;
+};
 
-const statusList:Status[]=["收件箱","待补充","撰写中","待审核","已排期","已发布"];
-const platformNames:Record<DraftKey,string>={x:"X / Twitter",discord:"Discord",linkedin:"LinkedIn",reddit:"Reddit"};
-const baseChecks=["产品名称、版本号或模型名称准确","正式上线时间已确认","暂不能公开的信息已移除","能力和性能表述有依据","链接、@账号与发布时间正确","PM 已完成最终信息确认"];
+const channels: Channel[] = ["x", "discord", "linkedin", "reddit"];
+const channelNames: Record<Channel, string> = {
+  x: "X / Twitter",
+  discord: "Discord",
+  linkedin: "LinkedIn",
+  reddit: "Reddit",
+};
+const channelNotes: Record<Channel, string> = {
+  x: "先说清更新是什么，再用最短篇幅突出用户价值。",
+  discord: "直接、亲切，让社区用户一眼知道现在可以做什么。",
+  linkedin: "解释业务价值、适用场景和工作流变化。",
+  reddit: "信息优先，弱营销，标题与正文必须分开。",
+};
+const stages = [
+  { name: "收集", caption: "原始资料" },
+  { name: "核实", caption: "事实与边界" },
+  { name: "制作", caption: "文案与素材" },
+  { name: "审核", caption: "风险与确认" },
+  { name: "发布", caption: "排期与链接" },
+  { name: "复盘", caption: "表现与经验" },
+];
+const checkLabels: Record<string, string> = {
+  launch_confirmed: "正式上线时间与开放状态已确认",
+  public_scope: "不可公开信息、Embargo 与公开边界已确认",
+  claim_evidence: "模型能力、性能与成本表述有可靠依据",
+  product_accuracy: "PM / 产品已核对功能信息",
+  asset_ready: "海报 Brief、截图和 Logo 已交付设计",
+  video_ready: "演示视频已完成，或确认本次不需要视频",
+  writer_review: "Writer Skill 自检已通过",
+  design_review: "海报 / 视频成品已确认",
+  final_approval: "PM 已给出最终发布许可",
+  release_live: "发布前再次确认功能已经正式上线",
+  links_accounts: "官网链接、@账号与平台格式已检查",
+};
+const checkGroups = {
+  facts: ["launch_confirmed", "public_scope", "claim_evidence"],
+  production: ["product_accuracy", "asset_ready", "video_ready"],
+  review: ["writer_review", "design_review", "final_approval"],
+  publish: ["release_live", "links_accounts"],
+};
+const bannedTerms = ["game-changer", "revolutionary", "unleash", "seamlessly", "excited to share", "thrilled", "delighted", "cutting-edge", "best-in-class", "leverage", "synergy"];
+const privacyPatterns = [/we looked at user data/i, /our data shows/i, /we analyzed .*sessions/i, /user data indicates/i, /we tracked user behavior/i, /our users['’] data/i];
 
-function recognizeBrief(source:string,kind:Kind):Brief{
-  const lines=source.split(/\n+/).map(x=>x.replace(/^[-*•\d.、\s]+/,"").trim()).filter(Boolean);
-  const subject=source.match(/(?:v?\d+\.\d+(?:\.\d+)?|GPT[-\s\w.]+|Claude[-\s\w.]+|Kimi[-\s\w.]+|Gemini[-\s\w.]+)/i)?.[0]?.trim()||"";
-  const launch=source.match(/(?:20\d{2}[-/.年]\d{1,2}[-/.月]\d{1,2}日?(?:\s+\d{1,2}:\d{2})?|周[一二三四五六日天](?:\s*\d{1,2}:\d{2})?|\d{1,2}:\d{2})/i)?.[0]||"";
-  const access=source.match(/(?:Limited Preview|Early Access|EA|Limited-time Free Access|限时免费|灰度|逐步开放|正式上线)/i)?.[0]||"";
-  const featureLines=lines.filter(x=>/新增|支持|优化|改进|提升|introduc|support|improv|add|enable|better|faster/i.test(x)).slice(0,5);
-  const scenarioLines=lines.filter(x=>/适合|场景|用于|工作流|use case|workflow|builders|coding|automation/i.test(x)).slice(0,4);
-  const secretLines=lines.filter(x=>/不能公开|暂不公开|保密|confidential|embargo|hide|隐藏/i.test(x));
-  const assetBits=[/截图|screenshot/i.test(source)?"产品截图":"",/录屏|video|demo/i.test(source)?"演示视频":"",/logo|视觉素材/i.test(source)?"Logo / 视觉素材":""].filter(Boolean).join("、");
-  const brief:Brief={subject,launch,headline:featureLines[0]||lines[0]||"",features:featureLines.join("\n"),scenarios:scenarioLines.join("\n"),access,assets:assetBits,confidential:secretLines.join("\n"),missing:[]};
-  if(!brief.subject)brief.missing.push(kind==="新模型"?"模型与厂商名称":"版本号或主题名称");
-  if(!brief.launch)brief.missing.push("正式上线时间");
-  if(!brief.features)brief.missing.push("核心功能或能力");
-  if(!brief.scenarios)brief.missing.push("用户使用场景");
-  if(!brief.assets)brief.missing.push("截图、录屏或视觉素材");
-  if(!brief.confidential)brief.missing.push("不可公开信息确认");
-  return brief;
+function unique(values: string[]) {
+  return values.filter((value, index) => value && values.indexOf(value) === index);
 }
 
-function blankTask(source=""):Task{
-  const lower=source.toLowerCase();
-  const kind:Kind=/model|模型|gpt|claude|kimi|gemini/.test(lower)?"新模型":/changelog|version|版本|release|v\d/.test(lower)?"版本更新":"日常内容";
-  const match=source.match(/(?:v?\d+\.\d+(?:\.\d+)?|GPT[-\s\w.]+|Claude[-\s\w.]+|Kimi[-\s\w.]+)/i)?.[0]?.trim();
-  return {id:crypto.randomUUID(),title:match?`${match} ${kind==="新模型"?"上线":"发布"}`:"未命名任务",kind,status:"收件箱",date:"",source,notes:"",writerMode:kind==="日常内容"?"V-Tips":"Release Announcement",brief:recognizeBrief(source,kind),drafts:{x:"",discord:"",linkedin:"",reddit:""},poster:"",checks:Object.fromEntries(baseChecks.map(x=>[x,false])),snapshots:[],updatedAt:new Date().toISOString()};
+function detectSubjects(source: string) {
+  const patterns = [
+    /Gemini\s+\d+(?:\.\d+)*(?:\s+(?:Flash(?:-Lite)?|Pro|Ultra|Nano|Code|series))?/gi,
+    /GPT-?\s*\d+(?:\.\d+)*(?:\s+(?:Sol|Terra|Luna|series))?/gi,
+    /Kimi\s+K?\d+(?:\.\d+)*(?:\s+Code)?/gi,
+    /Claude\s+[A-Za-z]+\s+\d+(?:\.\d+)*/gi,
+    /v?\d+\.\d+(?:\.\d+)?/gi,
+  ];
+  return unique(patterns.flatMap((pattern) => source.match(pattern) || []).map((item) => item.trim())).slice(0, 12);
 }
 
-export default function Home(){
-  const [tasks,setTasks]=useState<Task[]>([]);
-  const [selectedId,setSelectedId]=useState<string|null>(null);
-  const [tab,setTab]=useState<"source"|"brief"|"drafts"|"poster"|"checklist"|"history">("source");
-  const [platform,setPlatform]=useState<DraftKey>("x");
-  const [query,setQuery]=useState("");
-  const [filter,setFilter]=useState<Status|"全部">("全部");
-  const [newOpen,setNewOpen]=useState(false);
-  const [newSource,setNewSource]=useState("");
-  const [toast,setToast]=useState("");
-  const importRef=useRef<HTMLInputElement>(null);
+function recognizeBrief(source: string, kind: Kind): Brief {
+  const lines = source.split(/\n+/).map((line) => line.replace(/^[-*•\d.、\s]+/, "").trim()).filter(Boolean);
+  const detectedSubjects = detectSubjects(source);
+  const modelSubjects = detectedSubjects.filter((item) => /Gemini|GPT|Kimi|Claude/i.test(item));
+  const subject = (kind === "新模型" ? modelSubjects.slice(0, 2) : detectedSubjects.slice(0, 1)).join(" & ");
+  const launch = source.match(/(?:20\d{2}[-/.年]\d{1,2}[-/.月]\d{1,2}日?(?:\s+\d{1,2}:\d{2})?|周[一二三四五六日天](?:\s*\d{1,2}:\d{2})?|\d{1,2}:\d{2})/i)?.[0] || "";
+  const vendor = /Google|Gemini/i.test(source) ? "Google" : /OpenAI|GPT/i.test(source) ? "OpenAI" : /Moonshot|Kimi/i.test(source) ? "Moonshot AI" : /Anthropic|Claude/i.test(source) ? "Anthropic" : "";
+  const access = source.match(/(?:Limited Preview|Early Access|EA|Limited-time Free Access|限时免费|灰度|逐步开放|正式上线)/i)?.[0] || "";
+  const featureLines = lines.filter((line) => /新增|支持|优化|改进|提升|introduc|support|improv|add|enable|better|faster|deliver|bring/i.test(line)).slice(0, 6);
+  const scenarioLines = lines.filter((line) => /适合|场景|用于|工作流|use case|workflow|coding|automation|analysis|agentic|multi-agent/i.test(line)).slice(0, 5);
+  const evidenceLines = lines.filter((line) => /\d+%|roughly|benchmark|compared|lower cost|fewer|performance|测试|对比|成本|token/i.test(line)).slice(0, 5);
+  const secretLines = lines.filter((line) => /不能公开|暂不公开|保密|confidential|embargo|hide|隐藏/i.test(line));
+  const assetBits = [
+    /截图|screenshot/i.test(source) ? "产品截图" : "",
+    /录屏|video|demo/i.test(source) ? "演示视频" : "",
+    /logo|视觉素材/i.test(source) ? "Logo / 视觉素材" : "",
+  ].filter(Boolean).join("、");
+  return {
+    subject,
+    vendor,
+    launch,
+    headline: featureLines[0] || lines[0] || "",
+    features: featureLines.join("\n"),
+    scenarios: scenarioLines.join("\n"),
+    access,
+    assets: assetBits,
+    confidential: secretLines.join("\n"),
+    evidence: evidenceLines.join("\n"),
+    partner: /联合\s*PR|joint\s*PR|co-marketing|partner/i.test(source) ? "存在联动线索，需确认具体安排" : "",
+    detectedSubjects,
+  };
+}
 
-  useEffect(()=>{const saved=localStorage.getItem("verdent-local-workspace");if(saved){try{const data=(JSON.parse(saved) as Task[]).map(t=>({...t,writerMode:t.writerMode||(t.kind==="日常内容"?"V-Tips":"Release Announcement"),brief:t.brief||recognizeBrief(t.source,t.kind)}));setTasks(data);setSelectedId(data[0]?.id||null)}catch{}}},[]);
-  useEffect(()=>{localStorage.setItem("verdent-local-workspace",JSON.stringify(tasks));},[tasks]);
-  const current=tasks.find(x=>x.id===selectedId)||null;
-  const visible=useMemo(()=>tasks.filter(t=>(filter==="全部"||t.status===filter)&&`${t.title}${t.source}`.toLowerCase().includes(query.toLowerCase())),[tasks,filter,query]);
-  const say=(text:string)=>{setToast(text);setTimeout(()=>setToast(""),2600)};
-  const update=(patch:Partial<Task>)=>{if(!current)return;setTasks(all=>all.map(t=>t.id===current.id?{...t,...patch,updatedAt:new Date().toISOString()}:t));};
-  const updateDraft=(key:DraftKey,value:string)=>{if(!current)return;update({drafts:{...current.drafts,[key]:value}})};
-  const updateBrief=(key:keyof Brief,value:string|string[])=>{if(!current)return;update({brief:{...current.brief,[key]:value}})};
+function getMissing(brief: Brief, kind: Kind) {
+  const missing: string[] = [];
+  if (!brief.subject) missing.push(kind === "新模型" ? "模型名称" : kind === "版本更新" ? "版本号" : "内容主题");
+  if (kind === "新模型" && !brief.vendor) missing.push("模型厂商");
+  if (!brief.launch) missing.push("正式上线时间");
+  if (!brief.features) missing.push("核心功能或能力");
+  if (!brief.scenarios) missing.push("用户使用场景");
+  if (!brief.access && kind !== "日常内容") missing.push("开放状态");
+  if (!brief.assets) missing.push("截图、录屏或视觉素材");
+  if (!brief.confidential) missing.push("不可公开信息确认");
+  if (kind === "新模型" && !brief.evidence) missing.push("能力与性能依据");
+  if (kind === "新模型" && !brief.partner) missing.push("厂商联合 PR 确认");
+  return missing;
+}
 
-  function createTask(){const task=blankTask(newSource.trim());setTasks(x=>[task,...x]);setSelectedId(task.id);setTab("source");setNewSource("");setNewOpen(false);say("任务已创建并自动保存");}
-  function remove(){if(!current)return;const rest=tasks.filter(t=>t.id!==current.id);setTasks(rest);setSelectedId(rest[0]?.id||null);say("任务已删除");}
-  function snapshot(){if(!current)return;const snap:Snapshot={at:new Date().toISOString(),drafts:{...current.drafts},poster:current.poster};update({snapshots:[snap,...current.snapshots]});say("已保存内容快照");}
-  function restore(s:Snapshot){update({drafts:{...s.drafts},poster:s.poster});say("已恢复该版本");}
-  function exportBackup(){const blob=new Blob([JSON.stringify(tasks,null,2)],{type:"application/json"});download(blob,`verdent-backup-${new Date().toISOString().slice(0,10)}.json`);}
-  function exportMarkdown(){if(!current)return;const md=`# ${current.title}\n\n- 类型：${current.kind}\n- 状态：${current.status}\n- 发布日期：${current.date||"待定"}\n\n## 原始资料\n\n${current.source}\n\n## X / Twitter\n\n${current.drafts.x}\n\n## Discord\n\n${current.drafts.discord}\n\n## LinkedIn\n\n${current.drafts.linkedin}\n\n## Reddit\n\n${current.drafts.reddit}\n\n## 海报 Brief\n\n${current.poster}\n\n## 备注\n\n${current.notes}`;download(new Blob([md],{type:"text/markdown"}),`${safeName(current.title)}.md`);}
-  function download(blob:Blob,name:string){const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);}
-  function safeName(v:string){return v.replace(/[\\/:*?"<>|]/g,"-")||"verdent-task"}
-  async function copyToCodex(){if(!current)return;const b=current.brief;const text=`请使用同事交接的 Verdent Writer Skill 处理此任务。\nSkill 文件：/Users/a1234/Downloads/verdent-x-writer/SKILL.md\n\n工作模式：${current.writerMode}\n任务：${current.title}\n类型：${current.kind}\n目标发布日期：${current.date||"待确认"}\n内部备注：${current.notes||"无"}\n\n【自动识别 Brief】\n主体：${b.subject||"待确认"}\n上线时间：${b.launch||"待确认"}\n核心传播点：${b.headline||"待确认"}\n功能/能力：\n${b.features||"待确认"}\n使用场景：\n${b.scenarios||"待确认"}\n开放状态：${b.access||"待确认"}\n素材：${b.assets||"待确认"}\n不可公开信息：${b.confidential||"待确认"}\n缺失信息：${b.missing.join("、")||"无"}\n\n【原始资料】\n${current.source||"暂无"}\n\n执行要求：\n1. 先指出事实缺口、公开风险和必须确认的问题。信息不足时不要编造。\n2. 对外文案全部使用英文。\n3. 按 Skill 的平台规范生成 X、Discord、LinkedIn、Reddit 文案。\n4. 同时生成海报 Brief。\n5. 执行 Skill 的自检，尤其检查夸大表述、隐私数据暗示、破折号和禁用营销词。\n6. 发布 CTA 链接到 https://www.verdent.ai/，但不要在每个平台机械重复。`;await navigator.clipboard.writeText(text);say("Writer Skill 指令已复制");}
-  function importFile(file:File){const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(String(reader.result));if(!Array.isArray(data))throw new Error();setTasks(data);setSelectedId(data[0]?.id||null);say("备份已恢复")}catch{say("无法读取该备份文件")}};reader.readAsText(file)}
+function emptyPublishing(): Record<Channel, PublishItem> {
+  return Object.fromEntries(channels.map((channel) => [channel, { enabled: true, scheduledAt: "", published: false, url: "" }])) as Record<Channel, PublishItem>;
+}
+function emptyMetrics(): Record<Channel, Metric> {
+  return Object.fromEntries(channels.map((channel) => [channel, { impressions: "", engagements: "", notes: "" }])) as Record<Channel, Metric>;
+}
+function emptyChecks() {
+  return Object.fromEntries(Object.keys(checkLabels).map((key) => [key, false]));
+}
 
-  return <main className="app">
-    <aside className="rail">
-      <header><span>V</span><div><b>Verdent</b><small>Social Workspace</small></div><a href="https://www.verdent.ai/" target="_blank" rel="noreferrer">官网 ↗</a></header>
-      <button className="new-btn" onClick={()=>setNewOpen(true)}>＋ 新建内容任务</button>
-      <label className="search">⌕<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索任务"/></label>
-      <div className="filters">{(["全部",...statusList] as const).map(s=><button key={s} className={filter===s?"on":""} onClick={()=>setFilter(s)}><span>{s}</span><em>{s==="全部"?tasks.length:tasks.filter(t=>t.status===s).length}</em></button>)}</div>
-      <div className="task-list">{visible.map(t=><button key={t.id} onClick={()=>setSelectedId(t.id)} className={selectedId===t.id?"active":""}><div><span className={`type ${t.kind}`}>{t.kind}</span><time>{t.date?`${t.date.slice(5)}`:"未排期"}</time></div><b>{t.title}</b><p>{t.source||"尚未添加原始资料"}</p><small>{t.status} · {new Date(t.updatedAt).toLocaleDateString("zh-CN")}</small></button>)}{!visible.length&&<div className="no-tasks">没有匹配的任务</div>}</div>
-      <footer><button onClick={exportBackup}>导出备份</button><button onClick={()=>importRef.current?.click()}>恢复备份</button><input ref={importRef} hidden type="file" accept="application/json" onChange={e=>e.target.files?.[0]&&importFile(e.target.files[0])}/><small>数据仅保存在当前浏览器</small></footer>
+function inferKind(source: string): Kind {
+  const lower = source.toLowerCase();
+  if (/model|模型|gpt|claude|kimi|gemini/.test(lower)) return "新模型";
+  if (/changelog|version|版本|release|v\d/.test(lower)) return "版本更新";
+  return "日常内容";
+}
+
+function newTask(source = "", chosenKind?: Kind): Task {
+  const kind = chosenKind || inferKind(source);
+  const brief = recognizeBrief(source, kind);
+  return {
+    id: crypto.randomUUID(),
+    title: brief.subject ? `${brief.subject} ${kind === "日常内容" ? "内容" : "上线"}` : "未命名内容任务",
+    kind,
+    priority: kind === "日常内容" ? "P2" : "P1",
+    stage: 0,
+    date: "",
+    time: kind === "日常内容" ? "" : "22:00",
+    source,
+    notes: "",
+    writerMode: kind === "日常内容" ? "V-Tips" : "Release Announcement",
+    brief,
+    drafts: { x: "", discord: "", linkedin: "", reddit: "" },
+    poster: "",
+    video: "",
+    checks: emptyChecks(),
+    publishing: emptyPublishing(),
+    metrics: emptyMetrics(),
+    retrospective: "",
+    snapshots: [],
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function migrateTask(raw: Partial<Task> & { status?: string }): Task {
+  const source = raw.source || "";
+  const kind = raw.kind || inferKind(source);
+  const base = newTask(source, kind);
+  const oldStatusStage: Record<string, number> = { 收件箱: 0, 待补充: 1, 撰写中: 2, 待审核: 3, 已排期: 4, 已发布: 5 };
+  return {
+    ...base,
+    ...raw,
+    kind,
+    stage: typeof raw.stage === "number" ? raw.stage : oldStatusStage[raw.status || ""] || 0,
+    brief: { ...base.brief, ...(raw.brief || {}), detectedSubjects: raw.brief?.detectedSubjects || detectSubjects(source) },
+    drafts: { ...base.drafts, ...(raw.drafts || {}) },
+    checks: Object.fromEntries(Object.keys(checkLabels).map((key) => [key, raw.checks?.[key] || false])),
+    publishing: Object.fromEntries(channels.map((channel) => [channel, { ...base.publishing[channel], ...(raw.publishing?.[channel] || {}) }])) as Record<Channel, PublishItem>,
+    metrics: Object.fromEntries(channels.map((channel) => [channel, { ...base.metrics[channel], ...(raw.metrics?.[channel] || {}) }])) as Record<Channel, Metric>,
+    snapshots: raw.snapshots || [],
+    updatedAt: raw.updatedAt || new Date().toISOString(),
+  } as Task;
+}
+
+function subjectFamilies(subjects: string[]) {
+  return unique(subjects.map((subject) => subject.match(/Gemini|GPT|Kimi|Claude/i)?.[0] || "").filter(Boolean));
+}
+
+function qualityScan(task: Task) {
+  const issues: { level: "高" | "中" | "低"; text: string }[] = [];
+  const enabled = channels.filter((channel) => task.publishing[channel].enabled);
+  enabled.forEach((channel) => {
+    const copy = task.drafts[channel];
+    if (!copy.trim()) issues.push({ level: "高", text: `${channelNames[channel]} 文案尚未完成` });
+    if (copy.includes("—")) issues.push({ level: "中", text: `${channelNames[channel]} 含有禁用的英文长破折号` });
+    const found = bannedTerms.find((term) => copy.toLowerCase().includes(term));
+    if (found) issues.push({ level: "中", text: `${channelNames[channel]} 含禁用营销词 “${found}”` });
+    if (privacyPatterns.some((pattern) => pattern.test(copy))) issues.push({ level: "高", text: `${channelNames[channel]} 暗示分析或追踪用户数据，必须重写` });
+  });
+  if (task.publishing.x.enabled && task.drafts.x.length > 280 && !task.drafts.x.startsWith("V-Updates")) issues.push({ level: "低", text: `X 文案为 ${task.drafts.x.length} 字符，请确认使用长文格式` });
+  if (task.publishing.reddit.enabled && task.drafts.reddit && (!/Reddit Title:/i.test(task.drafts.reddit) || !/Reddit Body:/i.test(task.drafts.reddit))) issues.push({ level: "中", text: "Reddit 文案缺少独立的 Title 或 Body" });
+  if (subjectFamilies(task.brief.detectedSubjects).length > 1) issues.push({ level: "高", text: "原始资料包含多个模型家族，需确认合并发布还是拆分任务" });
+  return issues;
+}
+
+function stageRequirements(task: Task, stage: number) {
+  const missing = getMissing(task.brief, task.kind);
+  const enabled = channels.filter((channel) => task.publishing[channel].enabled);
+  if (stage === 0) return task.source.trim().length >= 20 ? [] : ["粘贴完整的 Changelog、模型通知或内容资料"];
+  if (stage === 1) return [...missing, ...checkGroups.facts.filter((key) => !task.checks[key]).map((key) => checkLabels[key])];
+  if (stage === 2) {
+    const draftNeeds = enabled.filter((channel) => !task.drafts[channel].trim()).map((channel) => `完成 ${channelNames[channel]} 文案`);
+    const assetNeeds = task.poster.trim() ? [] : [task.kind === "日常内容" ? "完成视觉素材 Brief" : "完成海报 Brief"];
+    return [...draftNeeds, ...assetNeeds, ...checkGroups.production.filter((key) => !task.checks[key]).map((key) => checkLabels[key])];
+  }
+  if (stage === 3) return [...qualityScan(task).filter((issue) => issue.level !== "低").map((issue) => issue.text), ...checkGroups.review.filter((key) => !task.checks[key]).map((key) => checkLabels[key])];
+  if (stage === 4) {
+    const scheduleNeeds = enabled.filter((channel) => !task.publishing[channel].scheduledAt).map((channel) => `${channelNames[channel]} 尚未排期`);
+    const publishNeeds = enabled.filter((channel) => !task.publishing[channel].published).map((channel) => `${channelNames[channel]} 尚未标记已发布`);
+    return [...scheduleNeeds, ...publishNeeds, ...checkGroups.publish.filter((key) => !task.checks[key]).map((key) => checkLabels[key])];
+  }
+  return [];
+}
+
+function download(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+function safeName(value: string) {
+  return value.replace(/[\\/:*?"<>|]/g, "-") || "verdent-task";
+}
+
+export default function Home() {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [activeStage, setActiveStage] = useState(0);
+  const [platform, setPlatform] = useState<Channel>("x");
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"全部" | "进行中" | "有阻塞" | "待发布" | "已发布">("全部");
+  const [newOpen, setNewOpen] = useState(false);
+  const [newSource, setNewSource] = useState("");
+  const [newKind, setNewKind] = useState<Kind | "自动识别">("自动识别");
+  const [toast, setToast] = useState("");
+  const importRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("verdent-local-workspace");
+    if (saved) {
+      try {
+        const data = (JSON.parse(saved) as Task[]).map(migrateTask);
+        setTasks(data);
+      } catch { /* keep an empty workspace if an old backup is invalid */ }
+    }
+    setLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (loaded) localStorage.setItem("verdent-local-workspace", JSON.stringify(tasks));
+  }, [tasks, loaded]);
+
+  const current = tasks.find((task) => task.id === selectedId) || null;
+  const currentNeeds = current ? stageRequirements(current, current.stage) : [];
+  const issues = current ? qualityScan(current) : [];
+  const filteredTasks = useMemo(() => tasks.filter((task) => {
+    const matchesQuery = `${task.title}${task.source}${task.brief.subject}`.toLowerCase().includes(query.toLowerCase());
+    const blockers = stageRequirements(task, task.stage).length;
+    const matchesFilter = filter === "全部" || (filter === "进行中" && task.stage < 4) || (filter === "有阻塞" && blockers > 0) || (filter === "待发布" && task.stage === 4) || (filter === "已发布" && task.stage === 5);
+    return matchesQuery && matchesFilter;
+  }), [tasks, query, filter]);
+
+  const say = (message: string) => {
+    setToast(message);
+    window.setTimeout(() => setToast(""), 2600);
+  };
+  const update = (patch: Partial<Task>) => {
+    if (!current) return;
+    setTasks((all) => all.map((task) => task.id === current.id ? { ...task, ...patch, updatedAt: new Date().toISOString() } : task));
+  };
+  const updateBrief = (key: keyof Brief, value: string | string[]) => {
+    if (!current) return;
+    update({ brief: { ...current.brief, [key]: value } });
+  };
+  const updateCheck = (key: string, value: boolean) => {
+    if (!current) return;
+    update({ checks: { ...current.checks, [key]: value } });
+  };
+
+  function selectTask(task: Task) {
+    setSelectedId(task.id);
+    setActiveStage(task.stage);
+  }
+  function createTask() {
+    const task = newTask(newSource.trim(), newKind === "自动识别" ? undefined : newKind);
+    setTasks((all) => [task, ...all]);
+    setSelectedId(task.id);
+    setActiveStage(0);
+    setNewSource("");
+    setNewKind("自动识别");
+    setNewOpen(false);
+    say("任务已建立，原始资料已自动保留");
+  }
+  function reRecognize(move = false) {
+    if (!current) return;
+    update({ brief: recognizeBrief(current.source, current.kind) });
+    if (move) setActiveStage(1);
+    say("Brief 已重新识别，请人工核对");
+  }
+  function advance() {
+    if (!current) return;
+    const needs = stageRequirements(current, current.stage);
+    if (needs.length) {
+      setActiveStage(current.stage);
+      say(`还差 ${needs.length} 项，暂不能进入下一阶段`);
+      return;
+    }
+    const next = Math.min(current.stage + 1, 5);
+    update({ stage: next });
+    setActiveStage(next);
+    say(`已进入「${stages[next].name}」阶段`);
+  }
+  function removeTask() {
+    if (!current) return;
+    const rest = tasks.filter((task) => task.id !== current.id);
+    setTasks(rest);
+    setSelectedId(null);
+    say("任务已删除");
+  }
+  function saveSnapshot() {
+    if (!current) return;
+    const snapshot: Snapshot = { at: new Date().toISOString(), drafts: { ...current.drafts }, poster: current.poster };
+    update({ snapshots: [snapshot, ...current.snapshots] });
+    say("内容快照已保存");
+  }
+  function restoreSnapshot(snapshot: Snapshot) {
+    update({ drafts: { ...snapshot.drafts }, poster: snapshot.poster });
+    say("已恢复该版本的文案与海报 Brief");
+  }
+  function exportBackup() {
+    download(new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" }), `verdent-growth-os-${new Date().toISOString().slice(0, 10)}.json`);
+  }
+  function exportMarkdown() {
+    if (!current) return;
+    const publishLines = channels.filter((channel) => current.publishing[channel].enabled).map((channel) => `- ${channelNames[channel]}: ${current.publishing[channel].url || "待发布"}`).join("\n");
+    const md = `# ${current.title}\n\n- 类型：${current.kind}\n- 当前阶段：${stages[current.stage].name}\n- 目标发布日期：${current.date || "待确认"} ${current.time}\n\n## 原始资料\n\n${current.source}\n\n## Brief\n\n- 主体：${current.brief.subject}\n- 厂商：${current.brief.vendor}\n- 上线时间：${current.brief.launch}\n- 开放状态：${current.brief.access}\n- 核心传播点：${current.brief.headline}\n\n### 功能 / 能力\n${current.brief.features}\n\n### 使用场景\n${current.brief.scenarios}\n\n## 平台文案\n\n### X / Twitter\n${current.drafts.x}\n\n### Discord\n${current.drafts.discord}\n\n### LinkedIn\n${current.drafts.linkedin}\n\n### Reddit\n${current.drafts.reddit}\n\n## 海报 / 视觉 Brief\n${current.poster}\n\n## 发布链接\n${publishLines}\n\n## 复盘\n${current.retrospective}`;
+    download(new Blob([md], { type: "text/markdown" }), `${safeName(current.title)}.md`);
+  }
+  async function copyWriterPrompt() {
+    if (!current) return;
+    const brief = current.brief;
+    const missing = getMissing(brief, current.kind);
+    const text = `请使用同事交接的 Verdent Writer Skill 处理此任务。\nSkill 文件：/Users/a1234/Downloads/verdent-x-writer/SKILL.md\n\n工作模式：${current.writerMode}\n任务：${current.title}\n类型：${current.kind}\n目标发布日期：${current.date || "待确认"} ${current.time || ""}\n内部备注：${current.notes || "无"}\n\n【已核对 Brief】\n主体：${brief.subject || "待确认"}\n模型厂商：${brief.vendor || "待确认"}\n上线时间：${brief.launch || "待确认"}\n核心传播点：${brief.headline || "待确认"}\n功能/能力：\n${brief.features || "待确认"}\n使用场景：\n${brief.scenarios || "待确认"}\n开放状态：${brief.access || "待确认"}\n事实依据：\n${brief.evidence || "待确认"}\n素材：${brief.assets || "待确认"}\n厂商联动：${brief.partner || "待确认"}\n不可公开信息：${brief.confidential || "待确认"}\n缺失信息：${missing.join("、") || "无"}\n\n【原始资料】\n${current.source || "暂无"}\n\n执行要求：\n1. 先指出事实缺口、公开风险和必须确认的问题。信息不足时不要编造。\n2. 对外文案全部使用英文。\n3. 按 Skill 的平台规范生成 X、Discord、LinkedIn、Reddit 文案。\n4. 同时生成海报 Brief。\n5. 执行 Skill 自检，尤其检查夸大表述、隐私数据暗示、英文长破折号和禁用营销词。\n6. 发布 CTA 可链接到 https://www.verdent.ai/，但不要在每个平台机械重复。`;
+    await navigator.clipboard.writeText(text);
+    say("已复制 Writer Skill 任务，可直接粘贴到 Codex");
+  }
+  function importFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const raw = JSON.parse(String(reader.result));
+        if (!Array.isArray(raw)) throw new Error();
+        const data = raw.map(migrateTask);
+        setTasks(data);
+        setSelectedId(null);
+        say("备份已恢复");
+      } catch { say("无法读取该备份文件"); }
+    };
+    reader.readAsText(file);
+  }
+
+  const dashboard = <section className="dashboard">
+    <div className="dashboard-head"><div><span className="eyebrow">VERDENT GROWTH OPERATIONS</span><h1>今天该推进什么</h1><p>以事实确认和发布门禁为核心的单人社媒工作台。</p></div><button className="button primary" onClick={() => setNewOpen(true)}>＋ 新建内容任务</button></div>
+    <div className="stat-grid">
+      <article><span>进行中</span><strong>{tasks.filter((task) => task.stage < 4).length}</strong><small>正在核实或制作</small></article>
+      <article><span>有阻塞</span><strong>{tasks.filter((task) => stageRequirements(task, task.stage).length > 0 && task.stage < 5).length}</strong><small>需要补信息或确认</small></article>
+      <article><span>待发布</span><strong>{tasks.filter((task) => task.stage === 4).length}</strong><small>等待排期或上线</small></article>
+      <article><span>已发布</span><strong>{tasks.filter((task) => task.stage === 5).length}</strong><small>进入表现复盘</small></article>
+    </div>
+    <div className="dashboard-grid">
+      <section className="panel queue-panel"><header><div><h2>优先工作队列</h2><p>优先级、发布日期和当前阻塞共同排序。</p></div><span>{tasks.length} 个任务</span></header>
+        <div className="queue-list">{[...tasks].sort((a, b) => a.priority.localeCompare(b.priority) || (a.date || "9999").localeCompare(b.date || "9999")).slice(0, 8).map((task) => {
+          const needs = stageRequirements(task, task.stage);
+          return <button key={task.id} onClick={() => selectTask(task)}><span className={`priority ${task.priority}`}>{task.priority}</span><div><b>{task.title}</b><small>{task.kind} · {stages[task.stage].name}</small></div><time>{task.date || "未排期"}</time><em className={needs.length ? "blocked" : "ready"}>{needs.length ? `${needs.length} 项阻塞` : "可推进"}</em></button>;
+        })}{!tasks.length && <div className="empty"><b>还没有任务</b><p>把 PM 的 Changelog 或模型通知完整粘贴进来即可开始。</p></div>}</div>
+      </section>
+      <section className="panel rules-panel"><header><div><h2>稳定工作节奏</h2><p>版本更新默认周二 22:00 发布。</p></div></header>
+        <ol><li><b>周五封板</b><span>获取 Changelog，确认版本范围和演示素材。</span></li><li><b>周五至周一</b><span>核实事实、生成多平台文案、提交设计与视频。</span></li><li><b>周二上线前</b><span>PM 最终确认产品已上线，再执行发布。</span></li><li><b>发布后 24–72h</b><span>记录链接和表现，把有效表达沉淀为经验。</span></li></ol>
+      </section>
+    </div>
+  </section>;
+
+  return <main className="app-shell">
+    <aside className="sidebar">
+      <header className="brand"><span>V</span><div><b>Verdent</b><small>Growth OS · Local</small></div><a href="https://www.verdent.ai/" target="_blank" rel="noreferrer">官网 ↗</a></header>
+      <button className="button primary create" onClick={() => setNewOpen(true)}>＋ 新建任务</button>
+      <button className={`home-link ${selectedId === null ? "active" : ""}`} onClick={() => setSelectedId(null)}><span>⌂ 工作台</span><em>{tasks.length}</em></button>
+      <label className="search"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索任务或原始资料" /></label>
+      <div className="filter-row">{(["全部", "进行中", "有阻塞", "待发布", "已发布"] as const).map((item) => <button key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{item}</button>)}</div>
+      <div className="side-tasks">{filteredTasks.map((task) => {
+        const needs = stageRequirements(task, task.stage);
+        return <button key={task.id} className={selectedId === task.id ? "active" : ""} onClick={() => selectTask(task)}><div><span className={`kind ${task.kind}`}>{task.kind}</span><span className={`priority ${task.priority}`}>{task.priority}</span></div><b>{task.title}</b><p>{stages[task.stage].name} · {needs.length ? `${needs.length} 项待处理` : "可进入下一步"}</p><div className="mini-progress"><i style={{ width: `${(task.stage / 5) * 100}%` }} /></div></button>;
+      })}{!filteredTasks.length && <div className="side-empty">没有匹配的任务</div>}</div>
+      <footer className="sidebar-footer"><div><button onClick={exportBackup}>导出备份</button><button onClick={() => importRef.current?.click()}>恢复备份</button></div><input ref={importRef} hidden type="file" accept="application/json" onChange={(event) => event.target.files?.[0] && importFile(event.target.files[0])} /><small>自动保存于当前浏览器 · 建议每周导出一次</small></footer>
     </aside>
 
-    <section className="workspace">{current?<>
-      <header className="task-header"><div><div className="crumb">内容工作区 / {current.kind}</div><input className="title-input" value={current.title} onChange={e=>update({title:e.target.value})}/></div><div className="header-actions"><span className="saved">✓ 已自动保存</span><button onClick={snapshot}>保存快照</button><button onClick={exportMarkdown}>导出 Markdown</button><button className="primary" onClick={copyToCodex}>生成 Writer Skill 指令</button></div></header>
-      <section className="metadata"><label>内容类型<select value={current.kind} onChange={e=>update({kind:e.target.value as Kind})}><option>版本更新</option><option>新模型</option><option>日常内容</option></select></label><label>Writer 模式<select value={current.writerMode} onChange={e=>update({writerMode:e.target.value as WriterMode})}><option>Release Announcement</option><option>V-Thoughts</option><option>V-Tips</option><option>V-Playground</option></select></label><label>当前状态<select value={current.status} onChange={e=>update({status:e.target.value as Status})}>{statusList.map(s=><option key={s}>{s}</option>)}</select></label><label>目标发布日期<input type="date" value={current.date} onChange={e=>update({date:e.target.value})}/></label><label>内部备注<input value={current.notes} onChange={e=>update({notes:e.target.value})} placeholder="审核人、风险或待确认事项"/></label></section>
-      <nav className="tabs"><button className={tab==="source"?"active":""} onClick={()=>setTab("source")}>1 原始资料</button><button className={tab==="brief"?"active":""} onClick={()=>setTab("brief")}>2 自动 Brief <em>{current.brief.missing.length} 待确认</em></button><button className={tab==="drafts"?"active":""} onClick={()=>setTab("drafts")}>3 平台文案 <em>{Object.values(current.drafts).filter(Boolean).length}/4</em></button><button className={tab==="poster"?"active":""} onClick={()=>setTab("poster")}>4 海报 Brief</button><button className={tab==="checklist"?"active":""} onClick={()=>setTab("checklist")}>5 发布检查 <em>{Object.values(current.checks).filter(Boolean).length}/{baseChecks.length}</em></button><button className={tab==="history"?"active":""} onClick={()=>setTab("history")}>历史 <em>{current.snapshots.length}</em></button></nav>
-      <div className="editor-area">
-        {tab==="source"&&<section className="editor-card"><div className="section-title"><div><h2>原始资料</h2><p>粘贴 PM 提供的 Changelog、模型通知或其他背景信息。内容会自动保存。</p></div><div className="section-actions"><span>{current.source.length} 字</span><button onClick={()=>{update({brief:recognizeBrief(current.source,current.kind)});setTab("brief");say("Brief 已重新识别")}}>重新识别 Brief ↗</button></div></div><textarea className="main-editor" value={current.source} onChange={e=>update({source:e.target.value})} placeholder="把收到的原始信息完整粘贴到这里…"/><div className="source-help"><b>创建任务时会自动识别</b><span>版本或模型名称</span><span>核心功能与使用场景</span><span>正式上线时间</span><span>可公开边界</span><span>截图或演示视频</span></div></section>}
-        {tab==="brief"&&<section className="editor-card"><div className="section-title"><div><h2>自动识别 Brief</h2><p>系统从原始资料中提取；请人工核对后再生成文案。</p></div><button onClick={()=>{update({brief:recognizeBrief(current.source,current.kind)});say("Brief 已重新识别")}}>重新识别</button></div>{current.brief.missing.length>0&&<div className="missing"><b>需要补充</b>{current.brief.missing.map(x=><span key={x}>{x}</span>)}</div>}<div className="brief-grid"><label>版本 / 模型 / 主题<input value={current.brief.subject} onChange={e=>updateBrief("subject",e.target.value)}/></label><label>正式上线时间<input value={current.brief.launch} onChange={e=>updateBrief("launch",e.target.value)}/></label><label className="wide">核心传播点<input value={current.brief.headline} onChange={e=>updateBrief("headline",e.target.value)}/></label><label className="wide">核心功能或能力<textarea value={current.brief.features} onChange={e=>updateBrief("features",e.target.value)}/></label><label className="wide">用户使用场景<textarea value={current.brief.scenarios} onChange={e=>updateBrief("scenarios",e.target.value)}/></label><label>开放状态<input value={current.brief.access} onChange={e=>updateBrief("access",e.target.value)}/></label><label>截图 / 视频 / Logo<input value={current.brief.assets} onChange={e=>updateBrief("assets",e.target.value)}/></label><label className="wide">不可公开或需要隐藏的信息<textarea value={current.brief.confidential} onChange={e=>updateBrief("confidential",e.target.value)}/></label></div><div className="brief-next"><span>核对完成后，生成 Writer Skill 指令并粘贴到 Codex。</span><button className="primary" onClick={copyToCodex}>生成 Writer Skill 指令</button></div></section>}
-        {tab==="drafts"&&<section className="editor-card"><div className="platform-tabs">{(Object.keys(platformNames) as DraftKey[]).map(k=><button className={platform===k?"active":""} onClick={()=>setPlatform(k)} key={k}>{platformNames[k]}{current.drafts[k]&&<span>✓</span>}</button>)}</div><div className="section-title"><div><h2>{platformNames[platform]} 文案</h2><p>{platform==="x"?"简洁突出最值得关注的变化与用户价值。":platform==="discord"?"直接、亲切，说明用户现在能做什么。":platform==="linkedin"?"解释业务价值、场景和工作流变化。":"保持克制，说明具体更新、用法和改进背景。"}</p></div><button onClick={()=>navigator.clipboard.writeText(current.drafts[platform]).then(()=>say("文案已复制"))}>复制文案</button></div><textarea className="main-editor draft" value={current.drafts[platform]} onChange={e=>updateDraft(platform,e.target.value)} placeholder={`在这里粘贴或编辑 ${platformNames[platform]} 文案…`}/><div className="counter">{current.drafts[platform].length} 字符{platform==="x"&&` · ${current.drafts.x.length<=280?"符合 280 字符限制":"超过限制"}`}</div></section>}
-        {tab==="poster"&&<section className="editor-card"><div className="section-title"><div><h2>海报 Brief</h2><p>整理给设计同学的最终信息，不放完整 Changelog。</p></div></div><textarea className="main-editor" value={current.poster} onChange={e=>update({poster:e.target.value})} placeholder={`版本号 / 模型名称：\n海报主标题：\n简短小字：\n重点功能：\n所需截图或素材：\n需要标注的开放状态：\n需要隐藏的信息：`}/></section>}
-        {tab==="checklist"&&<section className="editor-card"><div className="section-title"><div><h2>发布前检查</h2><p>全部完成后再把任务状态改为“已排期”。</p></div><strong>{Math.round(Object.values(current.checks).filter(Boolean).length/baseChecks.length*100)}%</strong></div><div className="check-list">{baseChecks.map(item=><label key={item} className={current.checks[item]?"done":""}><input type="checkbox" checked={current.checks[item]||false} onChange={e=>update({checks:{...current.checks,[item]:e.target.checked}})}/><span>{item}</span></label>)}</div></section>}
-        {tab==="history"&&<section className="editor-card"><div className="section-title"><div><h2>历史快照</h2><p>在大幅修改前保存快照，需要时可以恢复平台文案和海报 brief。</p></div><button onClick={snapshot}>＋ 保存当前快照</button></div><div className="history-list">{current.snapshots.map((s,i)=><div key={s.at}><span><b>版本 {current.snapshots.length-i}</b><small>{new Date(s.at).toLocaleString("zh-CN")}</small></span><em>{Object.values(s.drafts).filter(Boolean).length} 个平台文案</em><button onClick={()=>restore(s)}>恢复</button></div>)}{!current.snapshots.length&&<div className="empty-state">还没有历史快照</div>}</div></section>}
-      </div>
-      <footer className="danger-zone"><button onClick={remove}>删除此任务</button><span>最后更新：{new Date(current.updatedAt).toLocaleString("zh-CN")}</span></footer>
-    </>:<div className="welcome-empty"><span>V</span><h1>Verdent Social Workspace</h1><p>创建第一项任务，开始整理产品更新、模型上线或日常内容。</p><button className="primary" onClick={()=>setNewOpen(true)}>＋ 创建第一项任务</button></div>}</section>
+    <section className="main-area">{!current ? dashboard : <>
+      <header className="task-topbar"><div><div className="crumb"><button onClick={() => setSelectedId(null)}>工作台</button><span>/</span><span>{current.kind}</span></div><input className="task-title" value={current.title} onChange={(event) => update({ title: event.target.value })} /></div><div className="top-actions"><span className="autosaved">✓ 已自动保存</span><button className="button" onClick={saveSnapshot}>保存快照</button><button className="button" onClick={exportMarkdown}>导出</button><button className="button primary" onClick={copyWriterPrompt}>复制给 Codex 生成</button></div></header>
+      <section className="task-meta">
+        <label>类型<select value={current.kind} onChange={(event) => { const kind = event.target.value as Kind; update({ kind, writerMode: kind === "日常内容" ? "V-Tips" : "Release Announcement", brief: recognizeBrief(current.source, kind) }); }}><option>版本更新</option><option>新模型</option><option>日常内容</option></select></label>
+        <label>优先级<select value={current.priority} onChange={(event) => update({ priority: event.target.value as Priority })}><option>P0</option><option>P1</option><option>P2</option></select></label>
+        <label>Writer 模式<select value={current.writerMode} onChange={(event) => update({ writerMode: event.target.value as WriterMode })}><option>Release Announcement</option><option>V-Thoughts</option><option>V-Tips</option><option>V-Playground</option></select></label>
+        <label>目标发布日期<input type="date" value={current.date} onChange={(event) => update({ date: event.target.value })} /></label>
+        <label>时间<input type="time" value={current.time} onChange={(event) => update({ time: event.target.value })} /></label>
+        <label className="wide-note">内部备注<input value={current.notes} onChange={(event) => update({ notes: event.target.value })} placeholder="审核人、风险、临时信息" /></label>
+      </section>
+      <nav className="pipeline">{stages.map((stage, index) => <button key={stage.name} className={`${activeStage === index ? "active" : ""} ${index < current.stage ? "done" : ""} ${index === current.stage ? "current" : ""}`} onClick={() => setActiveStage(index)}><i>{index < current.stage ? "✓" : index + 1}</i><span><b>{stage.name}</b><small>{stage.caption}</small></span></button>)}</nav>
 
-    {newOpen&&<div className="overlay" onClick={()=>setNewOpen(false)}><section className="modal" onClick={e=>e.stopPropagation()}><header><div><small>NEW CONTENT TASK</small><h2>粘贴你收到的原始资料</h2></div><button onClick={()=>setNewOpen(false)}>×</button></header><p>不用提前整理。系统会根据内容预判任务类型并保留完整原文。</p><textarea autoFocus value={newSource} onChange={e=>setNewSource(e.target.value)} placeholder="Changelog、模型上线通知或日常内容想法…"/><footer><button onClick={()=>setNewOpen(false)}>取消</button><button className="primary" onClick={createTask}>创建任务</button></footer></section></div>}
-    {toast&&<div className="toast">✓ {toast}</div>}
-  </main>
+      <div className="work-layout"><section className="stage-card">
+        {activeStage === 0 && <>
+          <header className="stage-heading"><div><span className="step-label">STEP 01 · INTAKE</span><h2>保留完整原始资料</h2><p>不要先改写。完整粘贴 PM Changelog、模型群通知或内容灵感，系统再做结构化识别。</p></div><button className="button primary" onClick={() => reRecognize(true)}>识别 Brief →</button></header>
+          <textarea className="large-editor" value={current.source} onChange={(event) => update({ source: event.target.value })} placeholder="把收到的原始资料完整粘贴到这里……" />
+          <div className="hint-bar"><b>自动识别范围</b><span>主体与厂商</span><span>上线时间</span><span>功能与场景</span><span>性能依据</span><span>素材与公开边界</span></div>
+        </>}
+
+        {activeStage === 1 && <>
+          <header className="stage-heading"><div><span className="step-label">STEP 02 · FACT LOCK</span><h2>先锁定事实，再开始写</h2><p>空白字段代表尚未确认。填写“无”也比默认猜测更安全。</p></div><button className="button" onClick={() => reRecognize()}>重新识别</button></header>
+          {subjectFamilies(current.brief.detectedSubjects).length > 1 && <div className="alert danger"><b>检测到多个传播主体</b><p>原始资料同时出现 {subjectFamilies(current.brief.detectedSubjects).join("、")}。请确认这是一次联合发布，还是应该拆成独立任务，避免 Brief 串线。</p></div>}
+          {getMissing(current.brief, current.kind).length > 0 && <div className="missing-box"><b>{getMissing(current.brief, current.kind).length} 项事实待补充</b><div>{getMissing(current.brief, current.kind).map((item) => <span key={item}>{item}</span>)}</div></div>}
+          <div className="brief-form">
+            <label>版本 / 模型 / 主题<input value={current.brief.subject} onChange={(event) => updateBrief("subject", event.target.value)} /></label>
+            <label>模型厂商<input value={current.brief.vendor} onChange={(event) => updateBrief("vendor", event.target.value)} disabled={current.kind !== "新模型"} placeholder={current.kind === "新模型" ? "Google / OpenAI / …" : "此类型不需要"} /></label>
+            <label>正式上线时间<input value={current.brief.launch} onChange={(event) => updateBrief("launch", event.target.value)} placeholder="需 PM 最终确认" /></label>
+            <label>开放状态<input value={current.brief.access} onChange={(event) => updateBrief("access", event.target.value)} placeholder="GA / EA / Limited Preview / …" /></label>
+            <label className="wide">核心传播点<input value={current.brief.headline} onChange={(event) => updateBrief("headline", event.target.value)} /></label>
+            <label className="wide">功能 / 能力<textarea value={current.brief.features} onChange={(event) => updateBrief("features", event.target.value)} /></label>
+            <label className="wide">用户使用场景<textarea value={current.brief.scenarios} onChange={(event) => updateBrief("scenarios", event.target.value)} /></label>
+            <label className="wide">事实与性能依据<textarea value={current.brief.evidence} onChange={(event) => updateBrief("evidence", event.target.value)} placeholder="官方资料、内部测试或算法同学已确认的结论" /></label>
+            <label>截图 / 视频 / Logo<input value={current.brief.assets} onChange={(event) => updateBrief("assets", event.target.value)} /></label>
+            <label>厂商联合 PR<input value={current.brief.partner} onChange={(event) => updateBrief("partner", event.target.value)} placeholder="无 / 待确认 / 具体安排" /></label>
+            <label className="wide">不可公开信息 / 需要隐藏区域<textarea value={current.brief.confidential} onChange={(event) => updateBrief("confidential", event.target.value)} placeholder="如确认没有，请明确填写“无，已与 PM 确认”" /></label>
+          </div>
+          <CheckGroup title="事实确认门禁" keys={checkGroups.facts} task={current} onChange={updateCheck} />
+        </>}
+
+        {activeStage === 2 && <>
+          <header className="stage-heading"><div><span className="step-label">STEP 03 · PRODUCTION</span><h2>一次生产完整内容包</h2><p>四个平台共享同一个事实底稿，但表达方式按平台重写，不做机械裁剪。</p></div><button className="button primary" onClick={copyWriterPrompt}>复制 Brief 给 Codex</button></header>
+          <div className="platform-switch">{channels.map((channel) => <button key={channel} className={platform === channel ? "active" : ""} onClick={() => setPlatform(channel)}><span>{channelNames[channel]}</span><i>{current.drafts[channel].trim() ? "✓" : "空"}</i></button>)}</div>
+          <div className="draft-head"><div><h3>{channelNames[platform]} 文案</h3><p>{channelNotes[platform]}</p></div><button className="button" onClick={() => navigator.clipboard.writeText(current.drafts[platform]).then(() => say("文案已复制"))}>复制文案</button></div>
+          <textarea className="large-editor draft-editor" value={current.drafts[platform]} onChange={(event) => update({ drafts: { ...current.drafts, [platform]: event.target.value } })} placeholder={`在这里粘贴或编辑 ${channelNames[platform]} 文案……`} />
+          <div className={`char-count ${platform === "x" && current.drafts.x.length > 280 ? "warn" : ""}`}>{current.drafts[platform].length} 字符{platform === "x" ? " · 短帖建议不超过 280" : ""}</div>
+          <div className="asset-grid"><label><span><b>{current.kind === "日常内容" ? "视觉素材 Brief" : "海报 Brief"}</b><small>交付给设计同学的精简信息</small></span><textarea value={current.poster} onChange={(event) => update({ poster: event.target.value })} placeholder={`主体：\n主标题：\n简短小字：\n重点能力：\n截图 / Logo：\n开放状态：`} /></label><label><span><b>视频剪辑 Brief</b><small>没有视频时写明“本次不需要”</small></span><textarea value={current.video} onChange={(event) => update({ video: event.target.value })} placeholder={`保留画面：\n隐藏区域：\n加速 / 跳过：\n旁白对应：\n放大 / 标注 / 字幕：`} /></label></div>
+          <CheckGroup title="制作完成门禁" keys={checkGroups.production} task={current} onChange={updateCheck} />
+        </>}
+
+        {activeStage === 3 && <>
+          <header className="stage-heading"><div><span className="step-label">STEP 04 · REVIEW</span><h2>自动扫描，人工签字</h2><p>系统负责发现明显风险；产品事实与最终发布许可仍由对应同学确认。</p></div><span className={`scan-score ${issues.some((issue) => issue.level === "高") ? "bad" : issues.length ? "medium" : "good"}`}>{issues.length ? `${issues.length} 个问题` : "扫描通过"}</span></header>
+          <div className="scan-list">{issues.map((issue, index) => <div key={`${issue.text}-${index}`} className={`issue ${issue.level}`}><span>{issue.level}</span><p>{issue.text}</p></div>)}{!issues.length && <div className="scan-clear"><span>✓</span><div><b>未发现明显文案风险</b><p>仍需人工核对产品事实、正式上线状态和公开边界。</p></div></div>}</div>
+          <div className="review-rules"><h3>自动检查规则</h3><div><span>夸大营销词</span><span>隐私数据暗示</span><span>英文长破折号</span><span>X 字符长度</span><span>Reddit 标题 / 正文</span><span>多模型主体冲突</span></div></div>
+          <CheckGroup title="最终审核门禁" keys={checkGroups.review} task={current} onChange={updateCheck} />
+        </>}
+
+        {activeStage === 4 && <>
+          <header className="stage-heading"><div><span className="step-label">STEP 05 · DISTRIBUTION</span><h2>确认上线后再发布</h2><p>各平台可独立启用、排期和记录链接。正式发布前必须再次向 PM 确认上线状态。</p></div></header>
+          <div className="publish-table"><div className="publish-row publish-header"><span>平台</span><span>启用</span><span>发布时间</span><span>发布链接</span><span>完成</span></div>{channels.map((channel) => {
+            const item = current.publishing[channel];
+            return <div className={`publish-row ${!item.enabled ? "disabled" : ""}`} key={channel}><b>{channelNames[channel]}</b><label className="switch"><input type="checkbox" checked={item.enabled} onChange={(event) => update({ publishing: { ...current.publishing, [channel]: { ...item, enabled: event.target.checked } } })} /><i /></label><input type="datetime-local" value={item.scheduledAt} disabled={!item.enabled} onChange={(event) => update({ publishing: { ...current.publishing, [channel]: { ...item, scheduledAt: event.target.value } } })} /><input value={item.url} disabled={!item.enabled} onChange={(event) => update({ publishing: { ...current.publishing, [channel]: { ...item, url: event.target.value } } })} placeholder="发布后粘贴 URL" /><label className="publish-check"><input type="checkbox" checked={item.published} disabled={!item.enabled} onChange={(event) => update({ publishing: { ...current.publishing, [channel]: { ...item, published: event.target.checked } } })} /><span>{item.published ? "已发布" : "待发布"}</span></label></div>;
+          })}</div>
+          <CheckGroup title="发布执行门禁" keys={checkGroups.publish} task={current} onChange={updateCheck} />
+        </>}
+
+        {activeStage === 5 && <>
+          <header className="stage-heading"><div><span className="step-label">STEP 06 · LEARNING</span><h2>把一次发布变成可复用经验</h2><p>先记录链接和基础表现，再总结什么表达、素材或发布时间值得复用。</p></div></header>
+          <div className="metric-grid">{channels.filter((channel) => current.publishing[channel].enabled).map((channel) => <article key={channel}><header><b>{channelNames[channel]}</b>{current.publishing[channel].url && <a href={current.publishing[channel].url} target="_blank" rel="noreferrer">查看发布 ↗</a>}</header><div><label>曝光 / 浏览<input value={current.metrics[channel].impressions} onChange={(event) => update({ metrics: { ...current.metrics, [channel]: { ...current.metrics[channel], impressions: event.target.value } } })} placeholder="例如 12.4K" /></label><label>互动<input value={current.metrics[channel].engagements} onChange={(event) => update({ metrics: { ...current.metrics, [channel]: { ...current.metrics[channel], engagements: event.target.value } } })} placeholder="回复、转发、评论" /></label></div><textarea value={current.metrics[channel].notes} onChange={(event) => update({ metrics: { ...current.metrics, [channel]: { ...current.metrics[channel], notes: event.target.value } } })} placeholder="表现观察……" /></article>)}</div>
+          <label className="retro"><span><b>复盘结论</b><small>建议按“有效 → 无效 → 下次复用”记录</small></span><textarea value={current.retrospective} onChange={(event) => update({ retrospective: event.target.value })} placeholder={`有效：\n无效：\n下次继续：\n可沉淀到模板 / Skill 的规则：`} /></label>
+          <div className="history"><header><h3>内容快照</h3><button className="button" onClick={saveSnapshot}>＋ 保存当前快照</button></header>{current.snapshots.map((snapshot, index) => <div key={snapshot.at}><span><b>版本 {current.snapshots.length - index}</b><small>{new Date(snapshot.at).toLocaleString("zh-CN")}</small></span><em>{Object.values(snapshot.drafts).filter(Boolean).length} 个平台文案</em><button onClick={() => restoreSnapshot(snapshot)}>恢复</button></div>)}{!current.snapshots.length && <p className="empty-history">还没有快照。大幅修改文案前建议保存一次。</p>}</div>
+        </>}
+      </section>
+
+      <aside className="next-panel">
+        <section className="next-card"><span className="eyebrow">CURRENT GATE</span><h3>{stages[current.stage].name}阶段</h3>{currentNeeds.length ? <><p>完成以下 {currentNeeds.length} 项后才能推进：</p><ul>{currentNeeds.slice(0, 6).map((need) => <li key={need}>{need}</li>)}</ul>{currentNeeds.length > 6 && <small>另有 {currentNeeds.length - 6} 项未完成</small>}</> : <div className="all-clear"><span>✓</span><p>本阶段门禁已完成，可以进入下一步。</p></div>}<button className="button primary next-action" onClick={advance} disabled={current.stage === 5}>{current.stage === 5 ? "流程已完成" : `进入「${stages[Math.min(current.stage + 1, 5)].name}」阶段 →`}</button></section>
+        <section className="health-card"><header><h3>任务健康度</h3><strong>{Math.round((Object.keys(checkLabels).filter((key) => current.checks[key]).length / Object.keys(checkLabels).length) * 100)}%</strong></header><div><span>事实完整度</span><b>{Math.max(0, 9 - getMissing(current.brief, current.kind).length)}/9</b></div><div><span>平台文案</span><b>{channels.filter((channel) => current.drafts[channel].trim()).length}/4</b></div><div><span>风险扫描</span><b className={issues.some((issue) => issue.level === "高") ? "red" : "green"}>{issues.some((issue) => issue.level === "高") ? "需处理" : "正常"}</b></div></section>
+        <section className="shortcut-card"><h3>快捷动作</h3><button onClick={copyWriterPrompt}>复制给 Codex 生成文案 <span>⌘</span></button><a href="https://www.verdent.ai/" target="_blank" rel="noreferrer">打开 Verdent 官网 <span>↗</span></a><button onClick={saveSnapshot}>保存内容快照 <span>＋</span></button></section>
+        <section className="delete-card"><button onClick={removeTask}>删除此任务</button><small>最后更新 {new Date(current.updatedAt).toLocaleString("zh-CN")}</small></section>
+      </aside></div>
+    </>}</section>
+
+    {newOpen && <div className="overlay" onClick={() => setNewOpen(false)}><section className="new-modal" onClick={(event) => event.stopPropagation()}><header><div><span className="eyebrow">NEW CONTENT TASK</span><h2>先把原始信息放进来</h2><p>系统会保留原文、识别内容类型，并标出事实缺口。</p></div><button onClick={() => setNewOpen(false)}>×</button></header><div className="kind-picker">{(["自动识别", "版本更新", "新模型", "日常内容"] as const).map((item) => <button className={newKind === item ? "active" : ""} onClick={() => setNewKind(item)} key={item}>{item}</button>)}</div><textarea autoFocus value={newSource} onChange={(event) => setNewSource(event.target.value)} placeholder="Changelog、模型上线通知或日常内容想法……" /><footer><span>{newSource.length} 字</span><div><button className="button" onClick={() => setNewOpen(false)}>取消</button><button className="button primary" onClick={createTask}>建立任务并识别 →</button></div></footer></section></div>}
+    {toast && <div className="toast">✓ {toast}</div>}
+  </main>;
+}
+
+function CheckGroup({ title, keys, task, onChange }: { title: string; keys: string[]; task: Task; onChange: (key: string, value: boolean) => void }) {
+  return <section className="check-group"><header><h3>{title}</h3><span>{keys.filter((key) => task.checks[key]).length}/{keys.length}</span></header><div>{keys.map((key) => <label key={key} className={task.checks[key] ? "checked" : ""}><input type="checkbox" checked={task.checks[key] || false} onChange={(event) => onChange(key, event.target.checked)} /><i>{task.checks[key] ? "✓" : ""}</i><span>{checkLabels[key]}</span></label>)}</div></section>;
 }
