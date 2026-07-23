@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verdent Social Growth"
+  short_description: "把 Verdent Brief 转为可审核的多平台内容包"
+  default_prompt: "Use $verdent-social-growth to turn this Verdent brief into a verified, platform-native content package."
