@@ -21,7 +21,7 @@ Verdent Growth OS is a private, cloud-backed content operations tool.
 
 ## Content safety
 
-The built-in checks are editorial guardrails, not security or product approval. Publication still requires confirmation of release status, public scope, claims, media redaction, partner coordination, and final PM approval.
+The built-in checks are editorial guardrails, not a substitute for source quality. Publication still requires confirmed release status, public scope, claims, media redaction, partner coordination, account selection, and a final self-check.
 
 ## Reporting a problem
 

@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
+const MAX_CHUNK_BYTES = 768 * 1024;
 const validCategories = new Set([
   "source",
   "brief",
@@ -49,6 +50,109 @@ function cleanFileName(value: string) {
   return normalized || "asset";
 }
 
+async function uploadChunk(request: Request, url: URL) {
+  const uploadId = url.searchParams.get("uploadId")?.trim() || "";
+  const taskId = url.searchParams.get("taskId")?.trim() || "";
+  const fileName = url.searchParams.get("fileName")?.trim() || "asset";
+  const contentType = url.searchParams.get("contentType")?.trim() || "application/octet-stream";
+  const requestedCategory = url.searchParams.get("category")?.trim() || "source";
+  const category = validCategories.has(requestedCategory) ? requestedCategory : "source";
+  const chunkIndex = Number(url.searchParams.get("chunkIndex"));
+  const chunkCount = Number(url.searchParams.get("chunkCount"));
+  const sizeBytes = Number(url.searchParams.get("sizeBytes"));
+
+  if (
+    !/^[a-f0-9-]{20,}$/i.test(taskId) ||
+    !/^[a-f0-9-]{20,}$/i.test(uploadId) ||
+    !Number.isInteger(chunkIndex) ||
+    !Number.isInteger(chunkCount) ||
+    chunkIndex < 0 ||
+    chunkCount < 1 ||
+    chunkCount > 512 ||
+    chunkIndex >= chunkCount ||
+    !Number.isFinite(sizeBytes) ||
+    sizeBytes < 0
+  ) {
+    return Response.json({ error: "Invalid chunk metadata" }, { status: 400 });
+  }
+  if (sizeBytes > MAX_FILE_BYTES) {
+    return Response.json({ error: "File exceeds the 100 MB upload limit" }, { status: 413 });
+  }
+
+  const body = await request.arrayBuffer();
+  if (body.byteLength > MAX_CHUNK_BYTES) {
+    return Response.json({ error: "Chunk exceeds the 768 KB limit" }, { status: 413 });
+  }
+
+  await ensureSchema();
+  const prefix = `${taskId}/${uploadId}`;
+  await env.FILES.put(`${prefix}/chunk-${chunkIndex}`, body, {
+    httpMetadata: { contentType: "application/octet-stream" },
+    customMetadata: { taskId, category, uploadId, chunkIndex: String(chunkIndex) },
+  });
+
+  if (chunkIndex !== chunkCount - 1) {
+    return Response.json({ complete: false }, { status: 202 });
+  }
+
+  let uploadedBytes = 0;
+  for (let index = 0; index < chunkCount; index += 1) {
+    const part = await env.FILES.head(`${prefix}/chunk-${index}`);
+    if (!part) {
+      return Response.json({ error: `Missing upload chunk ${index}` }, { status: 409 });
+    }
+    uploadedBytes += part.size;
+  }
+  if (uploadedBytes !== sizeBytes) {
+    return Response.json({ error: "Uploaded size does not match file metadata" }, { status: 409 });
+  }
+
+  const id = crypto.randomUUID();
+  const objectKey = `chunked|${prefix}|${chunkCount}`;
+  try {
+    await env.DB.prepare(`
+      INSERT INTO assets (
+        id, task_id, category, file_name, content_type, size_bytes,
+        object_key, is_final, uploaded_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)
+    `)
+      .bind(
+        id,
+        taskId,
+        category,
+        fileName.slice(0, 240),
+        contentType.slice(0, 160),
+        sizeBytes,
+        objectKey,
+        actorFrom(request),
+      )
+      .run();
+  } catch (error) {
+    await Promise.all(
+      Array.from({ length: chunkCount }, (_, index) => env.FILES.delete(`${prefix}/chunk-${index}`)),
+    );
+    throw error;
+  }
+
+  return Response.json(
+    {
+      complete: true,
+      asset: {
+        id,
+        taskId,
+        category,
+        fileName,
+        contentType,
+        sizeBytes,
+        isFinal: false,
+        uploadedBy: actorFrom(request),
+        createdAt: new Date().toISOString(),
+      },
+    },
+    { status: 201 },
+  );
+}
+
 export async function GET(request: Request) {
   try {
     const taskId = new URL(request.url).searchParams.get("taskId")?.trim();
@@ -86,6 +190,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const url = new URL(request.url);
+    if (url.searchParams.get("mode") === "chunk") {
+      return await uploadChunk(request, url);
+    }
+
     const form = await request.formData();
     const file = form.get("file");
     const taskId = String(form.get("taskId") ?? "").trim();
