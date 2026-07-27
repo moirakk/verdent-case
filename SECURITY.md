@@ -1,13 +1,16 @@
 # Security and Data Boundary
 
-Verdent Growth OS is a private, local-first content operations tool.
+Verdent Growth OS is a private, cloud-backed content operations tool.
 
 ## Data storage
 
-- Task content, drafts, account links, metrics, and notes are stored in browser `localStorage` by default.
-- The application does not enable a remote database or object storage by default.
-- Browser origins are isolated. Changing the hostname or port creates a separate local storage space.
+- Task content, drafts, account links, metrics, and notes are stored in Cloudflare D1.
+- Uploaded documents, images, and videos are stored in a private Cloudflare R2 bucket.
+- The browser stores a non-authoritative cache for temporary offline viewing.
+- Writes use revision checks so an older browser session cannot silently overwrite a newer cloud revision.
 - JSON backups contain the full workspace and should be handled as internal files.
+- R2 files are served through private application routes rather than public bucket URLs.
+- Feishu organization authentication is planned but not active until the real Verdent Feishu app credentials and tenant policy are configured.
 
 ## Do not commit
 

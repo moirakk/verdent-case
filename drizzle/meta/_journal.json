@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1785124238215,
+      "tag": "0000_daily_the_twelve",
+      "breakpoints": true
+    }
+  ]
 }

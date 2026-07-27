@@ -335,6 +335,21 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .sop-modal > footer > span { color: #7a867e; font-size: 11px; }
 .sop-modal > footer > div { display: flex; gap: 8px; flex: 0 0 auto; }
 .toast { position: fixed; z-index: 50; right: 24px; bottom: 24px; padding: 13px 17px; border-radius: 9px; color: #fff; background: var(--dark); box-shadow: 0 14px 36px rgba(20, 35, 26, .25); font-size: 12px; }
+.asset-library { margin: 18px 0; padding: 16px; border: 1px solid var(--line); border-radius: 11px; background: #f8faf8; }
+.asset-library > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.asset-library h3 { margin: 0 0 3px; font-size: 14px; }
+.asset-library header p { margin: 0; color: var(--muted); font-size: 11px; }
+.asset-library header > div:last-child { display: flex; gap: 8px; }
+.asset-library select { min-width: 120px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font-size: 11px; }
+.asset-library > div { display: grid; gap: 7px; }
+.asset-library a { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 9px; color: inherit; background: #fff; text-decoration: none; }
+.asset-library a > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: var(--dark); background: var(--lime-soft); font-size: 10px; font-weight: 800; }
+.asset-library a div { min-width: 0; }
+.asset-library a b, .asset-library a small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asset-library a b { margin-bottom: 3px; font-size: 12px; }
+.asset-library a small { color: var(--muted); font-size: 10px; }
+.asset-library a em { color: #6e7b72; font-size: 10px; font-style: normal; }
+.asset-empty { margin: 0; padding: 18px; border: 1px dashed #d6ddd8; border-radius: 9px; color: var(--muted); background: #fff; text-align: center; font-size: 11px; }
 
 @media (max-width: 1200px) {
   .app-shell { grid-template-columns: 300px minmax(0, 1fr); }

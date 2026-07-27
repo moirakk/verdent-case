@@ -25,6 +25,18 @@ type Brief = {
 type PublishItem = { enabled: boolean; accountId: string; scheduledAt: string; published: boolean; url: string };
 type Metric = { impressions: string; engagements: string; notes: string };
 type Snapshot = { at: string; drafts: Record<Channel, string>; poster: string };
+type SyncState = "loading" | "synced" | "saving" | "offline" | "conflict";
+type AssetRecord = {
+  id: string;
+  taskId: string;
+  category: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  isFinal: boolean;
+  uploadedBy: string | null;
+  createdAt: string;
+};
 type Task = {
   id: string;
   title: string;
@@ -313,36 +325,161 @@ export default function Home() {
   const [newSource, setNewSource] = useState("");
   const [newKind, setNewKind] = useState<Kind | "自动识别">("自动识别");
   const [toast, setToast] = useState("");
+  const [syncState, setSyncState] = useState<SyncState>("loading");
+  const [taskAssets, setTaskAssets] = useState<AssetRecord[]>([]);
+  const [assetCategory, setAssetCategory] = useState("source");
+  const [assetUploading, setAssetUploading] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
+  const assetRef = useRef<HTMLInputElement>(null);
+  const revisionRef = useRef(0);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      const saved = localStorage.getItem("verdent-local-workspace");
-      if (saved) {
+    let cancelled = false;
+    async function loadWorkspace() {
+      let localTasks: Task[] = [];
+      let localAccounts = defaultAccounts.map((account) => ({ ...account }));
+      let hasCloudCache = false;
+      const cloudCache = localStorage.getItem("verdent-workspace-cache-v3");
+      if (cloudCache) {
         try {
-          const data = (JSON.parse(saved) as Task[]).map(migrateTask);
-          setTasks(data);
+          const parsed = JSON.parse(cloudCache) as {
+            tasks?: Task[];
+            accounts?: SocialAccount[];
+          };
+          if (Array.isArray(parsed.tasks) && Array.isArray(parsed.accounts)) {
+            localTasks = parsed.tasks.map(migrateTask);
+            localAccounts = defaultAccounts.map((account) => ({
+              ...account,
+              ...(parsed.accounts?.find((item) => item.id === account.id) || {}),
+            }));
+            hasCloudCache = true;
+          }
+        } catch { /* fall through to the legacy local workspace */ }
+      }
+
+      const saved = localStorage.getItem("verdent-local-workspace");
+      if (!hasCloudCache && saved) {
+        try {
+          localTasks = (JSON.parse(saved) as Task[]).map(migrateTask);
         } catch { /* keep an empty workspace if an old backup is invalid */ }
       }
       const savedAccounts = localStorage.getItem("verdent-social-accounts");
-      if (savedAccounts) {
+      if (!hasCloudCache && savedAccounts) {
         try {
           const parsed = JSON.parse(savedAccounts) as SocialAccount[];
-          if (Array.isArray(parsed)) setAccounts(defaultAccounts.map((account) => ({ ...account, ...(parsed.find((item) => item.id === account.id) || {}) })));
+          if (Array.isArray(parsed)) {
+            localAccounts = defaultAccounts.map((account) => ({ ...account, ...(parsed.find((item) => item.id === account.id) || {}) }));
+          }
         } catch { /* retain verified defaults */ }
       }
-      setLoaded(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
-  useEffect(() => {
-    if (loaded) {
-      localStorage.setItem("verdent-local-workspace", JSON.stringify(tasks));
-      localStorage.setItem("verdent-social-accounts", JSON.stringify(accounts));
+
+      try {
+        const response = await fetch("/api/workspace", { cache: "no-store" });
+        if (!response.ok) throw new Error("Cloud workspace unavailable");
+        const result = await response.json() as {
+          workspace: { tasks?: Task[]; accounts?: SocialAccount[] } | null;
+          revision: number;
+        };
+        if (cancelled) return;
+
+        if (result.workspace) {
+          setTasks((result.workspace.tasks || []).map(migrateTask));
+          setAccounts(defaultAccounts.map((account) => ({
+            ...account,
+            ...((result.workspace?.accounts || []).find((item) => item.id === account.id) || {}),
+          })));
+          revisionRef.current = result.revision;
+        } else {
+          setTasks(localTasks);
+          setAccounts(localAccounts);
+          const migrationResponse = await fetch("/api/workspace", {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              workspace: { version: 3, tasks: localTasks, accounts: localAccounts },
+              baseRevision: 0,
+            }),
+          });
+          if (migrationResponse.ok) {
+            const migration = await migrationResponse.json() as { revision: number };
+            revisionRef.current = migration.revision;
+          }
+        }
+        setSyncState("synced");
+      } catch {
+        if (cancelled) return;
+        setTasks(localTasks);
+        setAccounts(localAccounts);
+        setSyncState("offline");
+      } finally {
+        if (!cancelled) setLoaded(true);
+      }
     }
+
+    void loadWorkspace();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
+
+    localStorage.setItem(
+      "verdent-workspace-cache-v3",
+      JSON.stringify({ tasks, accounts, cachedAt: new Date().toISOString() }),
+    );
+    const timer = window.setTimeout(async () => {
+      setSyncState("saving");
+      try {
+        const response = await fetch("/api/workspace", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            workspace: { version: 3, tasks, accounts },
+            baseRevision: revisionRef.current,
+          }),
+        });
+        if (response.status === 409) {
+          setSyncState("conflict");
+          return;
+        }
+        if (!response.ok) throw new Error("Cloud save failed");
+        const result = await response.json() as { revision: number };
+        revisionRef.current = result.revision;
+        setSyncState("synced");
+      } catch {
+        setSyncState("offline");
+      }
+    }, 900);
+
+    return () => window.clearTimeout(timer);
   }, [tasks, accounts, loaded]);
 
   const current = tasks.find((task) => task.id === selectedId) || null;
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedId) return;
+
+    fetch(`/api/assets?taskId=${encodeURIComponent(selectedId)}`, {
+      cache: "no-store",
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error();
+        return response.json() as Promise<{ assets: AssetRecord[] }>;
+      })
+      .then((result) => {
+        if (!cancelled) setTaskAssets(result.assets);
+      })
+      .catch(() => {
+        if (!cancelled) setTaskAssets([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
   const currentNeeds = current ? stageRequirements(current, current.stage) : [];
   const issues = current ? qualityScan(current) : [];
   const accountById = (id: string) => accounts.find((account) => account.id === id);
@@ -466,6 +603,27 @@ export default function Home() {
     reader.readAsText(file);
   }
 
+  async function uploadAsset(file: File) {
+    if (!current) return;
+    setAssetUploading(true);
+    try {
+      const form = new FormData();
+      form.set("taskId", current.id);
+      form.set("category", assetCategory);
+      form.set("file", file);
+      const response = await fetch("/api/assets", { method: "POST", body: form });
+      if (!response.ok) throw new Error();
+      const result = await response.json() as { asset: AssetRecord };
+      setTaskAssets((items) => [result.asset, ...items]);
+      say("素材已保存到云端");
+    } catch {
+      say("素材上传失败，请稍后重试");
+    } finally {
+      setAssetUploading(false);
+      if (assetRef.current) assetRef.current.value = "";
+    }
+  }
+
   const dashboard = <section className="dashboard">
     <div className="dashboard-head"><div><span className="eyebrow">VERDENT GROWTH OPERATIONS</span><h1>今天该推进什么</h1><p>以事实确认和发布门禁为核心的单人社媒工作台。</p></div><div className="dashboard-actions"><button className="button" onClick={() => setSopOpen(true)}>查看 Skill SOP</button><button className="button primary" onClick={() => setNewOpen(true)}>＋ 新建内容任务</button></div></div>
     <div className="stat-grid">
@@ -490,7 +648,7 @@ export default function Home() {
 
   return <main className="app-shell">
     <aside className="sidebar">
-      <header className="brand"><span>V</span><div><b>Verdent</b><small>Growth OS · Local</small></div><button onClick={() => setAccountsOpen(true)}>账号中心</button></header>
+      <header className="brand"><span>V</span><div><b>Verdent</b><small>Growth OS · Cloud</small></div><button onClick={() => setAccountsOpen(true)}>账号中心</button></header>
       <button className="button primary create" onClick={() => setNewOpen(true)}>＋ 新建任务</button>
       <button className={`home-link ${selectedId === null ? "active" : ""}`} onClick={() => setSelectedId(null)}><span>⌂ 工作台</span><em>{tasks.length}</em></button>
       <button className="home-link" onClick={() => setSopOpen(true)}><span>◇ Skill / SOP</span><em>v{growthSkillVersion}</em></button>
@@ -500,11 +658,11 @@ export default function Home() {
         const needs = stageRequirements(task, task.stage);
         return <button key={task.id} className={selectedId === task.id ? "active" : ""} onClick={() => selectTask(task)}><div><span className={`kind ${task.kind}`}>{task.kind}</span><span className={`priority ${task.priority}`}>{task.priority}</span></div><b>{task.title}</b><p>{stages[task.stage].name} · {needs.length ? `${needs.length} 项待处理` : "可进入下一步"}</p><div className="mini-progress"><i style={{ width: `${(task.stage / 5) * 100}%` }} /></div></button>;
       })}{!filteredTasks.length && <div className="side-empty">没有匹配的任务</div>}</div>
-      <footer className="sidebar-footer"><div><button onClick={exportBackup}>导出备份</button><button onClick={() => importRef.current?.click()}>恢复备份</button></div><input ref={importRef} hidden type="file" accept="application/json" onChange={(event) => event.target.files?.[0] && importFile(event.target.files[0])} /><small>自动保存于当前浏览器 · 建议每周导出一次</small></footer>
+      <footer className="sidebar-footer"><div><button onClick={exportBackup}>导出备份</button><button onClick={() => importRef.current?.click()}>恢复备份</button></div><input ref={importRef} hidden type="file" accept="application/json" onChange={(event) => event.target.files?.[0] && importFile(event.target.files[0])} /><small>云端自动保存 · 本机保留临时缓存</small></footer>
     </aside>
 
     <section className="main-area">{!current ? dashboard : <>
-      <header className="task-topbar"><div><div className="crumb"><button onClick={() => setSelectedId(null)}>工作台</button><span>/</span><span>{current.kind}</span></div><input className="task-title" value={current.title} onChange={(event) => update({ title: event.target.value })} /></div><div className="top-actions"><span className="autosaved">✓ 已自动保存</span><button className="button" onClick={saveSnapshot}>保存快照</button><button className="button" onClick={exportMarkdown}>导出</button><button className="button primary" onClick={copyWriterPrompt}>用 Verdent Skill 生成</button></div></header>
+      <header className="task-topbar"><div><div className="crumb"><button onClick={() => setSelectedId(null)}>工作台</button><span>/</span><span>{current.kind}</span></div><input className="task-title" value={current.title} onChange={(event) => update({ title: event.target.value })} /></div><div className="top-actions"><span className="autosaved">{syncState === "synced" ? "✓ 已保存到云端" : syncState === "saving" ? "正在保存…" : syncState === "conflict" ? "其他设备有新版本" : syncState === "offline" ? "离线 · 暂未同步" : "正在连接云端…"}</span><button className="button" onClick={saveSnapshot}>保存快照</button><button className="button" onClick={exportMarkdown}>导出</button><button className="button primary" onClick={copyWriterPrompt}>用 Verdent Skill 生成</button></div></header>
       <section className="task-meta">
         <label>类型<select value={current.kind} onChange={(event) => { const kind = event.target.value as Kind; const defaults = emptyPublishing(kind); update({ kind, writerMode: kind === "日常内容" ? "V-Tips" : "Release Announcement", brief: recognizeBrief(current.source, kind), publishing: Object.fromEntries(channels.map((channel) => [channel, { ...current.publishing[channel], enabled: defaults[channel].enabled }])) as Record<Channel, PublishItem> }); }}><option>版本更新</option><option>新模型</option><option>日常内容</option></select></label>
         <label>优先级<select value={current.priority} onChange={(event) => update({ priority: event.target.value as Priority })}><option>P0</option><option>P1</option><option>P2</option></select></label>
@@ -549,6 +707,10 @@ export default function Home() {
           <textarea className="large-editor draft-editor" value={current.drafts[platform]} onChange={(event) => update({ drafts: { ...current.drafts, [platform]: event.target.value } })} placeholder={`在这里粘贴或编辑 ${channelNames[platform]} 文案……`} />
           <div className={`char-count ${platform === "x" && current.drafts.x.length > 280 ? "warn" : ""}`}>{current.drafts[platform].length} 字符{platform === "x" ? " · 短帖建议不超过 280" : ""}</div>
           <div className="asset-grid"><label><span><b>{current.kind === "日常内容" ? "视觉素材 Brief" : "海报 Brief"}</b><small>交付给设计同学的精简信息</small></span><textarea value={current.poster} onChange={(event) => update({ poster: event.target.value })} placeholder={`主体：\n主标题：\n简短小字：\n重点能力：\n截图 / Logo：\n开放状态：`} /></label><label><span><b>视频剪辑 Brief</b><small>没有视频时写明“本次不需要”</small></span><textarea value={current.video} onChange={(event) => update({ video: event.target.value })} placeholder={`保留画面：\n隐藏区域：\n加速 / 跳过：\n旁白对应：\n放大 / 标注 / 字幕：`} /></label></div>
+          <section className="asset-library">
+            <header><div><h3>任务素材</h3><p>图片、视频和设计成品保存在云端，并与当前任务关联。</p></div><div><select value={assetCategory} onChange={(event) => setAssetCategory(event.target.value)}><option value="source">原始资料</option><option value="brief">设计 Brief</option><option value="design">设计稿</option><option value="final-image">最终图片</option><option value="video-source">视频源文件</option><option value="published">发布成品</option></select><button className="button" disabled={assetUploading} onClick={() => assetRef.current?.click()}>{assetUploading ? "上传中…" : "＋ 上传素材"}</button><input ref={assetRef} hidden type="file" accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx" onChange={(event) => event.target.files?.[0] && void uploadAsset(event.target.files[0])} /></div></header>
+            <div>{taskAssets.map((asset) => <a key={asset.id} href={`/api/assets/file?id=${encodeURIComponent(asset.id)}`} target="_blank" rel="noreferrer"><span>{asset.contentType.startsWith("image/") ? "图" : asset.contentType.startsWith("video/") ? "影" : "文"}</span><div><b>{asset.fileName}</b><small>{asset.category} · {(asset.sizeBytes / 1024 / 1024).toFixed(asset.sizeBytes > 1024 * 1024 ? 1 : 2)} MB · {new Date(asset.createdAt).toLocaleString("zh-CN")}</small></div><em>打开 ↗</em></a>)}{!taskAssets.length && <p className="asset-empty">还没有素材。收到设计文件后直接上传到这里。</p>}</div>
+          </section>
           <CheckGroup title="制作完成门禁" keys={checkGroups.production} task={current} onChange={updateCheck} />
         </>}
 
