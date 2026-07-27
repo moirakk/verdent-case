@@ -2,6 +2,16 @@
 
 本项目使用 `MAJOR.MINOR.PATCH` 版本格式。功能完成并通过检查后记录在这里。
 
+## 0.4.1 - 2026-07-27
+
+### Changed
+
+- AI Prompt 将每个启用平台最近两条可验证的 Verdent 官方内容提升为最高优先级的语气与格式参考
+- 新增 `Recent-post calibration`，要求记录样本、内容类型和实际采用的表达特征
+- X、LinkedIn、Reddit 更新为 2026-07-27 的近期官方内容基线
+- Discord、Instagram、TikTok 无法公开核对两条样本时必须标记 `VOICE SAMPLE MISSING`，不再猜测账号历史风格
+- Verdent Social Growth Skill 升级到 `1.1`
+
 ## 0.4.0 - 2026-07-27
 
 ### Added

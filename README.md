@@ -81,7 +81,7 @@ skills/verdent-social-growth/
 
 ## 项目状态
 
-- 当前版本：`0.4.0`
+- 当前版本：`0.4.1`
 - 使用方式：私有云端工作台
 - 仓库：Private
 - 数据库：Cloudflare D1

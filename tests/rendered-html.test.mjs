@@ -33,6 +33,10 @@ test("keeps the workflow, safety scan, and cloud persistence in the product", as
   assert.match(page, /privacyPatterns/);
   assert.match(page, /英文长破折号/);
   assert.match(page, /Verdent Social Growth Skill/);
+  assert.match(page, /最近两条 Verdent 内容校准/);
+  assert.match(page, /Recent-post calibration/);
+  assert.match(page, /VOICE SAMPLE MISSING/);
+  assert.match(page, /2080810458714681819/);
   assert.match(page, /DRAFT — DO NOT PUBLISH/);
   assert.match(page, /未确认上线表述/);
   assert.match(page, /标准流程/);

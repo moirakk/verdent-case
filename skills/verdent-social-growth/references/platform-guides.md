@@ -2,6 +2,8 @@
 
 Use the shared confirmed fact base, then rewrite for the platform. These are operating defaults, not claims about secret platform algorithms.
 
+Before using these defaults, analyze the two latest first-party Verdent posts on the target platform. Let those samples control current cadence and formatting when they are verifiable and compatible with the task type. Never reuse their facts or claims.
+
 ## X / Twitter
 
 ### Formal release or model launch
@@ -13,6 +15,8 @@ Use the shared confirmed fact base, then rewrite for the platform. These are ope
 - A question is optional. Do not force debate into release news.
 - Use zero hashtags by default. Use at most two when they identify an active Verdent campaign.
 - Use the website CTA when a reader can act immediately. Omit it when availability is pending.
+- The July 2026 release baseline favors one compact, image-supported paragraph: literal availability, one primary workload, one useful detail or caveat, then a direct product action.
+- When announcing two models together, give each a distinct role instead of blending their capabilities into one claim.
 
 ### Editorial or builder story
 
@@ -41,6 +45,8 @@ Use the shared confirmed fact base, then rewrite for the platform. These are ope
 - Mention a model provider or partner account only when coordinated or clearly useful.
 - Use zero to three relevant hashtags at the end. Do not place hashtags inside sentences.
 - Link to Verdent when the post has a clear trial or product CTA.
+- The July 2026 model baseline uses a literal opening, a capability-to-workflow explanation, and one direct CTA without a forced question or hashtag block.
+- The July 2026 product-release baseline can be longer: identify the workflow friction, explain each change separately, and close on the combined outcome.
 
 ## Reddit
 
@@ -52,6 +58,7 @@ Use the shared confirmed fact base, then rewrite for the platform. These are ope
 - Do not paste a marketing CTA after every paragraph. Include a link only when it adds practical value or the community rules allow it.
 - Ask one specific feedback question when genuine product feedback is useful.
 - Check the target subreddit's current rules before posting.
+- The July 2026 baseline uses a transparent first-person product voice, short factual paragraphs, and concrete use cases. A feedback question belongs only when the team genuinely wants responses.
 
 ## Instagram
 

@@ -32,6 +32,20 @@ Use claims only from the highest available source:
 
 Never turn a missing fact into a plausible-sounding sentence. Do not use third-party summaries as the sole source for model specifications or performance comparisons.
 
+## Calibrate with the two latest owned posts
+
+Before drafting, inspect the two most recent first-party Verdent posts for every requested platform. Treat them as the strongest evidence for current voice and formatting, not as product truth.
+
+For each platform:
+
+1. Record the post date or order, URL, and content type.
+2. Extract only reusable surface patterns: naming, opening shape, paragraph length, pacing, CTA, emoji, hashtags, and how the copy relates to the asset.
+3. Compare the samples with the current content mode. If they differ, preserve the correct message architecture for the current task and borrow only neutral voice and formatting.
+4. Never carry an old claim, number, launch state, model capability, or full sentence into a new task unless it is independently confirmed in the current brief.
+5. If two current samples cannot be verified, report `VOICE SAMPLE MISSING`, use any recent first-party excerpts supplied in the source or notes, then fall back to the platform guide without inventing an account pattern.
+
+The latest two posts should materially influence the draft. Do not merely mention that they were reviewed.
+
 ## Execute the workflow
 
 ### 1. Preserve and classify the input
@@ -120,11 +134,13 @@ Use this order:
 1. `Release readiness`: READY, DRAFT — DO NOT PUBLISH, or BLOCKED.
 2. `Publish blockers`.
 3. `Confirm before publishing`.
-4. `Core message`.
-5. Requested platform copy, clearly separated.
-6. Poster/visual brief.
-7. Video brief if applicable.
-8. `QA result`: facts, claims, privacy, language, formatting, CTA, and platform checks.
+4. `Confirmed basis`.
+5. `Recent-post calibration`: two samples and applied voice/format traits per requested platform, or `VOICE SAMPLE MISSING`.
+6. `Core message`.
+7. Requested platform copy, clearly separated.
+8. Poster/visual brief.
+9. Video brief if applicable.
+10. `QA result`: facts, claims, privacy, language, formatting, CTA, and platform checks.
 
 Do not hide uncertainty inside polished copy. Use `[CONFIRM: ...]` placeholders only in internal drafts and remove them before publication.
 
