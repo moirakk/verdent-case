@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 const WORKSPACE_ID = "verdent-primary";
 const MAX_PAYLOAD_BYTES = 8 * 1024 * 1024;
@@ -47,6 +48,13 @@ function isWorkspacePayload(value: unknown): value is WorkspacePayload {
 
 export async function GET() {
   try {
+    const user = await getChatGPTUser();
+    if (!user) {
+      return Response.json(
+        { error: "未登录，请先通过 ChatGPT 认证" },
+        { status: 401 },
+      );
+    }
     await ensureSchema();
     const row = await env.DB.prepare(
       "SELECT payload, revision, updated_by, updated_at FROM workspace_state WHERE id = ?",
@@ -89,6 +97,13 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    const user = await getChatGPTUser();
+    if (!user) {
+      return Response.json(
+        { error: "未登录，请先通过 ChatGPT 认证" },
+        { status: 401 },
+      );
+    }
     const body = (await request.json()) as {
       workspace?: unknown;
       baseRevision?: number;
