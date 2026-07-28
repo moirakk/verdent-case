@@ -38,7 +38,7 @@ type PublishItem = { enabled: boolean; accountId: string; scheduledAt: string; p
 type Metric = { impressions: string; engagements: string; notes: string };
 type Snapshot = { at: string; drafts: Record<Channel, string>; poster: string; video: string };
 type SyncState = "loading" | "synced" | "saving" | "offline" | "conflict";
-type GenerateAvailability = "loading" | "configured" | "unconfigured" | "unavailable";
+type GenerateAvailability = "loading" | "configured" | "unconfigured" | "unauthenticated" | "unavailable";
 type GenerateConfig = {
   availability: GenerateAvailability;
   missing: string[];
@@ -643,7 +643,7 @@ function hasGeneratedContent(task: Task) {
 }
 
 function generationErrorMessage(status: number, error?: string) {
-  if (status === 401) return "登录状态已失效，请刷新页面后重新进入；也可先用「生成 AI Prompt」手动生成。";
+  if (status === 401) return "登录身份未被识别（服务端没有收到平台注入的身份信息），无法一键生成；可先用「生成 AI Prompt」手动生成。";
   if (status === 503 || error === "AI_NOT_CONFIGURED") return "一键生成尚未配置模型，可先用「生成 AI Prompt」手动生成；待管理员补齐模型配置后再试。";
   if (status === 504 || error === "GENERATION_TIMEOUT") return "这次生成超时了，可直接重试；如果赶时间，先用「生成 AI Prompt」手动生成。";
   if (status === 502 || error === "UPSTREAM_ERROR" || error === "UPSTREAM_UNREACHABLE") return "模型服务暂时异常，可稍后重试；也可先用「生成 AI Prompt」手动生成。";
@@ -811,7 +811,7 @@ export default function Home() {
         const result = await response.json().catch(() => null) as { configured?: boolean; missing?: string[]; model?: string | null } | null;
         if (cancelled) return;
         if (!response.ok) {
-          setGenerateConfig({ availability: "unavailable", missing: [], model: null });
+          setGenerateConfig({ availability: response.status === 401 ? "unauthenticated" : "unavailable", missing: [], model: null });
           return;
         }
         setGenerateConfig({
@@ -980,14 +980,20 @@ export default function Home() {
     ? "生成中，约需 30-60 秒…"
     : generateConfig.availability === "loading"
       ? "检查一键生成配置…"
-      : "一键生成";
+      : generateConfig.availability === "unauthenticated"
+        ? "一键生成不可用（未识别登录身份）"
+        : generateConfig.availability === "unconfigured"
+          ? "一键生成尚未配置模型"
+          : "一键生成";
   const generateHint = generateConfig.availability === "configured"
     ? `已连接模型${generateConfig.model ? `：${generateConfig.model}` : ""}`
     : generateConfig.availability === "unconfigured"
       ? "未配置模型，可先用「生成 AI Prompt」手动生成。"
-      : generateConfig.availability === "unavailable"
-        ? "暂时无法检查模型配置，可先用「生成 AI Prompt」手动生成。"
-        : "正在检查模型配置…";
+      : generateConfig.availability === "unauthenticated"
+        ? "服务端未识别到登录身份（平台可能未注入身份信息），一键生成不可用；可先用「生成 AI Prompt」手动生成。"
+        : generateConfig.availability === "unavailable"
+          ? "暂时无法检查模型配置，可先用「生成 AI Prompt」手动生成。"
+          : "正在检查模型配置…";
   const activeTasks = useMemo(() => tasks.filter((task) => !task.deletedAt), [tasks]);
   const deletedTasks = useMemo(() => tasks.filter((task) => task.deletedAt), [tasks]);
   const filteredTasks = useMemo(() => activeTasks.filter((task) => {
@@ -1209,6 +1215,9 @@ export default function Home() {
       const result = await response.json().catch(() => null) as { content?: string; error?: string } | null;
       if (!response.ok) {
         say(generationErrorMessage(response.status, result?.error));
+        if (response.status === 401) {
+          setGenerateConfig((state) => ({ ...state, availability: "unauthenticated" }));
+        }
         if (response.status === 503 || result?.error === "AI_NOT_CONFIGURED") {
           setGenerateConfig((state) => ({ ...state, availability: "unconfigured" }));
         }
