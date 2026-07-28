@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { json } from "@/app/api/json";
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_CHUNK_BYTES = 768 * 1024;
@@ -73,15 +74,15 @@ async function uploadChunk(request: Request, url: URL) {
     !Number.isFinite(sizeBytes) ||
     sizeBytes < 0
   ) {
-    return Response.json({ error: "Invalid chunk metadata" }, { status: 400 });
+    return json({ error: "Invalid chunk metadata" }, { status: 400 });
   }
   if (sizeBytes > MAX_FILE_BYTES) {
-    return Response.json({ error: "File exceeds the 100 MB upload limit" }, { status: 413 });
+    return json({ error: "File exceeds the 100 MB upload limit" }, { status: 413 });
   }
 
   const body = await request.arrayBuffer();
   if (body.byteLength > MAX_CHUNK_BYTES) {
-    return Response.json({ error: "Chunk exceeds the 768 KB limit" }, { status: 413 });
+    return json({ error: "Chunk exceeds the 768 KB limit" }, { status: 413 });
   }
 
   await ensureSchema();
@@ -92,19 +93,19 @@ async function uploadChunk(request: Request, url: URL) {
   });
 
   if (chunkIndex !== chunkCount - 1) {
-    return Response.json({ complete: false }, { status: 202 });
+    return json({ complete: false }, { status: 202 });
   }
 
   let uploadedBytes = 0;
   for (let index = 0; index < chunkCount; index += 1) {
     const part = await env.FILES.head(`${prefix}/chunk-${index}`);
     if (!part) {
-      return Response.json({ error: `Missing upload chunk ${index}` }, { status: 409 });
+      return json({ error: `Missing upload chunk ${index}` }, { status: 409 });
     }
     uploadedBytes += part.size;
   }
   if (uploadedBytes !== sizeBytes) {
-    return Response.json({ error: "Uploaded size does not match file metadata" }, { status: 409 });
+    return json({ error: "Uploaded size does not match file metadata" }, { status: 409 });
   }
 
   const id = crypto.randomUUID();
@@ -134,7 +135,7 @@ async function uploadChunk(request: Request, url: URL) {
     throw error;
   }
 
-  return Response.json(
+  return json(
     {
       complete: true,
       asset: {
@@ -157,7 +158,7 @@ export async function GET(request: Request) {
   try {
     const taskId = new URL(request.url).searchParams.get("taskId")?.trim();
     if (!taskId) {
-      return Response.json({ error: "taskId is required" }, { status: 400 });
+      return json({ error: "taskId is required" }, { status: 400 });
     }
 
     await ensureSchema();
@@ -179,9 +180,9 @@ export async function GET(request: Request) {
       .bind(taskId)
       .all();
 
-    return Response.json({ assets: result.results });
+    return json({ assets: result.results });
   } catch (error) {
-    return Response.json(
+    return json(
       { error: error instanceof Error ? error.message : "Unable to load assets" },
       { status: 500 },
     );
@@ -204,13 +205,13 @@ export async function POST(request: Request) {
       : "source";
 
     if (!(file instanceof File) || !taskId) {
-      return Response.json(
+      return json(
         { error: "taskId and file are required" },
         { status: 400 },
       );
     }
     if (file.size > MAX_FILE_BYTES) {
-      return Response.json(
+      return json(
         { error: "File exceeds the 100 MB upload limit" },
         { status: 413 },
       );
@@ -247,7 +248,7 @@ export async function POST(request: Request) {
       throw error;
     }
 
-    return Response.json(
+    return json(
       {
         asset: {
           id,
@@ -264,7 +265,7 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    return Response.json(
+    return json(
       { error: error instanceof Error ? error.message : "Unable to upload asset" },
       { status: 500 },
     );

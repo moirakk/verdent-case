@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { json } from "@/app/api/json";
 import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 /**
@@ -39,7 +40,7 @@ function missingEnv() {
 }
 
 function notConfiguredResponse(missing: string[]) {
-  return Response.json(
+  return json(
     {
       error: "AI_NOT_CONFIGURED",
       message:
@@ -61,13 +62,13 @@ export async function GET() {
   try {
     const user = await getChatGPTUser();
     if (!user) {
-      return Response.json(
+      return json(
         { error: "未登录，请先通过 ChatGPT 认证" },
         { status: 401 },
       );
     }
     const missing = missingEnv();
-    return Response.json(
+    return json(
       {
         configured: missing.length === 0,
         missing,
@@ -76,7 +77,7 @@ export async function GET() {
       { headers: { "cache-control": "no-store" } },
     );
   } catch (error) {
-    return Response.json(
+    return json(
       { error: error instanceof Error ? error.message : "无法读取生成配置状态" },
       { status: 500 },
     );
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
   try {
     const user = await getChatGPTUser();
     if (!user) {
-      return Response.json(
+      return json(
         { error: "未登录，请先通过 ChatGPT 认证" },
         { status: 401 },
       );
@@ -102,7 +103,7 @@ export async function POST(request: Request) {
     try {
       body = (await request.json()) as GenerateRequest;
     } catch {
-      return Response.json(
+      return json(
         { error: "INVALID_REQUEST", message: "请求体必须是合法 JSON" },
         { status: 400 },
       );
@@ -110,13 +111,13 @@ export async function POST(request: Request) {
 
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     if (!prompt) {
-      return Response.json(
+      return json(
         { error: "INVALID_REQUEST", message: "缺少 prompt 文本" },
         { status: 400 },
       );
     }
     if (prompt.length > MAX_PROMPT_CHARS) {
-      return Response.json(
+      return json(
         { error: "INVALID_REQUEST", message: `prompt 超过 ${MAX_PROMPT_CHARS} 字符上限` },
         { status: 413 },
       );
@@ -165,7 +166,7 @@ export async function POST(request: Request) {
       });
     } catch (error) {
       if (error instanceof DOMException && error.name === "TimeoutError") {
-        return Response.json(
+        return json(
           {
             error: "GENERATION_TIMEOUT",
             message: `模型端点在 ${GENERATION_TIMEOUT_MS / 1_000} 秒内未完成响应，请稍后重试或改用「生成 AI Prompt」手动执行`,
@@ -173,7 +174,7 @@ export async function POST(request: Request) {
           { status: 504 },
         );
       }
-      return Response.json(
+      return json(
         {
           error: "UPSTREAM_UNREACHABLE",
           message: `无法连接模型端点：${error instanceof Error ? error.message : "网络错误"}`,
@@ -197,7 +198,7 @@ export async function POST(request: Request) {
           : upstream.status === 429
             ? "模型端点限流，请稍后重试"
             : `模型端点返回 ${upstream.status}`;
-      return Response.json(
+      return json(
         { error: "UPSTREAM_ERROR", message, upstreamStatus: upstream.status },
         { status },
       );
@@ -210,13 +211,13 @@ export async function POST(request: Request) {
     };
     const content = result.choices?.[0]?.message?.content;
     if (typeof content !== "string" || !content.trim()) {
-      return Response.json(
+      return json(
         { error: "UPSTREAM_ERROR", message: "模型端点返回了空内容" },
         { status: 502 },
       );
     }
 
-    return Response.json(
+    return json(
       {
         content,
         model: result.model ?? model,
@@ -225,7 +226,7 @@ export async function POST(request: Request) {
       { headers: { "cache-control": "no-store" } },
     );
   } catch (error) {
-    return Response.json(
+    return json(
       { error: error instanceof Error ? error.message : "生成失败" },
       { status: 500 },
     );

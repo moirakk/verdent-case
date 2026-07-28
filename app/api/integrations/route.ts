@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { json } from "@/app/api/json";
 import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 type IntegrationPlatform =
@@ -559,7 +560,7 @@ async function responseFor(refresh: boolean) {
     };
   });
 
-  return Response.json(
+  return json(
     { connections, refreshedAt: refresh ? new Date().toISOString() : null },
     { headers: { "cache-control": "no-store" } },
   );
@@ -569,14 +570,14 @@ export async function GET() {
   try {
     const user = await getChatGPTUser();
     if (!user) {
-      return Response.json(
+      return json(
         { error: "未登录，请先通过 ChatGPT 认证" },
         { status: 401 },
       );
     }
     return await responseFor(false);
   } catch (error) {
-    return Response.json(
+    return json(
       { error: error instanceof Error ? error.message : "无法读取外部连接状态" },
       { status: 500 },
     );
@@ -587,14 +588,14 @@ export async function POST() {
   try {
     const user = await getChatGPTUser();
     if (!user) {
-      return Response.json(
+      return json(
         { error: "未登录，请先通过 ChatGPT 认证" },
         { status: 401 },
       );
     }
     return await responseFor(true);
   } catch (error) {
-    return Response.json(
+    return json(
       { error: error instanceof Error ? error.message : "无法同步外部渠道" },
       { status: 500 },
     );

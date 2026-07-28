@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { json } from "@/app/api/json";
 
 const WORKSPACE_ID = "verdent-primary";
 const MAX_PAYLOAD_BYTES = 8 * 1024 * 1024;
@@ -60,7 +61,7 @@ export async function GET() {
       }>();
 
     if (!row) {
-      return Response.json({
+      return json({
         workspace: null,
         revision: 0,
         updatedAt: null,
@@ -68,14 +69,14 @@ export async function GET() {
       });
     }
 
-    return Response.json({
+    return json({
       workspace: JSON.parse(row.payload),
       revision: row.revision,
       updatedAt: row.updated_at,
       updatedBy: row.updated_by,
     });
   } catch (error) {
-    return Response.json(
+    return json(
       {
         error:
           error instanceof Error
@@ -94,7 +95,7 @@ export async function PUT(request: Request) {
       baseRevision?: number;
     };
     if (!isWorkspacePayload(body.workspace)) {
-      return Response.json(
+      return json(
         { error: "Invalid workspace payload" },
         { status: 400 },
       );
@@ -102,7 +103,7 @@ export async function PUT(request: Request) {
 
     const payload = JSON.stringify(body.workspace);
     if (new TextEncoder().encode(payload).byteLength > MAX_PAYLOAD_BYTES) {
-      return Response.json(
+      return json(
         { error: "Workspace data is too large" },
         { status: 413 },
       );
@@ -118,7 +119,7 @@ export async function PUT(request: Request) {
     const baseRevision = body.baseRevision ?? 0;
 
     if (currentRevision !== baseRevision) {
-      return Response.json(
+      return json(
         {
           error: "Workspace changed on another device",
           code: "REVISION_CONFLICT",
@@ -167,7 +168,7 @@ export async function PUT(request: Request) {
       )
         .bind(WORKSPACE_ID)
         .first<{ revision: number }>();
-      return Response.json(
+      return json(
         {
           error: "Workspace changed on another device",
           code: "REVISION_CONFLICT",
@@ -177,13 +178,13 @@ export async function PUT(request: Request) {
       );
     }
 
-    return Response.json({
+    return json({
       ok: true,
       revision: nextRevision,
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    return Response.json(
+    return json(
       {
         error:
           error instanceof Error

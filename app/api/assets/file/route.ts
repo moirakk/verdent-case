@@ -1,10 +1,11 @@
 import { env } from "cloudflare:workers";
+import { json } from "@/app/api/json";
 
 export async function GET(request: Request) {
   try {
     const id = new URL(request.url).searchParams.get("id")?.trim();
     if (!id) {
-      return Response.json({ error: "id is required" }, { status: 400 });
+      return json({ error: "id is required" }, { status: 400 });
     }
 
     const row = await env.DB.prepare(`
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
       }>();
 
     if (!row) {
-      return Response.json({ error: "Asset not found" }, { status: 404 });
+      return json({ error: "Asset not found" }, { status: 404 });
     }
 
     const headers = new Headers();
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
       const [, prefix, countValue] = row.object_key.split("|");
       const chunkCount = Number(countValue);
       if (!prefix || !Number.isInteger(chunkCount) || chunkCount < 1) {
-        return Response.json({ error: "Invalid chunked asset metadata" }, { status: 500 });
+        return json({ error: "Invalid chunked asset metadata" }, { status: 500 });
       }
       let chunkIndex = 0;
       const stream = new ReadableStream<Uint8Array>({
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
 
     const object = await env.FILES.get(row.object_key);
     if (!object) {
-      return Response.json({ error: "Asset file not found" }, { status: 404 });
+      return json({ error: "Asset file not found" }, { status: 404 });
     }
     object.writeHttpMetadata(headers);
     headers.set("content-type", row.content_type);
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
     headers.set("etag", object.httpEtag);
     return new Response(object.body, { headers });
   } catch (error) {
-    return Response.json(
+    return json(
       { error: error instanceof Error ? error.message : "Unable to read asset" },
       { status: 500 },
     );
