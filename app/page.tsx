@@ -36,8 +36,19 @@ type Brief = {
 };
 type PublishItem = { enabled: boolean; accountId: string; scheduledAt: string; published: boolean; url: string };
 type Metric = { impressions: string; engagements: string; notes: string };
-type Snapshot = { at: string; drafts: Record<Channel, string>; poster: string };
+type Snapshot = { at: string; drafts: Record<Channel, string>; poster: string; video: string };
 type SyncState = "loading" | "synced" | "saving" | "offline" | "conflict";
+type GenerateAvailability = "loading" | "configured" | "unconfigured" | "unavailable";
+type GenerateConfig = {
+  availability: GenerateAvailability;
+  missing: string[];
+  model: string | null;
+};
+type GeneratedPack = {
+  drafts: Partial<Record<Channel, string>>;
+  poster?: string;
+  video?: string;
+};
 type AssetRecord = {
   id: string;
   taskId: string;
@@ -400,7 +411,10 @@ function migrateTask(raw: Omit<Partial<Task>, "kind"> & { status?: string; kind?
     checks: Object.fromEntries(Object.keys(checkLabels).map((key) => [key, raw.checks?.[key] ?? base.checks[key]])),
     publishing: Object.fromEntries(channels.map((channel) => [channel, { ...base.publishing[channel], ...(raw.publishing?.[channel] || {}) }])) as Record<Channel, PublishItem>,
     metrics: Object.fromEntries(channels.map((channel) => [channel, { ...base.metrics[channel], ...(raw.metrics?.[channel] || {}) }])) as Record<Channel, Metric>,
-    snapshots: raw.snapshots || [],
+    snapshots: (raw.snapshots || []).map((snapshot: Snapshot | (Omit<Snapshot, "video"> & { video?: string })) => ({
+      ...snapshot,
+      video: typeof snapshot.video === "string" ? snapshot.video : "",
+    })),
     deletedAt: raw.deletedAt || null,
     updatedAt: raw.updatedAt || new Date().toISOString(),
   } as Task;
@@ -585,6 +599,59 @@ async function copyText(value: string) {
   }
 }
 
+function defaultPosterBrief(task: Task) {
+  return `主体：${task.brief.subject || task.title}\n主标题：${task.brief.headline || task.title}\n重点能力：${splitSource(task.brief.features)[0] || "按 Brief 突出核心能力"}\n截图 / Logo：${task.brief.assets || "使用已上传素材"}`;
+}
+
+function buildWriterPrompt(task: Task, accountById: (id: string) => SocialAccount | undefined) {
+  const brief = task.brief;
+  const missing = getMissing(brief, task.kind);
+  const enabled = channels.filter((channel) => task.publishing[channel].enabled);
+  const destinations = enabled.map((channel) => {
+    const account = accountById(task.publishing[channel].accountId);
+    return `- ${channelNames[channel]}：${account?.accountName || "账号待确认"}${account?.url ? ` (${account.url})` : "（主页链接待补充）"}`;
+  }).join("\n");
+  const recentReferences = enabled.map((channel) => `### ${channelNames[channel]}\n${recentPostCalibration[channel]}`).join("\n\n");
+  return `请使用我们自己的 Verdent Social Growth Skill 处理此任务。\nSkill 文件：${growthSkillPath}\nSkill 版本：${growthSkillVersion}\n\n内容模式：${task.writerMode}\n任务：${task.title}\n类型：${task.kind}\n流程：${task.workflowMode}\nCampaign：${task.campaign || "无"}\n目标发布时间：${scheduleAnnotations(task)}\n内部备注：${task.notes || "无"}\n\n【事实门禁状态】\n发布上线状态：${task.checks.launch_confirmed ? "CONFIRMED" : "PENDING"}\n公开边界：${task.checks.public_scope ? "CONFIRMED" : "PENDING"}\n能力与性能依据：${task.checks.claim_evidence ? "CONFIRMED" : "PENDING"}\n内容包自检：${task.checks.writer_review && task.checks.design_review ? "APPROVED" : "NEEDS SELF-CHECK"}\n\n【已核对 Brief】\n主体：${brief.subject || "NOT PROVIDED"}\n模型厂商：${brief.vendor || "NOT PROVIDED"}\n核心传播点：${brief.headline || "NOT PROVIDED"}\n功能/能力：\n${brief.features || "NOT PROVIDED"}\n使用场景：\n${brief.scenarios || "NOT PROVIDED"}\n事实依据：\n${brief.evidence || "NOT PROVIDED"}\n素材：${brief.assets || "NOT PROVIDED"}\n厂商联动：${brief.partner || "NOT PROVIDED"}\n不可公开信息：${brief.confidential || "NOT PROVIDED"}\n缺失信息：${missing.join("、") || "无"}\n\n【本次启用平台与发布账号】\n${destinations}\n\n【最近两条 Verdent 内容校准 · 高优先级】\n基线日期：${recentPostCalibrationDate}\n以下历史内容只用于学习平台语气、篇幅、段落、CTA、emoji、hashtag 和素材关系，绝不能作为本次任务的事实依据。\n${recentReferences}\n\n【原始资料】\n${task.source || "暂无"}\n\n执行要求：\n1. 按 Skill 的顺序先输出 Release readiness、Publish blockers、Confirm before publishing 和 Confirmed basis。\n2. 写作前增加 Recent-post calibration。对每个启用平台列出实际采用的最近两条样本、发布日期或链接、内容类型，以及 2–4 个将沿用的表达特征。若能访问账号中更新的官方帖子，以执行时真正最新的两条替换上述基线。\n3. 最近两条官方内容是语气和格式的最高优先级参考；本次 Brief 与事实依据是所有事实和 claim 的唯一来源。禁止复制旧帖的产品事实、数字、状态或整句文案。\n4. 若最近两条与本次任务类型不同，保留本任务正确的信息结构，只借用中性的命名、节奏、段落、CTA 和视觉配合习惯。不得把观点帖写法强行套到正式发布。\n5. 若某平台没有两条可验证样本，明确写 VOICE SAMPLE MISSING，优先使用原始资料或内部备注中粘贴的最近两帖；仍无样本时按 Skill 的平台规范执行，禁止猜测账号历史风格。\n6. 对外文案全部使用英文；内部风险说明和 calibration 可以使用中文。\n7. 仅为本次启用的平台生成文案：${enabled.map((channel) => channelNames[channel]).join("、")}。每个平台从同一事实底稿重写，不机械裁剪。\n8. 同时生成海报或视觉 Brief；只有存在视频素材时才生成视频 Brief。\n9. 若上线状态、公开边界或关键依据未确认，整包标记 DRAFT — DO NOT PUBLISH，禁止使用 available now、is live、now supports 等发布态表达。\n10. 执行 Skill 的事实、隐私、夸大表述、英文长破折号、占位符、平台格式与 CTA 自检。CTA 按平台分配，可使用 https://www.verdent.ai/，不要在每个平台机械重复。\n11. 最终公开文案不要提到“参考最近两条”“样本”“calibration”或内部分析过程，只输出自然、可直接发布的 Verdent 内容。`;
+}
+
+function parseGeneratedPack(content: string, enabled: Channel[]) {
+  const normalized = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  const parsed = JSON.parse(normalized) as {
+    drafts?: Partial<Record<Channel, unknown>>;
+    poster?: unknown;
+    video?: unknown;
+  };
+  const drafts = Object.fromEntries(
+    enabled.flatMap((channel) => {
+      const value = parsed.drafts?.[channel];
+      return typeof value === "string" && value.trim() ? [[channel, value.trim()]] : [];
+    }),
+  ) as Partial<Record<Channel, string>>;
+  if (!Object.keys(drafts).length) throw new Error("EMPTY_DRAFTS");
+  return {
+    drafts,
+    poster: typeof parsed.poster === "string" && parsed.poster.trim() ? parsed.poster.trim() : undefined,
+    video: typeof parsed.video === "string" && parsed.video.trim() ? parsed.video.trim() : undefined,
+  } satisfies GeneratedPack;
+}
+
+function hasGeneratedContent(task: Task) {
+  return channels.some((channel) => task.publishing[channel].enabled && task.drafts[channel].trim())
+    || Boolean(task.poster.trim())
+    || Boolean(task.video.trim());
+}
+
+function generationErrorMessage(status: number, error?: string) {
+  if (status === 401) return "登录状态已失效，请刷新页面后重新进入；也可先用「生成 AI Prompt」手动生成。";
+  if (status === 503 || error === "AI_NOT_CONFIGURED") return "一键生成尚未配置模型，可先用「生成 AI Prompt」手动生成；待管理员补齐模型配置后再试。";
+  if (status === 504 || error === "GENERATION_TIMEOUT") return "这次生成超时了，可直接重试；如果赶时间，先用「生成 AI Prompt」手动生成。";
+  if (status === 502 || error === "UPSTREAM_ERROR" || error === "UPSTREAM_UNREACHABLE") return "模型服务暂时异常，可稍后重试；也可先用「生成 AI Prompt」手动生成。";
+  if (status === 429 || error === "RATE_LIMITED") return "模型服务当前请求过多，请稍等片刻再试；如果要先推进，建议改用「生成 AI Prompt」手动生成。";
+  if (status === 400 || status === 413 || error === "INVALID_REQUEST") return "这次生成请求有问题，请检查 Brief 和原始资料是否完整后重试；也可先用「生成 AI Prompt」手动生成。";
+  return "一键生成暂时不可用，请稍后重试；如果现在要继续，先用「生成 AI Prompt」手动生成。";
+}
+
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [accounts, setAccounts] = useState<SocialAccount[]>(defaultAccounts);
@@ -609,6 +676,8 @@ export default function Home() {
   const [newKind, setNewKind] = useState<Kind | "自动识别">("自动识别");
   const [newTemplateId, setNewTemplateId] = useState("");
   const [toast, setToast] = useState("");
+  const [generateConfig, setGenerateConfig] = useState<GenerateConfig>({ availability: "loading", missing: [], model: null });
+  const [isGenerating, setIsGenerating] = useState(false);
   const [syncState, setSyncState] = useState<SyncState>("loading");
   const [conflictRevision, setConflictRevision] = useState<number | null>(null);
   const [taskAssets, setTaskAssets] = useState<AssetRecord[]>([]);
@@ -729,6 +798,32 @@ export default function Home() {
     }
 
     void loadWorkspace();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadGenerateConfig() {
+      try {
+        const response = await fetch("/api/generate", { cache: "no-store" });
+        const result = await response.json().catch(() => null) as { configured?: boolean; missing?: string[]; model?: string | null } | null;
+        if (cancelled) return;
+        if (!response.ok) {
+          setGenerateConfig({ availability: "unavailable", missing: [], model: null });
+          return;
+        }
+        setGenerateConfig({
+          availability: result?.configured ? "configured" : "unconfigured",
+          missing: Array.isArray(result?.missing) ? result.missing : [],
+          model: typeof result?.model === "string" ? result.model : null,
+        });
+      } catch {
+        if (!cancelled) setGenerateConfig({ availability: "unavailable", missing: [], model: null });
+      }
+    }
+    void loadGenerateConfig();
     return () => {
       cancelled = true;
     };
@@ -881,6 +976,18 @@ export default function Home() {
   const issues = current ? qualityScan(current) : [];
   const performance = current ? performanceSummary(current) : null;
   const accountById = (id: string) => accounts.find((account) => account.id === id);
+  const generateButtonText = isGenerating
+    ? "生成中，约需 30-60 秒…"
+    : generateConfig.availability === "loading"
+      ? "检查一键生成配置…"
+      : "一键生成";
+  const generateHint = generateConfig.availability === "configured"
+    ? `已连接模型${generateConfig.model ? `：${generateConfig.model}` : ""}`
+    : generateConfig.availability === "unconfigured"
+      ? "未配置模型，可先用「生成 AI Prompt」手动生成。"
+      : generateConfig.availability === "unavailable"
+        ? "暂时无法检查模型配置，可先用「生成 AI Prompt」手动生成。"
+        : "正在检查模型配置…";
   const activeTasks = useMemo(() => tasks.filter((task) => !task.deletedAt), [tasks]);
   const deletedTasks = useMemo(() => tasks.filter((task) => task.deletedAt), [tasks]);
   const filteredTasks = useMemo(() => activeTasks.filter((task) => {
@@ -1032,23 +1139,24 @@ export default function Home() {
     channels.forEach((channel) => {
       if (current.publishing[channel].enabled && !drafts[channel].trim()) drafts[channel] = starter[channel];
     });
-    const poster = current.poster || `主体：${current.brief.subject || current.title}\n主标题：${current.brief.headline || current.title}\n重点能力：${splitSource(current.brief.features)[0] || "按 Brief 突出核心能力"}\n截图 / Logo：${current.brief.assets || "使用已上传素材"}`;
+    const poster = current.poster || defaultPosterBrief(current);
     update({ drafts, poster });
     say("英文初稿和视觉 Brief 已生成，请在审核阶段运行自检");
   }
   function saveSnapshot() {
     if (!current) return;
-    const snapshot: Snapshot = { at: new Date().toISOString(), drafts: { ...current.drafts }, poster: current.poster };
+    const snapshot: Snapshot = { at: new Date().toISOString(), drafts: { ...current.drafts }, poster: current.poster, video: current.video };
     update({ snapshots: [snapshot, ...current.snapshots] });
     say("内容快照已保存");
   }
   function restoreSnapshot(snapshot: Snapshot) {
     if (!current) return;
     if (!window.confirm(`恢复 ${new Date(snapshot.at).toLocaleString("zh-CN")} 的快照？\n\n当前内容已自动存为快照，恢复后可随时切换回来。`)) return;
-    const backup: Snapshot = { at: new Date().toISOString(), drafts: { ...current.drafts }, poster: current.poster };
+    const backup: Snapshot = { at: new Date().toISOString(), drafts: { ...current.drafts }, poster: current.poster, video: current.video };
     update({
       drafts: { ...current.drafts, ...snapshot.drafts },
       poster: snapshot.poster,
+      video: snapshot.video,
       snapshots: [backup, ...current.snapshots],
     });
     say("已恢复该版本，恢复前的内容已自动存为快照");
@@ -1070,19 +1178,71 @@ export default function Home() {
   }
   async function copyWriterPrompt() {
     if (!current) return;
-    const brief = current.brief;
-    const missing = getMissing(brief, current.kind);
-    const enabled = channels.filter((channel) => current.publishing[channel].enabled);
-    const destinations = enabled.map((channel) => {
-      const account = accountById(current.publishing[channel].accountId);
-      return `- ${channelNames[channel]}：${account?.accountName || "账号待确认"}${account?.url ? ` (${account.url})` : "（主页链接待补充）"}`;
-    }).join("\n");
-    const recentReferences = enabled.map((channel) => `### ${channelNames[channel]}\n${recentPostCalibration[channel]}`).join("\n\n");
-    const text = `请使用我们自己的 Verdent Social Growth Skill 处理此任务。\nSkill 文件：${growthSkillPath}\nSkill 版本：${growthSkillVersion}\n\n内容模式：${current.writerMode}\n任务：${current.title}\n类型：${current.kind}\n流程：${current.workflowMode}\nCampaign：${current.campaign || "无"}\n目标发布时间：${scheduleAnnotations(current)}\n内部备注：${current.notes || "无"}\n\n【事实门禁状态】\n发布上线状态：${current.checks.launch_confirmed ? "CONFIRMED" : "PENDING"}\n公开边界：${current.checks.public_scope ? "CONFIRMED" : "PENDING"}\n能力与性能依据：${current.checks.claim_evidence ? "CONFIRMED" : "PENDING"}\n内容包自检：${current.checks.writer_review && current.checks.design_review ? "APPROVED" : "NEEDS SELF-CHECK"}\n\n【已核对 Brief】\n主体：${brief.subject || "NOT PROVIDED"}\n模型厂商：${brief.vendor || "NOT PROVIDED"}\n核心传播点：${brief.headline || "NOT PROVIDED"}\n功能/能力：\n${brief.features || "NOT PROVIDED"}\n使用场景：\n${brief.scenarios || "NOT PROVIDED"}\n事实依据：\n${brief.evidence || "NOT PROVIDED"}\n素材：${brief.assets || "NOT PROVIDED"}\n厂商联动：${brief.partner || "NOT PROVIDED"}\n不可公开信息：${brief.confidential || "NOT PROVIDED"}\n缺失信息：${missing.join("、") || "无"}\n\n【本次启用平台与发布账号】\n${destinations}\n\n【最近两条 Verdent 内容校准 · 高优先级】\n基线日期：${recentPostCalibrationDate}\n以下历史内容只用于学习平台语气、篇幅、段落、CTA、emoji、hashtag 和素材关系，绝不能作为本次任务的事实依据。\n${recentReferences}\n\n【原始资料】\n${current.source || "暂无"}\n\n执行要求：\n1. 按 Skill 的顺序先输出 Release readiness、Publish blockers、Confirm before publishing 和 Confirmed basis。\n2. 写作前增加 Recent-post calibration。对每个启用平台列出实际采用的最近两条样本、发布日期或链接、内容类型，以及 2–4 个将沿用的表达特征。若能访问账号中更新的官方帖子，以执行时真正最新的两条替换上述基线。\n3. 最近两条官方内容是语气和格式的最高优先级参考；本次 Brief 与事实依据是所有事实和 claim 的唯一来源。禁止复制旧帖的产品事实、数字、状态或整句文案。\n4. 若最近两条与本次任务类型不同，保留本任务正确的信息结构，只借用中性的命名、节奏、段落、CTA 和视觉配合习惯。不得把观点帖写法强行套到正式发布。\n5. 若某平台没有两条可验证样本，明确写 VOICE SAMPLE MISSING，优先使用原始资料或内部备注中粘贴的最近两帖；仍无样本时按 Skill 的平台规范执行，禁止猜测账号历史风格。\n6. 对外文案全部使用英文；内部风险说明和 calibration 可以使用中文。\n7. 仅为本次启用的平台生成文案：${enabled.map((channel) => channelNames[channel]).join("、")}。每个平台从同一事实底稿重写，不机械裁剪。\n8. 同时生成海报或视觉 Brief；只有存在视频素材时才生成视频 Brief。\n9. 若上线状态、公开边界或关键依据未确认，整包标记 DRAFT — DO NOT PUBLISH，禁止使用 available now、is live、now supports 等发布态表达。\n10. 执行 Skill 的事实、隐私、夸大表述、英文长破折号、占位符、平台格式与 CTA 自检。CTA 按平台分配，可使用 https://www.verdent.ai/，不要在每个平台机械重复。\n11. 最终公开文案不要提到“参考最近两条”“样本”“calibration”或内部分析过程，只输出自然、可直接发布的 Verdent 内容。`;
+    const text = buildWriterPrompt(current, accountById);
     setPromptText(text);
     setPromptOpen(true);
     const copied = await copyText(text);
     say(copied ? "Prompt 已复制，也已打开预览" : "Prompt 已生成，请在预览中手动复制");
+  }
+  async function generateWithAI() {
+    if (!current || isGenerating || generateConfig.availability !== "configured") return;
+    const shouldProtect = hasGeneratedContent(current);
+    if (shouldProtect && !window.confirm("当前文案区或 Brief 已有内容。\n\n继续一键生成前，系统会先自动保存一份快照，生成结果将覆盖对应内容；你之后仍可一键恢复。\n\n是否继续？")) return;
+    setIsGenerating(true);
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          prompt: buildWriterPrompt(current, accountById),
+          system: [
+            "你是 Verdent 的内容包执行引擎。",
+            "严格遵守用户 prompt 里的全部事实、门禁、平台与语气要求。",
+            "最终只输出 JSON，不要 markdown、不要代码围栏、不要额外解释。",
+            "JSON 结构必须是 {\"drafts\":{\"x?:string\",\"discord?:string\",\"linkedin?:string\",\"reddit?:string\",\"instagram?:string\",\"tiktok?:string\"},\"poster\":\"string\",\"video\":\"string\"}。",
+            "只为用户 prompt 中已启用的平台填写 drafts；未启用的平台不要输出。",
+            "poster 填海报或视觉 Brief；若没有视频素材，video 写“本次不需要”。",
+          ].join("\n"),
+        }),
+        signal: AbortSignal.timeout(65_000),
+      });
+      const result = await response.json().catch(() => null) as { content?: string; error?: string } | null;
+      if (!response.ok) {
+        say(generationErrorMessage(response.status, result?.error));
+        if (response.status === 503 || result?.error === "AI_NOT_CONFIGURED") {
+          setGenerateConfig((state) => ({ ...state, availability: "unconfigured" }));
+        }
+        return;
+      }
+      if (typeof result?.content !== "string") {
+        say("模型返回内容不完整，请重试；如果赶时间，先用「生成 AI Prompt」手动生成。");
+        return;
+      }
+      let pack: GeneratedPack;
+      try {
+        pack = parseGeneratedPack(result.content, channels.filter((channel) => current.publishing[channel].enabled));
+      } catch {
+        say("模型返回格式无法直接回填，请重试；如果赶时间，先用「生成 AI Prompt」手动生成。");
+        return;
+      }
+      const snapshot = shouldProtect ? { at: new Date().toISOString(), drafts: { ...current.drafts }, poster: current.poster, video: current.video } : null;
+      update({
+        drafts: { ...current.drafts, ...pack.drafts },
+        poster: pack.poster || current.poster || defaultPosterBrief(current),
+        video: pack.video || current.video,
+        ...(snapshot ? { snapshots: [snapshot, ...current.snapshots] } : {}),
+      });
+      say(shouldProtect ? "一键生成已完成；覆盖前的内容已自动存为快照，可随时恢复。" : "一键生成已完成，结果已回填到当前任务。");
+    } catch (error) {
+      const message = error instanceof DOMException && error.name === "TimeoutError"
+        ? "这次生成超时了，可直接重试；如果赶时间，先用「生成 AI Prompt」手动生成。"
+        : error instanceof TypeError
+          ? "网络连接似乎出了问题，请确认网络或稍后重试；如果现在要继续，先用「生成 AI Prompt」手动生成。"
+          : "一键生成暂时不可用，请稍后重试；如果现在要继续，先用「生成 AI Prompt」手动生成。";
+      say(message);
+    } finally {
+      setIsGenerating(false);
+    }
   }
   function importFile(file: File) {
     const reader = new FileReader();
@@ -1207,7 +1367,7 @@ export default function Home() {
     </aside>
 
     <section className="main-area">{!current ? dashboard : <>
-      <header className="task-topbar"><div><div className="crumb"><button onClick={() => setSelectedId(null)}>工作台</button><span>/</span><span>{current.kind}</span></div><input className="task-title" value={current.title} onChange={(event) => update({ title: event.target.value })} /></div><div className="top-actions"><span className="autosaved">{syncState === "synced" ? "✓ 已保存到云端" : syncState === "saving" ? "正在保存…" : syncState === "conflict" ? "同步冲突 · 请在顶部选择保留哪个版本" : syncState === "offline" ? "离线 · 暂未同步" : "正在连接云端…"}</span><button className="button" onClick={saveAsTemplate}>存为模板</button><button className="button" onClick={exportMarkdown}>导出</button><button className="button primary" onClick={copyWriterPrompt}>生成 AI Prompt</button></div></header>
+      <header className="task-topbar"><div><div className="crumb"><button onClick={() => setSelectedId(null)}>工作台</button><span>/</span><span>{current.kind}</span></div><input className="task-title" value={current.title} onChange={(event) => update({ title: event.target.value })} /></div><div className="top-actions"><span className="autosaved">{syncState === "synced" ? "✓ 已保存到云端" : syncState === "saving" ? "正在保存…" : syncState === "conflict" ? "同步冲突 · 请在顶部选择保留哪个版本" : syncState === "offline" ? "离线 · 暂未同步" : "正在连接云端…"}</span><button className="button" onClick={saveAsTemplate}>存为模板</button><button className="button" onClick={exportMarkdown}>导出</button><button className="button" onClick={() => void generateWithAI()} disabled={generateConfig.availability !== "configured" || isGenerating}>{generateButtonText}</button><button className="button primary" onClick={copyWriterPrompt}>生成 AI Prompt</button></div></header>
       <section className="task-meta">
         <label>类型<select value={current.kind} onChange={(event) => { const kind = event.target.value as Kind; const defaults = emptyPublishing(kind); update({ kind, writerMode: writerModeFor(kind), brief: recognizeBrief(current.source, kind), publishing: Object.fromEntries(channels.map((channel) => [channel, { ...current.publishing[channel], enabled: defaults[channel].enabled }])) as Record<Channel, PublishItem> }); }}>{kinds.map((kind) => <option key={kind}>{kind}</option>)}</select></label>
         <label>优先级<select value={current.priority} onChange={(event) => update({ priority: event.target.value as Priority })}><option>P0</option><option>P1</option><option>P2</option></select></label>
@@ -1247,7 +1407,8 @@ export default function Home() {
         </>}
 
         {activeStage === 2 && <>
-          <header className="stage-heading"><div><span className="step-label">STEP 03 · PRODUCTION</span><h2>一次生产完整内容包</h2><p>启用的平台共享同一个事实底稿，但表达方式按平台重写，不做机械裁剪。</p></div><div className="heading-actions"><button className="button" onClick={copyWriterPrompt}>生成 AI Prompt</button><button className="button primary" onClick={generateStarterDrafts}>直接生成英文初稿</button></div></header>
+          <header className="stage-heading"><div><span className="step-label">STEP 03 · PRODUCTION</span><h2>一次生产完整内容包</h2><p>启用的平台共享同一个事实底稿，但表达方式按平台重写，不做机械裁剪。</p></div><div className="heading-actions"><button className="button" onClick={copyWriterPrompt}>生成 AI Prompt</button><button className="button" onClick={() => void generateWithAI()} disabled={generateConfig.availability !== "configured" || isGenerating}>{generateButtonText}</button><button className="button primary" onClick={generateStarterDrafts}>直接生成英文初稿</button></div></header>
+          <div className={`alert ${generateConfig.availability === "configured" ? "success" : ""}`}><b>{generateConfig.availability === "configured" ? "一键生成已可用" : "一键生成暂不可用"}</b><p>{isGenerating ? "正在请求模型并等待返回，请勿重复点击；通常约需 30-60 秒。" : generateHint}</p></div>
           <div className="platform-switch">{channels.map((channel) => <button key={channel} className={`${platform === channel ? "active" : ""} ${!current.publishing[channel].enabled ? "inactive" : ""}`} onClick={() => setPlatform(channel)}><span>{channelNames[channel]}</span><i>{!current.publishing[channel].enabled ? "未启用" : current.drafts[channel].trim() ? "✓" : "空"}</i></button>)}</div>
           <div className="draft-head"><div><h3>{channelNames[platform]} 文案</h3><p>{channelNotes[platform]}</p></div><button className="button" onClick={async () => say(await copyText(current.drafts[platform]) ? "文案已复制" : "复制失败，请手动选择文字")}>复制文案</button></div>
           <textarea className="large-editor draft-editor" value={current.drafts[platform]} onChange={(event) => update({ drafts: { ...current.drafts, [platform]: event.target.value } })} placeholder={`在这里粘贴或编辑 ${channelNames[platform]} 文案……`} />
@@ -1292,7 +1453,7 @@ export default function Home() {
       <aside className="next-panel">
         <section className="next-card"><span className="eyebrow">CURRENT GATE</span><h3>{stages[current.stage].name}阶段</h3>{currentNeeds.length ? <><p>完成以下 {currentNeeds.length} 项后才能推进：</p><ul>{currentNeeds.slice(0, 6).map((need) => <li key={need}>{need}</li>)}</ul>{currentNeeds.length > 6 && <small>另有 {currentNeeds.length - 6} 项未完成</small>}</> : <div className="all-clear"><span>✓</span><p>本阶段门禁已完成，可以进入下一步。</p></div>}<button className="button primary next-action" onClick={advance} disabled={current.stage === 5}>{current.stage === 5 ? "流程已完成" : `进入「${stages[Math.min(current.stage + 1, 5)].name}」阶段 →`}</button></section>
         <section className="health-card"><header><h3>任务健康度</h3><strong>{Math.round((activeCheckKeys.filter((key) => current.checks[key]).length / activeCheckKeys.length) * 100)}%</strong></header><div><span>事实完整度</span><b>{Math.max(0, 7 - getMissing(current.brief, current.kind).length)}/7</b></div><div><span>启用平台文案</span><b>{channels.filter((channel) => current.publishing[channel].enabled && current.drafts[channel].trim()).length}/{channels.filter((channel) => current.publishing[channel].enabled).length}</b></div><div><span>风险扫描</span><b className={issues.some((issue) => issue.level === "高") ? "red" : "green"}>{issues.some((issue) => issue.level === "高") ? "需处理" : "正常"}</b></div></section>
-        <section className="shortcut-card"><h3>快捷动作</h3><button onClick={generateStarterDrafts}>直接生成英文初稿 <span>＋</span></button><button onClick={copyWriterPrompt}>生成 AI Prompt <span>⌘</span></button><button onClick={saveAsTemplate}>保存为任务模板 <span>＋</span></button><button onClick={() => setAccountsOpen(true)}>打开社媒账号中心 <span>↗</span></button><button onClick={saveSnapshot}>保存内容快照 <span>＋</span></button></section>
+        <section className="shortcut-card"><h3>快捷动作</h3><button onClick={generateStarterDrafts}>直接生成英文初稿 <span>＋</span></button><button onClick={copyWriterPrompt}>生成 AI Prompt <span>⌘</span></button><button onClick={() => void generateWithAI()} disabled={generateConfig.availability !== "configured" || isGenerating}>{generateButtonText} <span>AI</span></button><button onClick={saveAsTemplate}>保存为任务模板 <span>＋</span></button><button onClick={() => setAccountsOpen(true)}>打开社媒账号中心 <span>↗</span></button><button onClick={saveSnapshot}>保存内容快照 <span>＋</span></button></section>
         <section className="delete-card"><button onClick={removeTask}>删除此任务</button><small>移入回收站，30 天内可恢复</small><small>最后更新 {new Date(current.updatedAt).toLocaleString("zh-CN")}</small></section>
       </aside></div>
     </>}</section>
