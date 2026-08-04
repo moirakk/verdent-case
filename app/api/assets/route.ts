@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { json } from "@/app/api/json";
+import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_CHUNK_BYTES = 768 * 1024;
@@ -156,6 +157,13 @@ async function uploadChunk(request: Request, url: URL) {
 
 export async function GET(request: Request) {
   try {
+    const user = await getChatGPTUser();
+    if (!user) {
+      return json(
+        { error: "未登录，请先通过 ChatGPT 认证" },
+        { status: 401 },
+      );
+    }
     const taskId = new URL(request.url).searchParams.get("taskId")?.trim();
     if (!taskId) {
       return json({ error: "taskId is required" }, { status: 400 });
@@ -191,6 +199,13 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const user = await getChatGPTUser();
+    if (!user) {
+      return json(
+        { error: "未登录，请先通过 ChatGPT 认证" },
+        { status: 401 },
+      );
+    }
     const url = new URL(request.url);
     if (url.searchParams.get("mode") === "chunk") {
       return await uploadChunk(request, url);

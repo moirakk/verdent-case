@@ -1,8 +1,16 @@
 import { env } from "cloudflare:workers";
 import { json } from "@/app/api/json";
+import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 export async function GET(request: Request) {
   try {
+    const user = await getChatGPTUser();
+    if (!user) {
+      return json(
+        { error: "未登录，请先通过 ChatGPT 认证" },
+        { status: 401 },
+      );
+    }
     const id = new URL(request.url).searchParams.get("id")?.trim();
     if (!id) {
       return json({ error: "id is required" }, { status: 400 });

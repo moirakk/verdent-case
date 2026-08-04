@@ -58,3 +58,21 @@ test("keeps the workflow, safety scan, and cloud persistence in the product", as
   assert.match(workflow, /六阶段流水线/);
   assert.match(workflow, /skills\/verdent-social-growth\/SKILL\.md/);
 });
+
+test("protects every workspace and asset API with ChatGPT identity", async () => {
+  const routes = await Promise.all([
+    readFile(new URL("../app/api/workspace/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/assets/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/assets/file/route.ts", import.meta.url), "utf8"),
+  ]);
+
+  for (const route of routes) {
+    assert.match(route, /import \{ getChatGPTUser \} from "@\/app\/chatgpt-auth"/);
+    assert.match(route, /const user = await getChatGPTUser\(\)/);
+    assert.match(route, /if \(!user\)[\s\S]*status: 401/);
+  }
+
+  assert.equal(routes[0].match(/const user = await getChatGPTUser\(\)/g)?.length, 2);
+  assert.equal(routes[1].match(/const user = await getChatGPTUser\(\)/g)?.length, 2);
+  assert.equal(routes[2].match(/const user = await getChatGPTUser\(\)/g)?.length, 1);
+});
