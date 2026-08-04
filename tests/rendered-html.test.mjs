@@ -87,3 +87,15 @@ test("requires confirmation before migrating local data into an empty cloud work
   assert.match(page, /if \(creatingTaskRef\.current\) return/);
   assert.match(page, /seen\.has\(task\.id\)/);
 });
+
+test("keeps blocked stage actions disabled and removes desktop page overflow", async () => {
+  const [page, styles] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(page, /disabled=\{current\.stage === 5 \|\| currentNeeds\.length > 0\}/);
+  assert.match(page, /还差 \$\{currentNeeds\.length\} 项，暂不能推进/);
+  assert.match(styles, /\.app-shell > \* \{ min-width: 0; \}/);
+  assert.match(styles, /@media \(max-width: 1500px\)[\s\S]*\.work-layout \{ display: block/);
+});
