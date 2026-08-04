@@ -420,6 +420,15 @@ function migrateTask(raw: Omit<Partial<Task>, "kind"> & { status?: string; kind?
   } as Task;
 }
 
+function migrateTasks(rawTasks: Task[]) {
+  const seen = new Set<string>();
+  return rawTasks.map(migrateTask).filter((task) => {
+    if (!isRetained(task) || seen.has(task.id)) return false;
+    seen.add(task.id);
+    return true;
+  });
+}
+
 function subjectFamilies(subjects: string[]) {
   return unique(subjects.map((subject) => subject.match(/Gemini|GPT|Kimi|Claude/i)?.[0] || "").filter(Boolean));
 }
@@ -689,6 +698,11 @@ export default function Home() {
   const revisionRef = useRef(0);
   const conflictRef = useRef<number | null>(null);
   const hasHydratedRef = useRef(false);
+  const creatingTaskRef = useRef(false);
+
+  useEffect(() => {
+    if (newOpen) creatingTaskRef.current = false;
+  }, [newOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -708,7 +722,7 @@ export default function Home() {
             pendingSync?: boolean;
           };
           if (Array.isArray(parsed.tasks) && Array.isArray(parsed.accounts)) {
-            localTasks = parsed.tasks.map(migrateTask).filter(isRetained);
+            localTasks = migrateTasks(parsed.tasks);
             localAccounts = defaultAccounts.map((account) => ({
               ...account,
               ...(parsed.accounts?.find((item) => item.id === account.id) || {}),
@@ -723,7 +737,7 @@ export default function Home() {
       const saved = localStorage.getItem("verdent-local-workspace");
       if (!hasCloudCache && saved) {
         try {
-          localTasks = (JSON.parse(saved) as Task[]).map(migrateTask).filter(isRetained);
+          localTasks = migrateTasks(JSON.parse(saved) as Task[]);
         } catch { /* keep an empty workspace if an old backup is invalid */ }
       }
       const savedAccounts = localStorage.getItem("verdent-social-accounts");
@@ -747,7 +761,7 @@ export default function Home() {
 
         if (result.workspace) {
           revisionRef.current = result.revision;
-          const cloudTasks = (result.workspace.tasks || []).map(migrateTask).filter(isRetained);
+          const cloudTasks = migrateTasks(result.workspace.tasks || []);
           const cloudAccounts = defaultAccounts.map((account) => ({
             ...account,
             ...((result.workspace?.accounts || []).find((item) => item.id === account.id) || {}),
@@ -772,17 +786,13 @@ export default function Home() {
           setTasks(localTasks);
           setAccounts(localAccounts);
           setTemplates(localTemplates);
-          const migrationResponse = await fetch("/api/workspace", {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              workspace: { version: 4, tasks: localTasks, accounts: localAccounts, templates: localTemplates },
-              baseRevision: 0,
-            }),
-          });
-          if (migrationResponse.ok) {
-            const migration = await migrationResponse.json() as { revision: number };
-            revisionRef.current = migration.revision;
+          const hasLocalContent = localTasks.length > 0 || localPending;
+          if (hasLocalContent) {
+            conflictRef.current = 0;
+            setConflictRevision(0);
+            setSyncState("conflict");
+            setLoaded(true);
+            return;
           }
         }
         setSyncState("synced");
@@ -924,7 +934,7 @@ export default function Home() {
         workspace: { tasks?: Task[]; accounts?: SocialAccount[]; templates?: TaskTemplate[] } | null;
         revision: number;
       };
-      const cloudTasks = (result.workspace?.tasks || []).map(migrateTask).filter(isRetained);
+      const cloudTasks = migrateTasks(result.workspace?.tasks || []);
       const cloudAccounts = defaultAccounts.map((account) => ({
         ...account,
         ...((result.workspace?.accounts || []).find((item) => item.id === account.id) || {}),
@@ -1025,6 +1035,8 @@ export default function Home() {
     setActiveStage(task.stage);
   }
   function createTask() {
+    if (creatingTaskRef.current) return;
+    creatingTaskRef.current = true;
     const template = templates.find((item) => item.id === newTemplateId);
     const attachmentNote = newFiles.filter((file) => !/^(text\/|application\/(?:json|xml))/.test(file.type)).map((file) => `附件：${file.name}`).join("\n");
     const source = [newSource.trim(), attachmentNote].filter(Boolean).join("\n");
@@ -1352,12 +1364,12 @@ export default function Home() {
   return <main className="app-shell">
     {syncState === "conflict" && <div className="conflict-banner" role="alert">
       <div>
-        <b>云端和本设备的内容不一致{conflictRevision !== null ? `（云端版本 #${conflictRevision}）` : ""}</b>
-        <p>另一台设备（或另一个标签页）保存了更新的版本。在你做出选择前，编辑会留在本设备，不会自动上传，也不会被覆盖。</p>
+        <b>{conflictRevision === 0 ? "云端尚无内容，但本设备有待迁移数据" : `云端和本设备的内容不一致${conflictRevision !== null ? `（云端版本 #${conflictRevision}）` : ""}`}</b>
+        <p>{conflictRevision === 0 ? "为避免旧缓存被误上传，系统不会自动迁移。在你做出选择前，本设备内容会原样保留。" : "另一台设备（或另一个标签页）保存了更新的版本。在你做出选择前，编辑会留在本设备，不会自动上传，也不会被覆盖。"}</p>
       </div>
       <div className="conflict-actions">
-        <button className="button primary" onClick={() => void resolveConflictKeepLocal()}>保留本设备版本（覆盖云端）</button>
-        <button className="button" onClick={() => void resolveConflictUseCloud()}>改用云端版本（丢弃本设备未同步的改动）</button>
+        <button className="button primary" onClick={() => void resolveConflictKeepLocal()}>{conflictRevision === 0 ? "将本设备内容保存到云端" : "保留本设备版本（覆盖云端）"}</button>
+        <button className="button" onClick={() => void resolveConflictUseCloud()}>{conflictRevision === 0 ? "使用空白云端版本（丢弃本机待迁移内容）" : "改用云端版本（丢弃本设备未同步的改动）"}</button>
       </div>
     </div>}
     <aside className="sidebar">

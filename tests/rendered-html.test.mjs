@@ -76,3 +76,14 @@ test("protects every workspace and asset API with ChatGPT identity", async () =>
   assert.equal(routes[1].match(/const user = await getChatGPTUser\(\)/g)?.length, 2);
   assert.equal(routes[2].match(/const user = await getChatGPTUser\(\)/g)?.length, 1);
 });
+
+test("requires confirmation before migrating local data into an empty cloud workspace", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+
+  assert.match(page, /const hasLocalContent = localTasks\.length > 0 \|\| localPending/);
+  assert.match(page, /conflictRef\.current = 0/);
+  assert.match(page, /系统不会自动迁移/);
+  assert.match(page, /将本设备内容保存到云端/);
+  assert.match(page, /if \(creatingTaskRef\.current\) return/);
+  assert.match(page, /seen\.has\(task\.id\)/);
+});
