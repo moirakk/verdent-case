@@ -1,0 +1,1201 @@
+<!doctype html>
+<!-- VERDENT SKILLBOOK SERIES TEMPLATE: Logo > SkillName > SkillDesc > InputLabel > InputContent > TaskLabel > TaskType > ExecStart > Checkboxes > ArtifactUnlock > ArtifactContent > Compare > Tagline > EndCard -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Verdent Skillbook // Episode 001 // Plan Mode</title>
+  <style>
+    :root {
+      --black: #020403;
+      --verdent-deep: #06120f;
+      --verdent-dark: #071512;
+      --verdent-lime: #39f6ad;
+      --signal: #49dca4;
+      --signal-strong: #7dffe0;
+      --signal-soft: #1f7c68;
+      --cyan: #1fd6ff;
+      --signal-rgb: 73, 220, 164;
+      --accent-rgb: 57, 246, 173;
+      --cyan-rgb: 31, 214, 255;
+      --dim: rgba(var(--signal-rgb), .42);
+      --faint: rgba(var(--signal-rgb), .13);
+      --glass: rgba(8, 15, 9, .76);
+      --dur: 20s;
+      --ease: cubic-bezier(.22, 1, .36, 1);
+      --snap: cubic-bezier(.16, 1, .3, 1);
+      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; background: #000; }
+    body {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      overflow: hidden;
+      color: var(--signal);
+    }
+
+    .page {
+      --u: calc(min(100vw, 100vh * 9 / 16, 1080px) / 100);
+      position: relative;
+      width: min(100vw, calc(100vh * 9 / 16));
+      height: min(100vh, calc(100vw * 16 / 9));
+      max-width: 1080px;
+      max-height: 1920px;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(var(--cyan-rgb), .075), transparent 32%),
+        radial-gradient(circle at 50% 62%, rgba(var(--accent-rgb), .105), transparent 38%),
+        linear-gradient(180deg, #000 0%, #06120f 48%, #020403 100%);
+      box-shadow: 0 0 12px rgba(var(--signal-rgb), .065), inset 0 0 24px rgba(var(--cyan-rgb), .032);
+      aspect-ratio: 9 / 16;
+      animation:
+        screenFlicker 5.8s infinite steps(1),
+        crtWake var(--dur) linear both,
+        brightnessTrack var(--dur) linear both;
+    }
+
+    /* ===== CYBERPUNK OVERLAYS ===== */
+    .page::before,
+    .page::after {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      content: "";
+      z-index: 60;
+    }
+
+    /* Scanlines (enhanced) + side edge glow */
+    .page::before {
+      background:
+        repeating-linear-gradient(0deg, rgba(var(--signal-rgb), .08) 0 1px, transparent 1px 4px),
+        linear-gradient(90deg, rgba(var(--cyan-rgb), .045), transparent 14%, transparent 86%, rgba(var(--accent-rgb), .04));
+      mix-blend-mode: screen;
+      opacity: .55;
+    }
+
+    /* Vignette */
+    .page::after {
+      background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, .34) 84%, rgba(0, 0, 0, .7) 100%);
+      opacity: .62;
+    }
+
+    /* Perspective grid (vanishing point at bottom center) */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 55;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, rgba(var(--signal-rgb), .06) 0 1px, transparent 1px 60px),
+        repeating-linear-gradient(180deg, rgba(var(--signal-rgb), .04) 0 1px, transparent 1px 60px);
+      transform: perspective(600px) rotateX(42deg);
+      transform-origin: 50% 100%;
+      opacity: .07;
+      mask-image: linear-gradient(to top, rgba(0,0,0,.8), transparent 70%);
+      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.8), transparent 70%);
+    }
+
+    /* Data stream columns (left + right) */
+    .data-stream {
+      position: absolute;
+      top: 0;
+      width: 12px;
+      height: 200%;
+      z-index: 59;
+      pointer-events: none;
+      font-size: 7px;
+      line-height: 1.3;
+      color: rgba(var(--signal-rgb), .18);
+      overflow: hidden;
+      writing-mode: vertical-rl;
+      animation: streamScroll 8s linear infinite;
+    }
+    .data-stream.left { left: 2.5%; }
+    .data-stream.right { right: 2.5%; animation-duration: 9.4s; animation-direction: reverse; }
+
+    @keyframes streamScroll {
+      from { transform: translateY(0); }
+      to { transform: translateY(-50%); }
+    }
+
+    /* Corner brackets (HUD) */
+    .corner-bracket {
+      position: absolute;
+      width: calc(var(--u) * 3.2);
+      height: calc(var(--u) * 3.2);
+      border-color: rgba(var(--signal-rgb), .35);
+      border-style: solid;
+      z-index: 76;
+      pointer-events: none;
+    }
+    .corner-bracket.tl { top: 3.8%; left: 5.5%; border-width: 1px 0 0 1px; }
+    .corner-bracket.tr { top: 3.8%; right: 5.5%; border-width: 1px 1px 0 0; }
+    .corner-bracket.bl { bottom: 3.8%; left: 5.5%; border-width: 0 0 1px 1px; }
+    .corner-bracket.br { bottom: 3.8%; right: 5.5%; border-width: 0 1px 1px 0; }
+
+    /* Scene indicator dots (right side) */
+    .scene-dots {
+      position: absolute;
+      right: 3.2%;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 76;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--u) * 1.6);
+    }
+    .scene-dots i {
+      display: block;
+      width: calc(var(--u) * 1);
+      height: calc(var(--u) * 1);
+      border-radius: 50%;
+      background: rgba(var(--signal-rgb), .2);
+      transition: background .15s, box-shadow .15s;
+    }
+    .scene-dots i.active {
+      background: var(--verdent-lime);
+      box-shadow: 0 0 6px rgba(var(--accent-rgb), .5);
+    }
+
+    .noise {
+      position: absolute;
+      inset: -20%;
+      z-index: 58;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255, 255, 255, .14) 0 1px, transparent 1px),
+        radial-gradient(circle, rgba(var(--signal-rgb), .1) 0 1px, transparent 1px);
+      background-size: 17px 17px, 29px 29px;
+      opacity: .12;
+      animation: grain .28s steps(2) infinite;
+    }
+
+    .frame {
+      position: absolute;
+      inset: 4.8% 6.8%;
+      border: 1px solid rgba(var(--signal-rgb), .3);
+      box-shadow: inset 0 0 18px rgba(var(--signal-rgb), .045), 0 0 12px rgba(var(--accent-rgb), .04);
+      z-index: 72;
+      pointer-events: none;
+    }
+
+    .frame::before,
+    .frame::after {
+      position: absolute;
+      width: calc(var(--u) * 3.9);
+      height: calc(var(--u) * 3.9);
+      border-color: var(--signal-strong);
+      border-style: solid;
+      content: "";
+      filter: drop-shadow(0 0 4px rgba(var(--signal-rgb), .34));
+      opacity: .8;
+    }
+
+    .frame::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+    .frame::after { right: -2px; bottom: -2px; border-width: 0 2px 2px 0; }
+
+    .hud {
+      position: absolute;
+      inset: 8.6% 8.5% 11.4%;
+      z-index: 74;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      opacity: 0;
+      transform: translateY(14px) scale(.988);
+      animation-duration: var(--dur);
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+    }
+
+    h1, h2, p { margin: 0; }
+    ul { margin: 0; padding: 0; list-style: none; }
+
+    .label {
+      margin: 0 0 calc(var(--u) * 2.2);
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 2.6);
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      text-shadow: 0 0 5px rgba(var(--accent-rgb), .34);
+    }
+
+    /* ===== CLIP-PATH REVEAL for important text ===== */
+    .reveal-text {
+      animation: clipReveal .12s var(--snap) both;
+    }
+    @keyframes clipReveal {
+      from { clip-path: inset(0 100% 0 0); }
+      to { clip-path: inset(0 0 0 0); }
+    }
+
+    /* ===== GLITCH on scene transitions ===== */
+    .scene-glitch {
+      animation: sceneGlitch .05s steps(2) both;
+    }
+    @keyframes sceneGlitch {
+      0% { text-shadow: -2px 0 rgba(var(--cyan-rgb),.6), 2px 0 rgba(var(--accent-rgb),.6); transform: translateX(-1px); }
+      50% { text-shadow: 2px 0 rgba(var(--cyan-rgb),.4), -2px 0 rgba(var(--accent-rgb),.4); transform: translateX(1px); }
+      100% { text-shadow: none; transform: translateX(0); }
+    }
+
+    /* ===== VERDENT PIXEL-BEAD LOGO ===== */
+    .bead-logo {
+      width: 30vmin;
+      height: 30vmin;
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      grid-template-rows: repeat(16, 1fr);
+      gap: 1px;
+      filter: drop-shadow(0 0 10px rgba(var(--accent-rgb), .35));
+    }
+
+    .bead-logo .bead {
+      border-radius: 50%;
+      box-shadow: inset 0 -1px 2px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.12);
+    }
+
+    .endcard .bead-logo {
+      width: 24vmin;
+      height: 24vmin;
+    }
+
+    /* ===== PERSISTENT PLAN MODE LABEL ===== */
+    .mode-label {
+      position: absolute;
+      top: 6.5%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 78;
+      padding: calc(var(--u) * .6) calc(var(--u) * 1.5);
+      color: var(--signal-soft);
+      font-size: calc(var(--u) * 1.8);
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      background: rgba(var(--signal-rgb), .08);
+      border: 1px solid rgba(var(--signal-rgb), .2);
+      border-radius: 100px;
+      pointer-events: none;
+      animation: modeLabelVis var(--dur) linear both;
+    }
+
+    @keyframes modeLabelVis {
+      0%, 4.5% { opacity: 0; }
+      5.5% { opacity: 1; }
+      92% { opacity: 1; }
+      93.5% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* ===== SCENE 1 // 0-1s LOGO FLASH ===== */
+    .brand {
+      gap: calc(var(--u) * 1.8);
+      position: relative;
+    }
+
+    /* Radial glow behind logo */
+    .brand::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50vmin;
+      height: 50vmin;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(var(--accent-rgb), .12) 0%, rgba(var(--cyan-rgb), .06) 40%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .brand .ep-tag {
+      color: var(--signal-soft);
+      font-size: calc(var(--u) * 2);
+      font-weight: 800;
+      letter-spacing: .4em;
+      text-indent: .4em;
+      text-transform: uppercase;
+    }
+
+    .brand .brand-name {
+      color: var(--verdent-lime);
+      font-size: calc(var(--u) * 6.4);
+      font-weight: 900;
+      letter-spacing: .42em;
+      text-indent: .42em;
+      text-shadow: 0 0 9px rgba(var(--accent-rgb), .42);
+    }
+
+    .brand .brand-sub {
+      color: var(--cyan);
+      font-size: calc(var(--u) * 2.2);
+      font-weight: 800;
+      letter-spacing: .28em;
+      text-indent: .28em;
+      opacity: .8;
+    }
+
+    /* ===== SCENE 2 // 1-2.2s SKILL NAME ===== */
+    .skill-name-scene { gap: calc(var(--u) * 2.6); }
+
+    .skill-name-scene .skill-name {
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 12);
+      line-height: .96;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: .06em;
+      text-shadow: 0 0 9px rgba(var(--signal-rgb), .55), 0 0 4px rgba(var(--accent-rgb), .5);
+      animation: textGlitch .4s 1.15s steps(2) both;
+    }
+
+    /* ===== SCENE 3 // 2.2-3.4s SKILL DESC ===== */
+    .skill-desc-scene .skill-sub {
+      max-width: 88%;
+      color: var(--signal-soft);
+      font-size: calc(var(--u) * 3.8);
+      line-height: 1.28;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-align: center;
+      animation: clipReveal .15s 2.4s var(--snap) both;
+    }
+
+    /* ===== CARDS ===== */
+    .input-card, .task-card, .artifact-card {
+      width: 100%;
+      padding: calc(var(--u) * 5);
+      border: 1px solid rgba(var(--signal-rgb), .45);
+      background: linear-gradient(180deg, rgba(2, 4, 3, .82), rgba(7, 21, 18, .78));
+      box-shadow: 0 0 14px rgba(var(--signal-rgb), .07), inset 0 0 22px rgba(var(--signal-rgb), .045);
+    }
+
+    .card-label {
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 2.9);
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-shadow: 0 0 5px rgba(var(--accent-rgb), .3);
+    }
+
+    /* ===== SCENE 4 // 3.4-4.2s INPUT LABEL ===== */
+    .input-label-scene .card-label {
+      font-size: calc(var(--u) * 4.2);
+      animation: clipReveal .1s 3.5s var(--snap) both;
+    }
+
+    /* ===== SCENE 5 // 4.2-5.8s INPUT CONTENT ===== */
+    .quote {
+      margin-top: calc(var(--u) * 3);
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 5.3);
+      line-height: 1.1;
+      font-weight: 900;
+      letter-spacing: .01em;
+      text-shadow: 0 0 6px rgba(var(--signal-rgb), .38);
+      overflow-wrap: break-word;
+    }
+
+    /* ===== SCENE 6 // 5.8-6.6s TASK LABEL ===== */
+    .task-label-scene .card-label {
+      font-size: calc(var(--u) * 4.2);
+      animation: clipReveal .1s 5.9s var(--snap) both;
+    }
+
+    /* ===== SCENE 7 // 6.6-8.4s TASK TYPING ===== */
+    .task-type {
+      width: 100%;
+      min-height: 2.4em;
+      margin-top: calc(var(--u) * 3);
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 5.1);
+      line-height: 1.14;
+      font-weight: 900;
+      white-space: pre-line;
+      text-shadow: 0 0 6px rgba(var(--signal-rgb), .36);
+      overflow-wrap: break-word;
+    }
+
+    .typed::after {
+      display: inline-block;
+      width: .56em;
+      height: .9em;
+      margin-left: .06em;
+      background: var(--signal-strong);
+      box-shadow: 0 0 5px rgba(var(--cyan-rgb), .3);
+      vertical-align: -.08em;
+      content: "";
+      animation: caret .62s steps(1) infinite;
+    }
+
+    /* ===== SCENE 8 // 8.4-9.2s EXECUTION START ===== */
+    .exec-start-scene .label {
+      font-size: calc(var(--u) * 3.4);
+      animation: clipReveal .12s 8.5s var(--snap) both;
+    }
+
+    /* ===== SCENE 9 // 9.2-13.2s CHECKBOXES ===== */
+    .execution { justify-items: stretch; }
+
+    .checklist {
+      display: grid;
+      gap: calc(var(--u) * 2.6);
+      width: 100%;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      column-gap: calc(var(--u) * 2.4);
+      row-gap: calc(var(--u) * 1.5);
+      padding: calc(var(--u) * 2) calc(var(--u) * 2.4);
+      border: 1px solid rgba(var(--signal-rgb), .2);
+      background: linear-gradient(180deg, rgba(2, 4, 3, .7), rgba(6, 18, 15, .7));
+      animation: rowLive .42s var(--snap) both;
+      animation-delay: var(--at);
+    }
+
+    /* Horizontal scan line on checkbox activation */
+    .check::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(var(--signal-rgb), .5), var(--verdent-lime), rgba(var(--signal-rgb), .5), transparent);
+      opacity: 0;
+      animation: scanLine .2s var(--snap) both;
+      animation-delay: var(--at);
+    }
+
+    @keyframes scanLine {
+      0% { opacity: 0; transform: translateX(-100%) scaleX(.3); }
+      40% { opacity: .7; }
+      100% { opacity: 0; transform: translateX(100%) scaleX(.3); }
+    }
+
+    .check .box {
+      position: relative;
+      display: inline-block;
+      width: 3.2ch;
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 4.6);
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .check .box i {
+      position: absolute;
+      inset: 0;
+      font-style: normal;
+      animation-duration: .32s;
+      animation-timing-function: var(--snap);
+      animation-fill-mode: both;
+      animation-delay: var(--at);
+    }
+
+    .check .off { color: rgba(var(--signal-rgb), .45); animation-name: boxOff; }
+    .check .on { opacity: 0; color: var(--signal-strong); text-shadow: 0 0 8px rgba(var(--accent-rgb), .4); animation-name: boxOn; }
+
+    .check .txt {
+      color: rgba(var(--signal-rgb), .4);
+      font-size: calc(var(--u) * 4.6);
+      font-weight: 900;
+      letter-spacing: .08em;
+      animation: txtLive .38s var(--snap) both;
+      animation-delay: var(--at);
+    }
+
+    .check .bar {
+      grid-column: 1 / -1;
+      height: 2px;
+      background: rgba(var(--signal-rgb), .14);
+    }
+
+    .check .bar i {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--signal-soft), var(--verdent-lime), var(--cyan));
+      animation: barFill .48s var(--snap) both;
+      animation-delay: var(--at);
+    }
+
+    .c1 { --at: 9.5s; }
+    .c2 { --at: 10.3s; }
+    .c3 { --at: 11.1s; }
+    .c4 { --at: 11.9s; }
+    .c5 { --at: 12.7s; }
+
+    /* ===== SCENE 10 // 13.2-14.5s ARTIFACT UNLOCK ===== */
+    .artifact-card { text-align: center; }
+
+    .unlock {
+      color: var(--verdent-lime);
+      background: linear-gradient(135deg, var(--signal-strong), var(--verdent-lime) 52%, var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: calc(var(--u) * 6.2);
+      line-height: 1.06;
+      font-weight: 900;
+      letter-spacing: .05em;
+      text-shadow: 0 0 12px rgba(var(--accent-rgb), .34);
+      animation: unlockBang .3s 13.2s var(--snap) both;
+    }
+
+    /* ===== SCENE 11 // 14.5-16s ARTIFACT CONTENT ===== */
+    .doc-outline {
+      width: 60%;
+      margin: calc(var(--u) * 3.4) auto 0;
+      padding: calc(var(--u) * 2.2) calc(var(--u) * 2.4);
+      border: 1px solid rgba(var(--signal-rgb), .3);
+      display: grid;
+      gap: calc(var(--u) * 1.6);
+    }
+
+    .doc-outline i {
+      display: block;
+      height: 2px;
+      background: rgba(var(--signal-rgb), .3);
+    }
+
+    .doc-outline i:nth-child(1) { width: 82%; }
+    .doc-outline i:nth-child(2) { width: 96%; }
+    .doc-outline i:nth-child(3) { width: 68%; }
+    .doc-outline i:nth-child(4) { width: 88%; }
+
+    .artifact-title {
+      margin-top: calc(var(--u) * 2.6);
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 5.6);
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-shadow: 0 0 11px rgba(var(--signal-rgb), .4);
+    }
+
+    .chips {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: calc(var(--u) * 1.8);
+      margin-top: calc(var(--u) * 3.4);
+    }
+
+    .chip {
+      min-height: calc(var(--u) * 6.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--u) * .8) calc(var(--u) * 1.2);
+      border: 1px solid rgba(var(--signal-rgb), .32);
+      background: rgba(6, 18, 15, .72);
+      color: rgba(var(--signal-rgb), .5);
+      font-size: calc(var(--u) * 2.6);
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-align: center;
+      animation: chipIn .4s var(--snap) both;
+      animation-delay: var(--at);
+    }
+
+    .k1 { --at: 14.7s; }
+    .k2 { --at: 15.1s; }
+    .k3 { --at: 15.4s; }
+    .k4 { --at: 15.7s; }
+
+    /* ===== SCENE 12 // 16-17.5s COMPARE ===== */
+    .compare-card { display: grid; gap: calc(var(--u) * 2); width: 100%; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 24% 1fr;
+      gap: calc(var(--u) * 2);
+      align-items: center;
+      padding: calc(var(--u) * 2.2) 0;
+      border-bottom: 1px solid rgba(var(--signal-rgb), .2);
+      animation: rowIn .34s var(--snap) both;
+      animation-delay: var(--at);
+    }
+
+    .row b {
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 2.7);
+      letter-spacing: .12em;
+    }
+
+    .row span {
+      font-size: calc(var(--u) * 5.2);
+      line-height: 1.06;
+      font-weight: 900;
+      overflow-wrap: break-word;
+      text-shadow: 0 0 5px rgba(var(--signal-rgb), .34);
+    }
+
+    .r1 { --at: 16.3s; }
+    .r2 { --at: 16.8s; }
+
+    /* ===== SCENE 13 // 17.5-18.8s END TAGLINE ===== */
+    .tagline .endline {
+      margin: 0;
+      color: var(--verdent-lime);
+      background: linear-gradient(135deg, var(--signal-strong), var(--verdent-lime) 55%, var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: calc(var(--u) * 7.6);
+      line-height: 1.12;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-align: center;
+      text-shadow: 0 0 14px rgba(var(--accent-rgb), .34);
+      animation: endIn .42s 17.7s var(--snap) both;
+    }
+
+    /* ===== SCENE 14 // 18.8-20s END CARD ===== */
+    .endcard { gap: calc(var(--u) * 3.2); }
+
+    .endcard .bead-logo {
+      animation: logoPulse 2.4s var(--ease) infinite;
+    }
+
+    .endcard .brand-tag {
+      margin-top: calc(var(--u) * 1.4);
+      color: var(--signal-soft);
+      font-size: calc(var(--u) * 2.6);
+      font-weight: 800;
+      letter-spacing: .3em;
+      text-indent: .3em;
+      text-transform: uppercase;
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress {
+      position: absolute;
+      left: 8.5%;
+      right: 8.5%;
+      bottom: 4.1%;
+      z-index: 75;
+      height: 2px;
+      background: rgba(var(--signal-rgb), .16);
+    }
+
+    .progress i {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--signal-soft), var(--verdent-lime), var(--cyan));
+      box-shadow: 0 0 8px rgba(var(--cyan-rgb), .18);
+      animation: progress var(--dur) linear both;
+    }
+
+    /* ===== SCENE ANIMATION BINDINGS ===== */
+    .s1 { animation-name: s1; }
+    .s2 { animation-name: s2; }
+    .s3 { animation-name: s3; }
+    .s4 { animation-name: s4; }
+    .s5 { animation-name: s5; }
+    .s6 { animation-name: s6; }
+    .s7 { animation-name: s7; }
+    .s8 { animation-name: s8; }
+    .s9 { animation-name: s9; }
+    .s10 { animation-name: s10; }
+    .s11 { animation-name: s11; }
+    .s12 { animation-name: s12; }
+    .s13 { animation-name: s13; }
+    .s14 { animation-name: s14; }
+
+    /* 14 scenes / 20s — snap transitions ~0.1s = 0.5% of 20s
+       s1  Logo:       0-1s     (0-5%)
+       s2  SkillName:  1-2.2s   (5-11%)
+       s3  SkillDesc:  2.2-3.4s (11-17%)
+       s4  InputLabel: 3.4-4.2s (17-21%)
+       s5  InputBody:  4.2-5.8s (21-29%)
+       s6  TaskLabel:  5.8-6.6s (29-33%)
+       s7  TaskType:   6.6-8.4s (33-42%)
+       s8  ExecStart:  8.4-9.2s (42-46%)
+       s9  Checkboxes: 9.2-13.2s(46-66%)
+       s10 ArtUnlock:  13.2-14.5s(66-72.5%)
+       s11 ArtContent: 14.5-16s (72.5-80%)
+       s12 Compare:    16-17.5s (80-87.5%)
+       s13 Tagline:    17.5-18.8s(87.5-94%)
+       s14 EndCard:    18.8-20s (94-100%) */
+
+    @keyframes s1 {
+      0% { opacity: 0; transform: translateY(8px) scale(.99); }
+      0.5% { opacity: 1; transform: translateY(0) scale(1); }
+      4.5% { opacity: 1; transform: translateY(0) scale(1); }
+      5%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s2 {
+      0%, 4.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      5%, 10.5% { opacity: 1; transform: translateY(0) scale(1); }
+      11%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s3 {
+      0%, 10.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      11%, 16.5% { opacity: 1; transform: translateY(0) scale(1); }
+      17%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s4 {
+      0%, 16.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      17%, 20.5% { opacity: 1; transform: translateY(0) scale(1); }
+      21%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s5 {
+      0%, 20.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      21%, 28.5% { opacity: 1; transform: translateY(0) scale(1); }
+      29%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s6 {
+      0%, 28.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      29%, 32.5% { opacity: 1; transform: translateY(0) scale(1); }
+      33%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s7 {
+      0%, 32.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      33%, 41.5% { opacity: 1; transform: translateY(0) scale(1); }
+      42%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s8 {
+      0%, 41.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      42%, 45.5% { opacity: 1; transform: translateY(0) scale(1); }
+      46%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s9 {
+      0%, 45.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      46%, 65.5% { opacity: 1; transform: translateY(0) scale(1); }
+      66%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s10 {
+      0%, 65.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      66%, 72% { opacity: 1; transform: translateY(0) scale(1); }
+      72.5%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s11 {
+      0%, 72% { opacity: 0; transform: translateY(14px) scale(.988); }
+      72.5%, 79.5% { opacity: 1; transform: translateY(0) scale(1); }
+      80%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s12 {
+      0%, 79.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      80%, 87% { opacity: 1; transform: translateY(0) scale(1); }
+      87.5%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s13 {
+      0%, 87% { opacity: 0; transform: translateY(14px) scale(.988); }
+      87.5%, 93.5% { opacity: 1; transform: translateY(0) scale(1); }
+      94%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+    }
+    @keyframes s14 {
+      0%, 93.5% { opacity: 0; transform: translateY(14px) scale(.988); }
+      94%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes caret { 50% { opacity: 0; } }
+    @keyframes progress { to { width: 100%; } }
+
+    @keyframes rowLive {
+      from { border-color: rgba(var(--signal-rgb), .2); box-shadow: none; }
+      40% { border-color: rgba(var(--signal-rgb), .7); box-shadow: 0 0 12px rgba(var(--signal-rgb), .16); }
+      to { border-color: rgba(var(--signal-rgb), .48); box-shadow: 0 0 5px rgba(var(--signal-rgb), .08); }
+    }
+    @keyframes boxOff { from { opacity: 1; } 30%, to { opacity: 0; } }
+    @keyframes boxOn {
+      from { opacity: 0; transform: scale(.82); }
+      30% { opacity: 1; transform: scale(1.16); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes txtLive {
+      from { color: rgba(var(--signal-rgb), .4); text-shadow: none; letter-spacing: .08em; }
+      45% { color: var(--signal-strong); text-shadow: 0 0 10px rgba(var(--accent-rgb), .42); }
+      to { color: var(--signal-strong); text-shadow: 0 0 5px rgba(var(--signal-rgb), .4); }
+    }
+    @keyframes barFill { from { width: 0; } to { width: 100%; } }
+
+    @keyframes unlockBang {
+      0% { opacity: .2; transform: scale(.8); filter: brightness(.7); }
+      55% { opacity: 1; transform: scale(1.05); filter: brightness(1.4); }
+      100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+    }
+    @keyframes chipIn {
+      from { opacity: .25; color: rgba(var(--signal-rgb), .34); border-color: rgba(var(--signal-rgb), .2); transform: translateY(8px); }
+      to { opacity: 1; color: var(--signal); border-color: rgba(var(--signal-rgb), .58); transform: translateY(0); box-shadow: 0 0 8px rgba(var(--signal-rgb), .1); }
+    }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-14px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes endIn {
+      from { opacity: 0; transform: translateY(12px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), .3)); }
+      50% { transform: scale(1.03); filter: drop-shadow(0 0 16px rgba(var(--accent-rgb), .6)); }
+    }
+    @keyframes textGlitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 1px); }
+      35% { transform: translate(3px, -1px); }
+      55% { transform: translate(-1px, -2px); }
+      70% { transform: translate(2px, 2px); }
+    }
+    @keyframes screenFlicker {
+      0%, 100% { filter: brightness(1) contrast(1.06); }
+      4% { filter: brightness(.95) contrast(1.1); }
+      5% { filter: brightness(1.06) contrast(1.08); }
+      43% { filter: brightness(.98) contrast(1.1); }
+      44% { filter: brightness(1.08) contrast(1.13); }
+      45% { filter: brightness(.97) contrast(1.06); }
+      78% { filter: brightness(1.05) contrast(1.1); }
+    }
+    @keyframes crtWake {
+      0% { clip-path: inset(49.6% 0 49.6% 0); filter: brightness(2.4); }
+      1.8% { clip-path: inset(0); }
+      100% { clip-path: inset(0); }
+    }
+    /* brightnessTrack: base .93, flash 1.12 at each scene cut, checkbox pulses,
+       strongest flash 1.25 at artifact unlock (66%), no flash at endcard entry */
+    @keyframes brightnessTrack {
+      0% { filter: brightness(.93); }
+      /* s1→s2 cut at 5% */
+      4.7% { filter: brightness(.93); }
+      5% { filter: brightness(1.12); }
+      5.3% { filter: brightness(.93); }
+      /* s2→s3 cut at 11% */
+      10.7% { filter: brightness(.93); }
+      11% { filter: brightness(1.12); }
+      11.3% { filter: brightness(.93); }
+      /* s3→s4 cut at 17% */
+      16.7% { filter: brightness(.93); }
+      17% { filter: brightness(1.12); }
+      17.3% { filter: brightness(.93); }
+      /* s4→s5 cut at 21% */
+      20.7% { filter: brightness(.93); }
+      21% { filter: brightness(1.12); }
+      21.3% { filter: brightness(.93); }
+      /* s5→s6 cut at 29% */
+      28.7% { filter: brightness(.93); }
+      29% { filter: brightness(1.12); }
+      29.3% { filter: brightness(.93); }
+      /* s6→s7 cut at 33% */
+      32.7% { filter: brightness(.93); }
+      33% { filter: brightness(1.12); }
+      33.3% { filter: brightness(.93); }
+      /* s7→s8 cut at 42% */
+      41.7% { filter: brightness(.93); }
+      42% { filter: brightness(1.12); }
+      42.3% { filter: brightness(.93); }
+      /* s8→s9 cut at 46% */
+      45.7% { filter: brightness(.93); }
+      46% { filter: brightness(1.12); }
+      46.3% { filter: brightness(.93); }
+      /* checkbox pulses: c1=9.5s(47.5%), c2=10.3s(51.5%), c3=11.1s(55.5%), c4=11.9s(59.5%), c5=12.7s(63.5%) */
+      47.5% { filter: brightness(1.05); } 47.9% { filter: brightness(.93); }
+      51.5% { filter: brightness(1.05); } 51.9% { filter: brightness(.93); }
+      55.5% { filter: brightness(1.05); } 55.9% { filter: brightness(.93); }
+      59.5% { filter: brightness(1.05); } 59.9% { filter: brightness(.93); }
+      63.5% { filter: brightness(1.05); } 63.9% { filter: brightness(.93); }
+      /* s9→s10 artifact unlock at 66% — strongest flash */
+      65.7% { filter: brightness(.93); }
+      66% { filter: brightness(1.25); }
+      66.5% { filter: brightness(1); }
+      /* s10→s11 cut at 72.5% */
+      72.2% { filter: brightness(1); }
+      72.5% { filter: brightness(1.12); }
+      72.8% { filter: brightness(1); }
+      /* s11→s12 cut at 80% */
+      79.7% { filter: brightness(1); }
+      80% { filter: brightness(1.12); }
+      80.3% { filter: brightness(1); }
+      /* s12→s13 cut at 87.5% */
+      87.2% { filter: brightness(1); }
+      87.5% { filter: brightness(1.12); }
+      87.8% { filter: brightness(1); }
+      /* s13→s14 at 94% — NO flash, hold steady for end card */
+      94% { filter: brightness(1); }
+      100% { filter: brightness(1); }
+    }
+    @keyframes grain {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-17px, 11px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page" id="stage" aria-label="Verdent Skillbook Episode 1 animated vertical scene">
+    <div class="grid-bg"></div>
+    <div class="noise"></div>
+    <div class="frame"></div>
+
+    <!-- Data stream decoration -->
+    <div class="data-stream left">0x4F 1A 7C 3E 9D 2B 5F 8A 0C 6E 3D 7B 1F 4A 9C 2E 5D 8B 0F 6A 3C 7E 1D 4B 9A 2F 5C 8E 0D 6B 3A 7F 1C 4E 9B 2D 5A 8F 0E 6C 3B 7D 1E 4C 9F 2A 5B 8C 0A 6D 3F 7A 1B 4D 9E 2C 5E 8D 0B 6F</div>
+    <div class="data-stream right">FF A3 27 8E 4C D1 6B 93 0F 5A E7 38 B2 7D 14 C9 56 A0 2E 81 F4 69 3C D7 4A 95 1B E2 78 0D B6 53 A8 2F 84 F1 6C 37 DA 45 90 1E E5 7B 08 B3 50 A7 2C 83 F6 6F 3A D4 49 92 1D E0 76 0B B8</div>
+
+    <!-- Corner brackets -->
+    <div class="corner-bracket tl"></div>
+    <div class="corner-bracket tr"></div>
+    <div class="corner-bracket bl"></div>
+    <div class="corner-bracket br"></div>
+
+    <!-- Scene indicator dots -->
+    <div class="scene-dots" id="sceneDots">
+      <i></i><i></i><i></i><i></i><i></i>
+    </div>
+
+    <div class="hud">
+      <!-- PERSISTENT PLAN MODE LABEL (visible s2-s13) -->
+      <div class="mode-label">PLAN MODE</div>
+
+      <!-- SCENE 1 // 0-1s LOGO FLASH -->
+      <section class="scene brand s1">
+        <span class="ep-tag">EPISODE 001</span>
+        <div class="bead-logo" id="beadLogo1"></div>
+        <div class="brand-name">SKILLBOOK</div>
+        <span class="brand-sub">PLAN MODE</span>
+      </section>
+
+      <!-- SCENE 2 // 1-2.2s SKILL NAME -->
+      <section class="scene skill-name-scene s2">
+        <h1 class="skill-name">PLAN MODE</h1>
+      </section>
+
+      <!-- SCENE 3 // 2.2-3.4s SKILL DESCRIPTION -->
+      <section class="scene skill-desc-scene s3">
+        <p class="skill-sub">One vague idea in.<br>One executable plan out.</p>
+      </section>
+
+      <!-- SCENE 4 // 3.4-4.2s INPUT LABEL -->
+      <section class="scene input-label-scene s4">
+        <h2 class="card-label">INPUT RECEIVED</h2>
+      </section>
+
+      <!-- SCENE 5 // 4.2-5.8s INPUT CONTENT -->
+      <section class="scene s5">
+        <article class="input-card">
+          <h2 class="card-label">INPUT RECEIVED</h2>
+          <p class="quote">"we need a better way<br>to show Verdent skills"</p>
+        </article>
+      </section>
+
+      <!-- SCENE 6 // 5.8-6.6s TASK LABEL -->
+      <section class="scene task-label-scene s6">
+        <h2 class="card-label">TASK:</h2>
+      </section>
+
+      <!-- SCENE 7 // 6.6-8.4s TASK TYPING -->
+      <section class="scene s7">
+        <article class="task-card">
+          <h2 class="card-label">TASK:</h2>
+          <p class="task-type typed" id="typedTask"></p>
+        </article>
+      </section>
+
+      <!-- SCENE 8 // 8.4-9.2s EXECUTION START -->
+      <section class="scene exec-start-scene s8">
+        <p class="label">PLAN MODE RUNNING</p>
+      </section>
+
+      <!-- SCENE 9 // 9.2-13.2s CHECKBOXES -->
+      <section class="scene execution s9">
+        <p class="label">PLAN MODE RUNNING</p>
+        <ul class="checklist">
+          <li class="check c1">
+            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
+            <span class="txt">SERIES NARRATIVE</span>
+            <span class="bar"><i></i></span>
+          </li>
+          <li class="check c2">
+            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
+            <span class="txt">3 EPISODE OUTLINES</span>
+            <span class="bar"><i></i></span>
+          </li>
+          <li class="check c3">
+            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
+            <span class="txt">DELIVERABLE LIST</span>
+            <span class="bar"><i></i></span>
+          </li>
+          <li class="check c4">
+            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
+            <span class="txt">ACCEPTANCE CRITERIA</span>
+            <span class="bar"><i></i></span>
+          </li>
+          <li class="check c5">
+            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
+            <span class="txt">NEXT ACTION</span>
+            <span class="bar"><i></i></span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- SCENE 10 // 13.2-14.5s ARTIFACT UNLOCK -->
+      <section class="scene s10">
+        <article class="artifact-card">
+          <h2 class="unlock">ARTIFACT UNLOCKED</h2>
+        </article>
+      </section>
+
+      <!-- SCENE 11 // 14.5-16s ARTIFACT CONTENT -->
+      <section class="scene s11">
+        <article class="artifact-card">
+          <p class="artifact-title">PRODUCTION PLAN</p>
+          <div class="doc-outline"><i></i><i></i><i></i><i></i></div>
+          <div class="chips">
+            <div class="chip k1">3 EPISODES</div>
+            <div class="chip k2">CASE STRUCTURE</div>
+            <div class="chip k3">RECORDING CHECKLIST</div>
+            <div class="chip k4">ACCEPTANCE CRITERIA</div>
+          </div>
+        </article>
+      </section>
+
+      <!-- SCENE 12 // 16-17.5s COMPARE -->
+      <section class="scene s12">
+        <article class="compare-card">
+          <div class="row r1"><b>BEFORE:</b><span>scattered idea</span></div>
+          <div class="row r2"><b>AFTER:</b><span>working plan</span></div>
+        </article>
+      </section>
+
+      <!-- SCENE 13 // 17.5-18.8s END TAGLINE -->
+      <section class="scene tagline s13">
+        <p class="endline">ONE SKILL.<br>ONE WORKFLOW.<br>ONE ARTIFACT.</p>
+      </section>
+
+      <!-- SCENE 14 // 18.8-20s END CARD -->
+      <section class="scene endcard s14">
+        <div class="bead-logo" id="beadLogo2"></div>
+        <p class="brand-tag">VERDENT SKILLBOOK</p>
+      </section>
+    </div>
+
+    <div class="progress"><i></i></div>
+  </main>
+
+  <script>
+    const duration = 20;
+
+    /* ===== PIXEL BEAD LOGO GENERATION ===== */
+    /* 16x16 grid: 0=empty, 1=left leaf, 2=right leaf, 3=overlap/dark center */
+    const GRID = [
+      [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,1,1,1,0,0,2,0,0,0,0,0],
+      [0,0,0,0,1,1,1,3,0,0,2,2,0,0,0,0],
+      [0,0,0,1,1,1,3,3,0,0,2,2,2,0,0,0],
+      [0,0,0,1,1,1,3,3,0,2,2,2,2,0,0,0],
+      [0,0,1,1,1,1,3,0,0,2,2,2,2,0,0,0],
+      [0,0,1,1,1,3,3,0,0,2,2,2,2,2,0,0],
+      [0,0,1,1,1,3,0,0,0,3,2,2,2,2,0,0],
+      [0,0,0,1,1,3,0,0,0,3,3,2,2,2,0,0],
+      [0,0,0,1,1,0,0,0,3,3,2,2,2,0,0,0],
+      [0,0,0,0,1,0,0,0,3,3,2,2,2,0,0,0],
+      [0,0,0,0,0,0,0,3,3,2,2,2,0,0,0,0],
+      [0,0,0,0,0,0,0,3,2,2,2,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0],
+    ];
+
+    /* Color interpolation for gradient beads */
+    function lerpColor(a, b, t) {
+      const ah = parseInt(a.slice(1), 16);
+      const bh = parseInt(b.slice(1), 16);
+      const ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
+      const br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
+      const r = Math.round(ar + (br - ar) * t);
+      const g = Math.round(ag + (bg - ag) * t);
+      const b2 = Math.round(ab + (bb - ab) * t);
+      return `rgb(${r},${g},${b2})`;
+    }
+
+    function buildBeadLogo(container) {
+      for (let row = 0; row < 16; row++) {
+        for (let col = 0; col < 16; col++) {
+          const val = GRID[row][col];
+          const cell = document.createElement("div");
+          if (val === 0) {
+            /* empty cell — transparent */
+            cell.style.background = "transparent";
+          } else {
+            cell.classList.add("bead");
+            const t = row / 15; /* vertical gradient factor */
+            if (val === 1) {
+              /* left leaf: #75fff7 top → #31f9bc bottom */
+              cell.style.background = lerpColor("#75fff7", "#31f9bc", t);
+            } else if (val === 2) {
+              /* right leaf: #11d7ff top → #18ecc3 bottom */
+              cell.style.background = lerpColor("#11d7ff", "#18ecc3", t);
+            } else {
+              /* overlap/center: dark with subtle green */
+              cell.style.background = lerpColor("#0a3d2e", "#062a1f", t);
+              cell.style.opacity = ".85";
+            }
+          }
+          container.appendChild(cell);
+        }
+      }
+    }
+
+    buildBeadLogo(document.getElementById("beadLogo1"));
+    buildBeadLogo(document.getElementById("beadLogo2"));
+
+    /* Scene 7 typing: starts 6.8s, completes 8.2s (inside the 6.6-8.4s window) */
+    const TYPE_START = 6.8;
+    const TYPE_SPAN = 1.4;
+    const taskText = "turn a messy idea into\na production plan";
+    const typedTask = document.getElementById("typedTask");
+
+    const started = performance.now();
+
+    function currentSecond(now = performance.now()) {
+      return Math.min(duration, (now - started) / 1000);
+    }
+
+    function renderTyped(second) {
+      const local = Math.max(0, Math.min(TYPE_SPAN, second - TYPE_START));
+      const count = Math.round((local / TYPE_SPAN) * taskText.length);
+      typedTask.textContent = taskText.slice(0, Math.max(0, Math.min(taskText.length, count)));
+    }
+
+    /* Scene dots: 5 dots map to 14 scenes in groups */
+    const dots = document.querySelectorAll("#sceneDots i");
+    const sceneRanges = [
+      [0, 3.4],    /* dot 0: s1-s4 (logo/skill/input label) */
+      [3.4, 8.4],  /* dot 1: s5-s7 (input/task) */
+      [8.4, 13.2], /* dot 2: s8-s9 (execution) */
+      [13.2, 17.5],/* dot 3: s10-s12 (artifact/compare) */
+      [17.5, 20]   /* dot 4: s13-s14 (tagline/end) */
+    ];
+
+    function updateDots(second) {
+      let active = 0;
+      for (let i = 0; i < sceneRanges.length; i++) {
+        if (second >= sceneRanges[i][0]) active = i;
+      }
+      dots.forEach((d, i) => d.classList.toggle("active", i === active));
+    }
+
+    function tick(now) {
+      const sec = currentSecond(now);
+      renderTyped(sec);
+      updateDots(sec);
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>
