@@ -1,643 +1,462 @@
 <!doctype html>
-<!-- VERDENT SKILLBOOK SERIES TEMPLATE -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Verdent Skillbook // Episode 001 // Plan Mode</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Verdent Skillbook // Case 001 // Plan Mode</title>
   <style>
     :root {
       --black: #020403;
-      --verdent-deep: #06120f;
-      --verdent-dark: #071512;
-      --verdent-lime: #39f6ad;
+      --deep: #06120f;
+      --dark: #071512;
+      --lime: #39f6ad;
       --signal: #49dca4;
-      --signal-strong: #7dffe0;
-      --signal-soft: #1f7c68;
+      --strong: #7dffe0;
+      --soft: #1f7c68;
       --cyan: #1fd6ff;
-      --signal-rgb: 73, 220, 164;
-      --accent-rgb: 57, 246, 173;
-      --cyan-rgb: 31, 214, 255;
-      --dim: rgba(var(--signal-rgb), .42);
-      --faint: rgba(var(--signal-rgb), .13);
-      --glass: rgba(8, 15, 9, .76);
-      --dur: 12s;
-      --ease: cubic-bezier(.22, 1, .36, 1);
-      --snap: cubic-bezier(.16, 1, .3, 1);
-      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sig-rgb: 73,220,164;
+      --acc-rgb: 57,246,173;
+      --cy-rgb: 31,214,255;
+      --dur: 30s;
+      --snap: cubic-bezier(.16,1,.3,1);
+      --ease: cubic-bezier(.22,1,.36,1);
+      font-family: "IBM Plex Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
     }
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;min-height:100%;background:#000;overflow:hidden}
+    body{display:grid;min-height:100vh;place-items:center;color:var(--signal)}
 
-    * { box-sizing: border-box; }
-    html, body { width: 100%; min-height: 100%; margin: 0; background: #000; }
-    body {
-      display: grid;
-      min-height: 100vh;
-      place-items: center;
-      overflow: hidden;
-      color: var(--signal);
-    }
-
-    .page {
-      --u: calc(min(100vw, 100vh * 9 / 16, 1080px) / 100);
-      position: relative;
-      width: min(100vw, calc(100vh * 9 / 16));
-      height: min(100vh, calc(100vw * 16 / 9));
-      max-width: 1080px;
-      max-height: 1920px;
-      overflow: hidden;
-      isolation: isolate;
+    /* === PAGE === */
+    .page{
+      --u:calc(min(100vw,100vh*9/16,1080px)/100);
+      position:relative;
+      width:min(100vw,calc(100vh*9/16));
+      height:min(100vh,calc(100vw*16/9));
+      max-width:1080px;max-height:1920px;
+      overflow:hidden;isolation:isolate;
       background:
-        radial-gradient(circle at 50% 35%, rgba(var(--cyan-rgb), .075), transparent 32%),
-        radial-gradient(circle at 50% 62%, rgba(var(--accent-rgb), .105), transparent 38%),
-        linear-gradient(180deg, #000 0%, #06120f 48%, #020403 100%);
-      box-shadow: 0 0 12px rgba(var(--signal-rgb), .065), inset 0 0 24px rgba(var(--cyan-rgb), .032);
-      aspect-ratio: 9 / 16;
+        radial-gradient(circle at 50% 35%,rgba(var(--cy-rgb),.06),transparent 30%),
+        radial-gradient(circle at 50% 62%,rgba(var(--acc-rgb),.09),transparent 36%),
+        linear-gradient(180deg,#000 0%,var(--deep) 50%,var(--black) 100%);
+      aspect-ratio:9/16;
       animation:
-        screenFlicker 5.8s infinite steps(1),
+        flicker 5.8s infinite steps(1),
         crtWake var(--dur) linear both,
-        brightnessTrack var(--dur) linear both;
+        brightness var(--dur) linear both;
     }
 
     /* Scanlines */
-    .page::before {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      content: "";
-      z-index: 60;
-      background: repeating-linear-gradient(0deg, rgba(var(--signal-rgb), .06) 0 1px, transparent 1px 4px);
-      mix-blend-mode: screen;
-      opacity: .5;
+    .page::before{
+      content:"";position:absolute;inset:0;z-index:80;pointer-events:none;
+      background:repeating-linear-gradient(0deg,rgba(var(--sig-rgb),.055) 0 1px,transparent 1px 4px);
+      mix-blend-mode:screen;opacity:.5;
     }
-
     /* Vignette */
-    .page::after {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      content: "";
-      z-index: 60;
-      background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, .34) 84%, rgba(0, 0, 0, .7) 100%);
-      opacity: .62;
+    .page::after{
+      content:"";position:absolute;inset:0;z-index:80;pointer-events:none;
+      background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.35) 82%,rgba(0,0,0,.72) 100%);
+      opacity:.65;
     }
 
-    .noise {
-      position: absolute;
-      inset: -20%;
-      z-index: 58;
-      pointer-events: none;
+    .noise{
+      position:absolute;inset:-20%;z-index:79;pointer-events:none;
       background-image:
-        radial-gradient(circle, rgba(255, 255, 255, .14) 0 1px, transparent 1px),
-        radial-gradient(circle, rgba(var(--signal-rgb), .1) 0 1px, transparent 1px);
-      background-size: 17px 17px, 29px 29px;
-      opacity: .12;
-      animation: grain .28s steps(2) infinite;
+        radial-gradient(circle,rgba(255,255,255,.13) 0 1px,transparent 1px),
+        radial-gradient(circle,rgba(var(--sig-rgb),.09) 0 1px,transparent 1px);
+      background-size:17px 17px,29px 29px;
+      opacity:.12;animation:grain .28s steps(2) infinite;
     }
 
-    .frame {
-      position: absolute;
-      inset: 4.8% 6.8%;
-      border: 1px solid rgba(var(--signal-rgb), .3);
-      box-shadow: inset 0 0 18px rgba(var(--signal-rgb), .045), 0 0 12px rgba(var(--accent-rgb), .04);
-      z-index: 72;
-      pointer-events: none;
+    .frame{
+      position:absolute;inset:4.5% 6.5%;z-index:82;pointer-events:none;
+      border:1px solid rgba(var(--sig-rgb),.28);
+      box-shadow:inset 0 0 16px rgba(var(--sig-rgb),.04),0 0 10px rgba(var(--acc-rgb),.035);
+    }
+    .frame::before,.frame::after{
+      position:absolute;content:"";
+      width:calc(var(--u)*4);height:calc(var(--u)*4);
+      border-color:var(--strong);border-style:solid;
+      filter:drop-shadow(0 0 4px rgba(var(--sig-rgb),.3));opacity:.75;
+    }
+    .frame::before{top:-2px;left:-2px;border-width:2px 0 0 2px}
+    .frame::after{right:-2px;bottom:-2px;border-width:0 2px 2px 0}
+
+    /* Corner labels */
+    .corner{
+      position:absolute;z-index:84;pointer-events:none;
+      font-size:calc(var(--u)*1.7);font-weight:800;
+      letter-spacing:.18em;color:var(--soft);opacity:.7;
+    }
+    .corner.tl{top:6.2%;left:8.5%}
+    .corner.bl{bottom:6.2%;left:8.5%}
+
+    /* HUD area */
+    .hud{position:absolute;inset:9% 9% 12%;z-index:85}
+
+    /* Scenes */
+    .scene{
+      position:absolute;inset:0;
+      display:grid;align-content:center;justify-items:center;
+      opacity:0;transform:translateY(16px) scale(.988);
+      animation-duration:var(--dur);animation-timing-function:linear;animation-fill-mode:both;
     }
 
-    .frame::before,
-    .frame::after {
-      position: absolute;
-      width: calc(var(--u) * 3.9);
-      height: calc(var(--u) * 3.9);
-      border-color: var(--signal-strong);
-      border-style: solid;
-      content: "";
-      filter: drop-shadow(0 0 4px rgba(var(--signal-rgb), .34));
-      opacity: .8;
+    h1,h2,p{margin:0}
+    ul{margin:0;padding:0;list-style:none}
+
+    /* === SCENE 1: HOOK (0-3s = 0-10%) === */
+    .hook .big{
+      font-size:calc(var(--u)*10);font-weight:900;line-height:1.05;
+      text-align:center;letter-spacing:.04em;
+      color:var(--strong);
+      text-shadow:0 0 12px rgba(var(--acc-rgb),.5),0 0 40px rgba(var(--acc-rgb),.15);
+    }
+    .hook .sub{
+      margin-top:calc(var(--u)*3);
+      font-size:calc(var(--u)*3.2);font-weight:800;
+      letter-spacing:.2em;color:var(--soft);text-align:center;
     }
 
-    .frame::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
-    .frame::after { right: -2px; bottom: -2px; border-width: 0 2px 2px 0; }
+    /* === SCENE 2: BOOT (3-6s = 10-20%) === */
+    .boot{justify-items:start;gap:calc(var(--u)*2.2)}
+    .boot .line{
+      font-size:calc(var(--u)*3.2);font-weight:800;
+      letter-spacing:.08em;color:var(--signal);
+      opacity:0;animation:fadeSlide .4s var(--snap) both;
+    }
+    .boot .line:nth-child(1){animation-delay:3.2s}
+    .boot .line:nth-child(2){animation-delay:3.6s}
+    .boot .line:nth-child(3){animation-delay:4s}
+    .boot .diag{
+      display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.6);
+      margin-top:calc(var(--u)*3);width:100%;
+    }
+    .boot .diag-item{
+      padding:calc(var(--u)*1.6) calc(var(--u)*2);
+      border:1px solid rgba(var(--sig-rgb),.3);
+      background:rgba(6,18,15,.6);
+      font-size:calc(var(--u)*2.2);font-weight:800;
+      letter-spacing:.12em;color:rgba(var(--sig-rgb),.5);
+      opacity:0;animation:fadeSlide .35s var(--snap) both;
+    }
+    .boot .diag-item:nth-child(1){animation-delay:4.4s}
+    .boot .diag-item:nth-child(2){animation-delay:4.6s}
+    .boot .diag-item:nth-child(3){animation-delay:4.8s}
+    .boot .diag-item:nth-child(4){animation-delay:5s}
 
-    .hud {
-      position: absolute;
-      inset: 8.6% 8.5% 11.4%;
-      z-index: 74;
+    /* === SCENE 3: INPUT (6-10s = 20-33.3%) === */
+    .input-scene .card{
+      width:100%;padding:calc(var(--u)*5);
+      border:1px solid rgba(var(--sig-rgb),.45);
+      background:linear-gradient(180deg,rgba(2,4,3,.82),rgba(7,21,18,.78));
+      box-shadow:0 0 14px rgba(var(--sig-rgb),.07),inset 0 0 20px rgba(var(--sig-rgb),.04);
+    }
+    .input-scene .card-label{
+      font-size:calc(var(--u)*2.8);font-weight:800;
+      letter-spacing:.18em;color:var(--strong);
+      text-shadow:0 0 5px rgba(var(--acc-rgb),.3);
+    }
+    .input-scene .quote{
+      margin-top:calc(var(--u)*3);
+      font-size:calc(var(--u)*5.4);line-height:1.1;font-weight:900;
+      color:var(--strong);text-shadow:0 0 6px rgba(var(--sig-rgb),.4);
+    }
+    .input-scene .meta{
+      margin-top:calc(var(--u)*2.4);
+      font-size:calc(var(--u)*2.2);letter-spacing:.1em;
+      color:var(--soft);font-weight:700;
     }
 
-    .scene {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      align-content: center;
-      justify-items: center;
-      opacity: 0;
-      transform: translateY(14px) scale(.988);
-      animation-duration: var(--dur);
-      animation-timing-function: linear;
-      animation-fill-mode: both;
+    /* === SCENE 4: TASK TYPING (10-14s = 33.3-46.7%) === */
+    .task-scene .card{
+      width:100%;padding:calc(var(--u)*5);
+      border:1px solid rgba(var(--sig-rgb),.45);
+      background:linear-gradient(180deg,rgba(2,4,3,.82),rgba(7,21,18,.78));
+      box-shadow:0 0 14px rgba(var(--sig-rgb),.07),inset 0 0 20px rgba(var(--sig-rgb),.04);
+    }
+    .task-scene .card-label{
+      font-size:calc(var(--u)*2.8);font-weight:800;
+      letter-spacing:.18em;color:var(--strong);
+      text-shadow:0 0 5px rgba(var(--acc-rgb),.3);
+    }
+    .task-scene .typed{
+      width:100%;min-height:2.4em;margin-top:calc(var(--u)*3);
+      font-size:calc(var(--u)*5.2);line-height:1.14;font-weight:900;
+      color:var(--strong);white-space:pre-line;
+      text-shadow:0 0 6px rgba(var(--sig-rgb),.36);
+    }
+    .typed::after{
+      display:inline-block;width:.56em;height:.9em;margin-left:.06em;
+      background:var(--strong);box-shadow:0 0 5px rgba(var(--cy-rgb),.3);
+      vertical-align:-.08em;content:"";animation:caret .62s steps(1) infinite;
     }
 
-    h1, h2, p { margin: 0; }
-    ul { margin: 0; padding: 0; list-style: none; }
+    /* === SCENE 5: EXECUTION (14-22s = 46.7-73.3%) === */
+    .exec{justify-items:stretch}
+    .exec .label{
+      text-align:center;margin-bottom:calc(var(--u)*3);
+      font-size:calc(var(--u)*2.8);font-weight:800;
+      letter-spacing:.22em;color:var(--strong);
+      text-shadow:0 0 6px rgba(var(--acc-rgb),.35);
+    }
+    .exec .core{
+      position:relative;width:100%;
+      padding:calc(var(--u)*4);
+      border:1px solid rgba(var(--sig-rgb),.5);
+      background:rgba(6,18,15,.7);
+      box-shadow:0 0 20px rgba(var(--sig-rgb),.08),inset 0 0 30px rgba(var(--sig-rgb),.04);
+    }
+    .exec .nodes{
+      display:grid;gap:calc(var(--u)*2.2);margin-top:calc(var(--u)*2.4);
+    }
+    .exec .node{
+      display:grid;grid-template-columns:auto 1fr auto;align-items:center;
+      gap:calc(var(--u)*2);
+      padding:calc(var(--u)*2) calc(var(--u)*2.4);
+      border:1px solid rgba(var(--sig-rgb),.2);
+      background:linear-gradient(180deg,rgba(2,4,3,.7),rgba(6,18,15,.7));
+      animation:nodeLive .5s var(--snap) both;
+      animation-delay:var(--at);
+    }
+    .node .dot{
+      width:calc(var(--u)*2);height:calc(var(--u)*2);border-radius:50%;
+      background:rgba(var(--sig-rgb),.25);
+      animation:dotPulse .5s var(--snap) both;animation-delay:var(--at);
+    }
+    .node .txt{
+      font-size:calc(var(--u)*3.8);font-weight:900;letter-spacing:.08em;
+      color:rgba(var(--sig-rgb),.4);
+      animation:txtBright .4s var(--snap) both;animation-delay:var(--at);
+    }
+    .node .line{
+      height:2px;background:rgba(var(--sig-rgb),.14);
+    }
+    .node .line i{
+      display:block;width:0;height:100%;
+      background:linear-gradient(90deg,var(--soft),var(--lime),var(--cyan));
+      animation:barFill .6s var(--snap) both;animation-delay:var(--at);
+    }
+    .n1{--at:14.8s} .n2{--at:16s} .n3{--at:17.2s} .n4{--at:18.4s} .n5{--at:19.6s}
 
-    .label {
-      margin: 0 0 calc(var(--u) * 2.2);
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 2.6);
-      font-weight: 800;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      text-shadow: 0 0 5px rgba(var(--accent-rgb), .34);
+    /* === SCENE 6: ARTIFACT (22-26s = 73.3-86.7%) === */
+    .artifact{text-align:center}
+    .artifact .unlock{
+      background:linear-gradient(135deg,var(--strong),var(--lime) 52%,var(--cyan));
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+      font-size:calc(var(--u)*6.2);font-weight:900;letter-spacing:.05em;line-height:1.06;
+      animation:unlockBang .35s 22.2s var(--snap) both;
+    }
+    .artifact .title{
+      margin-top:calc(var(--u)*2.4);
+      font-size:calc(var(--u)*5);font-weight:900;
+      color:var(--strong);letter-spacing:.04em;
+      text-shadow:0 0 10px rgba(var(--sig-rgb),.4);
+    }
+    .artifact .chips{
+      display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.8);
+      margin-top:calc(var(--u)*3.4);
+    }
+    .artifact .chip{
+      min-height:calc(var(--u)*7);display:flex;align-items:center;justify-content:center;
+      padding:calc(var(--u)*1) calc(var(--u)*1.4);
+      border:1px solid rgba(var(--sig-rgb),.32);background:rgba(6,18,15,.72);
+      color:rgba(var(--sig-rgb),.5);font-size:calc(var(--u)*2.7);font-weight:800;
+      letter-spacing:.1em;text-align:center;
+      animation:chipIn .4s var(--snap) both;animation-delay:var(--at);
+    }
+    .ak1{--at:22.8s} .ak2{--at:23.2s} .ak3{--at:23.6s} .ak4{--at:24s}
+
+    /* === SCENE 7: COMPARE + END (26-30s = 86.7-100%) === */
+    .ending{gap:calc(var(--u)*3);justify-items:stretch}
+    .ending .rows{display:grid;gap:calc(var(--u)*2);width:100%}
+    .ending .row{
+      display:grid;grid-template-columns:22% 1fr;gap:calc(var(--u)*2);
+      align-items:center;padding:calc(var(--u)*2) 0;
+      border-bottom:1px solid rgba(var(--sig-rgb),.2);
+      animation:rowIn .34s var(--snap) both;animation-delay:var(--at);
+    }
+    .ending .row b{font-size:calc(var(--u)*2.5);letter-spacing:.12em;color:var(--strong)}
+    .ending .row span{font-size:calc(var(--u)*4.8);font-weight:900;text-shadow:0 0 5px rgba(var(--sig-rgb),.34)}
+    .er1{--at:26.4s} .er2{--at:26.9s} .er3{--at:27.4s}
+
+    .ending .endline{
+      margin-top:calc(var(--u)*4);text-align:center;
+      background:linear-gradient(135deg,var(--strong),var(--lime) 55%,var(--cyan));
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+      font-size:calc(var(--u)*5.8);line-height:1.14;font-weight:900;letter-spacing:.04em;
+      animation:endIn .42s 28.5s var(--snap) both;
     }
 
-    /* ===== SCENE 1 // LOGO ===== */
-    .brand { gap: calc(var(--u) * 3.4); }
-
-    .brand svg {
-      width: 30vmin;
-      height: auto;
-      filter: drop-shadow(0 0 10px rgba(var(--accent-rgb), .4));
+    /* === PROGRESS === */
+    .progress{
+      position:absolute;left:8.5%;right:8.5%;bottom:4%;z-index:86;
+      height:2px;background:rgba(var(--sig-rgb),.14);
+    }
+    .progress i{
+      display:block;width:0;height:100%;
+      background:linear-gradient(90deg,var(--soft),var(--lime),var(--cyan));
+      box-shadow:0 0 8px rgba(var(--cy-rgb),.18);
+      animation:progress var(--dur) linear both;
     }
 
-    .brand .brand-name {
-      color: var(--verdent-lime);
-      background: linear-gradient(135deg, var(--signal-strong), var(--verdent-lime) 55%, var(--cyan));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: calc(var(--u) * 6.4);
-      font-weight: 900;
-      letter-spacing: .42em;
-      text-indent: .42em;
-      text-shadow: none;
+    /* === CONTROLS === */
+    .controls{
+      position:absolute;bottom:7%;left:50%;transform:translateX(-50%);z-index:90;
+      display:flex;gap:calc(var(--u)*2);
+    }
+    .controls button{
+      padding:calc(var(--u)*1.2) calc(var(--u)*2.4);
+      border:1px solid rgba(var(--sig-rgb),.4);border-radius:2px;
+      background:rgba(6,18,15,.8);
+      color:var(--signal);font-family:inherit;font-size:calc(var(--u)*2);
+      font-weight:800;letter-spacing:.14em;cursor:pointer;
+      transition:border-color .15s,color .15s;
+    }
+    .controls button:hover{border-color:var(--lime);color:var(--strong)}
+    .seek{
+      position:absolute;bottom:5.2%;left:8.5%;right:8.5%;z-index:90;
+      -webkit-appearance:none;appearance:none;
+      width:83%;height:3px;background:transparent;cursor:pointer;opacity:0;
     }
 
-    /* ===== SCENE 2 // SKILL INTRO ===== */
-    .skill { gap: calc(var(--u) * 2.6); }
+    /* === SCENE BINDINGS === */
+    .s1{animation-name:s1} .s2{animation-name:s2} .s3{animation-name:s3}
+    .s4{animation-name:s4} .s5{animation-name:s5} .s6{animation-name:s6}
+    .s7{animation-name:s7}
 
-    .skill .skill-name {
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 11);
-      line-height: .96;
-      font-weight: 900;
-      text-align: center;
-      letter-spacing: .06em;
-      text-shadow: 0 0 9px rgba(var(--signal-rgb), .55);
+    /* 7 scenes / 30s
+       s1 Hook:     0-3s    (0-10%)
+       s2 Boot:     3-6s    (10-20%)
+       s3 Input:    6-10s   (20-33.3%)
+       s4 Task:     10-14s  (33.3-46.7%)
+       s5 Exec:     14-22s  (46.7-73.3%)
+       s6 Artifact: 22-26s  (73.3-86.7%)
+       s7 End:      26-30s  (86.7-100%) */
+
+    @keyframes s1{
+      0%{opacity:0;transform:translateY(8px) scale(.99)}
+      0.5%{opacity:1;transform:translateY(0) scale(1)}
+      9%{opacity:1;transform:translateY(0) scale(1)}
+      10%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
-
-    .skill .skill-sub {
-      color: var(--signal-soft);
-      font-size: calc(var(--u) * 3.6);
-      font-weight: 800;
-      letter-spacing: .06em;
-      text-align: center;
+    @keyframes s2{
+      0%,9%{opacity:0;transform:translateY(14px) scale(.988)}
+      10%{opacity:1;transform:translateY(0) scale(1)}
+      19%{opacity:1;transform:translateY(0) scale(1)}
+      20%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
-
-    /* ===== CARDS ===== */
-    .input-card, .task-card, .artifact-card {
-      width: 100%;
-      padding: calc(var(--u) * 5);
-      border: 1px solid rgba(var(--signal-rgb), .45);
-      background: linear-gradient(180deg, rgba(2, 4, 3, .82), rgba(7, 21, 18, .78));
-      box-shadow: 0 0 14px rgba(var(--signal-rgb), .07), inset 0 0 22px rgba(var(--signal-rgb), .045);
+    @keyframes s3{
+      0%,19%{opacity:0;transform:translateY(14px) scale(.988)}
+      20%{opacity:1;transform:translateY(0) scale(1)}
+      32.3%{opacity:1;transform:translateY(0) scale(1)}
+      33.3%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
-
-    .card-label {
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 2.9);
-      font-weight: 800;
-      letter-spacing: .18em;
-      text-shadow: 0 0 5px rgba(var(--accent-rgb), .3);
+    @keyframes s4{
+      0%,32.3%{opacity:0;transform:translateY(14px) scale(.988)}
+      33.3%{opacity:1;transform:translateY(0) scale(1)}
+      45.7%{opacity:1;transform:translateY(0) scale(1)}
+      46.7%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
-
-    .quote {
-      margin-top: calc(var(--u) * 3);
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 5.3);
-      line-height: 1.1;
-      font-weight: 900;
-      letter-spacing: .01em;
-      text-shadow: 0 0 6px rgba(var(--signal-rgb), .38);
-      overflow-wrap: break-word;
+    @keyframes s5{
+      0%,45.7%{opacity:0;transform:translateY(14px) scale(.988)}
+      46.7%{opacity:1;transform:translateY(0) scale(1)}
+      72.3%{opacity:1;transform:translateY(0) scale(1)}
+      73.3%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
-
-    .task-type {
-      width: 100%;
-      min-height: 2.4em;
-      margin-top: calc(var(--u) * 3);
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 5.1);
-      line-height: 1.14;
-      font-weight: 900;
-      white-space: pre-line;
-      text-shadow: 0 0 6px rgba(var(--signal-rgb), .36);
-      overflow-wrap: break-word;
+    @keyframes s6{
+      0%,72.3%{opacity:0;transform:translateY(14px) scale(.988)}
+      73.3%{opacity:1;transform:translateY(0) scale(1)}
+      85.7%{opacity:1;transform:translateY(0) scale(1)}
+      86.7%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s7{
+      0%,85.7%{opacity:0;transform:translateY(14px) scale(.988)}
+      86.7%{opacity:1;transform:translateY(0) scale(1)}
+      100%{opacity:1;transform:translateY(0) scale(1)}
     }
 
-    .typed::after {
-      display: inline-block;
-      width: .56em;
-      height: .9em;
-      margin-left: .06em;
-      background: var(--signal-strong);
-      box-shadow: 0 0 5px rgba(var(--cyan-rgb), .3);
-      vertical-align: -.08em;
-      content: "";
-      animation: caret .62s steps(1) infinite;
+    @keyframes fadeSlide{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @keyframes caret{50%{opacity:0}}
+    @keyframes progress{to{width:100%}}
+
+    @keyframes nodeLive{
+      from{border-color:rgba(var(--sig-rgb),.2);box-shadow:none}
+      40%{border-color:rgba(var(--sig-rgb),.7);box-shadow:0 0 12px rgba(var(--sig-rgb),.16)}
+      to{border-color:rgba(var(--sig-rgb),.48);box-shadow:0 0 5px rgba(var(--sig-rgb),.08)}
+    }
+    @keyframes dotPulse{
+      from{background:rgba(var(--sig-rgb),.25);box-shadow:none}
+      40%{background:var(--lime);box-shadow:0 0 10px rgba(var(--acc-rgb),.5)}
+      to{background:var(--signal);box-shadow:0 0 5px rgba(var(--sig-rgb),.3)}
+    }
+    @keyframes txtBright{
+      from{color:rgba(var(--sig-rgb),.4);text-shadow:none}
+      45%{color:var(--strong);text-shadow:0 0 10px rgba(var(--acc-rgb),.42)}
+      to{color:var(--strong);text-shadow:0 0 5px rgba(var(--sig-rgb),.4)}
+    }
+    @keyframes barFill{from{width:0}to{width:100%}}
+
+    @keyframes unlockBang{
+      0%{opacity:.2;transform:scale(.8);filter:brightness(.7)}
+      55%{opacity:1;transform:scale(1.05);filter:brightness(1.4)}
+      100%{opacity:1;transform:scale(1);filter:brightness(1)}
+    }
+    @keyframes chipIn{
+      from{opacity:.25;border-color:rgba(var(--sig-rgb),.2);transform:translateY(8px)}
+      to{opacity:1;color:var(--signal);border-color:rgba(var(--sig-rgb),.58);transform:translateY(0);box-shadow:0 0 8px rgba(var(--sig-rgb),.1)}
+    }
+    @keyframes rowIn{
+      from{opacity:0;transform:translateX(-14px)}
+      to{opacity:1;transform:translateX(0)}
+    }
+    @keyframes endIn{
+      from{opacity:0;transform:translateY(12px) scale(.96)}
+      to{opacity:1;transform:translateY(0) scale(1)}
     }
 
-    /* ===== SCENE 5 // EXECUTION ===== */
-    .execution { justify-items: stretch; }
-
-    .checklist {
-      display: grid;
-      gap: calc(var(--u) * 2.6);
-      width: 100%;
+    @keyframes flicker{
+      0%,100%{filter:brightness(1) contrast(1.06)}
+      4%{filter:brightness(.96) contrast(1.1)}
+      5%{filter:brightness(1.04) contrast(1.08)}
+      43%{filter:brightness(.98) contrast(1.1)}
+      44%{filter:brightness(1.06) contrast(1.1)}
+      45%{filter:brightness(.97) contrast(1.06)}
     }
-
-    .check {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      align-items: center;
-      column-gap: calc(var(--u) * 2.4);
-      row-gap: calc(var(--u) * 1.5);
-      padding: calc(var(--u) * 2) calc(var(--u) * 2.4);
-      border: 1px solid rgba(var(--signal-rgb), .2);
-      background: linear-gradient(180deg, rgba(2, 4, 3, .7), rgba(6, 18, 15, .7));
-      animation: rowLive .42s var(--snap) both;
-      animation-delay: var(--at);
+    @keyframes crtWake{
+      0%{clip-path:inset(49.6% 0 49.6% 0);filter:brightness(2.4)}
+      2%{clip-path:inset(0)}
+      100%{clip-path:inset(0)}
     }
-
-    .check .box {
-      position: relative;
-      display: inline-block;
-      width: 3.2ch;
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 4.6);
-      font-weight: 900;
-      line-height: 1.1;
+    @keyframes brightness{
+      0%{filter:brightness(.92)}
+      9.5%{filter:brightness(.92)}
+      10%{filter:brightness(1.12)}10.4%{filter:brightness(.92)}
+      19.5%{filter:brightness(.92)}
+      20%{filter:brightness(1.12)}20.4%{filter:brightness(.92)}
+      32.8%{filter:brightness(.92)}
+      33.3%{filter:brightness(1.12)}33.7%{filter:brightness(.92)}
+      46.2%{filter:brightness(.92)}
+      46.7%{filter:brightness(1.12)}47.1%{filter:brightness(.92)}
+      /* node pulses */
+      49.3%{filter:brightness(1.04)}49.7%{filter:brightness(.92)}
+      53.3%{filter:brightness(1.04)}53.7%{filter:brightness(.92)}
+      57.3%{filter:brightness(1.04)}57.7%{filter:brightness(.92)}
+      61.3%{filter:brightness(1.04)}61.7%{filter:brightness(.92)}
+      65.3%{filter:brightness(1.04)}65.7%{filter:brightness(.92)}
+      /* artifact unlock — strongest */
+      72.8%{filter:brightness(.92)}
+      73.3%{filter:brightness(1.25)}74%{filter:brightness(1)}
+      /* end — no flash */
+      86.2%{filter:brightness(1)}
+      86.7%{filter:brightness(1)}
+      100%{filter:brightness(1)}
     }
-
-    .check .box i {
-      position: absolute;
-      inset: 0;
-      font-style: normal;
-      animation-duration: .32s;
-      animation-timing-function: var(--snap);
-      animation-fill-mode: both;
-      animation-delay: var(--at);
-    }
-
-    .check .off { color: rgba(var(--signal-rgb), .45); animation-name: boxOff; }
-    .check .on { opacity: 0; color: var(--signal-strong); text-shadow: 0 0 8px rgba(var(--accent-rgb), .4); animation-name: boxOn; }
-
-    .check .txt {
-      color: rgba(var(--signal-rgb), .4);
-      font-size: calc(var(--u) * 4.6);
-      font-weight: 900;
-      letter-spacing: .08em;
-      animation: txtLive .38s var(--snap) both;
-      animation-delay: var(--at);
-    }
-
-    .check .bar {
-      grid-column: 1 / -1;
-      height: 2px;
-      background: rgba(var(--signal-rgb), .14);
-    }
-
-    .check .bar i {
-      display: block;
-      width: 0;
-      height: 100%;
-      background: linear-gradient(90deg, var(--signal-soft), var(--verdent-lime), var(--cyan));
-      animation: barFill .48s var(--snap) both;
-      animation-delay: var(--at);
-    }
-
-    .c1 { --at: 5.5s; }
-    .c2 { --at: 6.1s; }
-    .c3 { --at: 6.7s; }
-    .c4 { --at: 7.3s; }
-    .c5 { --at: 7.9s; }
-
-    /* ===== SCENE 6 // ARTIFACT + COMPARE ===== */
-    .artifact-card { text-align: center; }
-
-    .unlock {
-      color: var(--verdent-lime);
-      background: linear-gradient(135deg, var(--signal-strong), var(--verdent-lime) 52%, var(--cyan));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: calc(var(--u) * 5.8);
-      line-height: 1.06;
-      font-weight: 900;
-      letter-spacing: .05em;
-      animation: unlockBang .3s 8.5s var(--snap) both;
-    }
-
-    .artifact-title {
-      margin-top: calc(var(--u) * 2);
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 4.8);
-      font-weight: 900;
-      letter-spacing: .04em;
-      text-shadow: 0 0 8px rgba(var(--signal-rgb), .4);
-    }
-
-    .doc-outline {
-      width: 60%;
-      margin: calc(var(--u) * 2.4) auto 0;
-      padding: calc(var(--u) * 1.8) calc(var(--u) * 2);
-      border: 1px solid rgba(var(--signal-rgb), .3);
-      display: grid;
-      gap: calc(var(--u) * 1.4);
-    }
-
-    .doc-outline i {
-      display: block;
-      height: 2px;
-      background: rgba(var(--signal-rgb), .3);
-    }
-
-    .doc-outline i:nth-child(1) { width: 82%; }
-    .doc-outline i:nth-child(2) { width: 96%; }
-    .doc-outline i:nth-child(3) { width: 68%; }
-    .doc-outline i:nth-child(4) { width: 88%; }
-
-    .chips {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: calc(var(--u) * 1.6);
-      margin-top: calc(var(--u) * 2.4);
-    }
-
-    .chip {
-      min-height: calc(var(--u) * 6.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: calc(var(--u) * .8) calc(var(--u) * 1.2);
-      border: 1px solid rgba(var(--signal-rgb), .32);
-      background: rgba(6, 18, 15, .72);
-      color: rgba(var(--signal-rgb), .5);
-      font-size: calc(var(--u) * 2.5);
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-align: center;
-      animation: chipIn .4s var(--snap) both;
-      animation-delay: var(--at);
-    }
-
-    .k1 { --at: 8.8s; }
-    .k2 { --at: 9.1s; }
-    .k3 { --at: 9.4s; }
-    .k4 { --at: 9.7s; }
-
-    .compare-inline {
-      display: grid;
-      gap: calc(var(--u) * 1.4);
-      margin-top: calc(var(--u) * 2.4);
-      width: 100%;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 24% 1fr;
-      gap: calc(var(--u) * 2);
-      align-items: center;
-      padding: calc(var(--u) * 1.6) 0;
-      border-bottom: 1px solid rgba(var(--signal-rgb), .2);
-      animation: rowIn .34s var(--snap) both;
-      animation-delay: var(--at);
-    }
-
-    .row b {
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 2.4);
-      letter-spacing: .12em;
-    }
-
-    .row span {
-      font-size: calc(var(--u) * 4.4);
-      line-height: 1.06;
-      font-weight: 900;
-      text-shadow: 0 0 5px rgba(var(--signal-rgb), .34);
-    }
-
-    .r1 { --at: 10.0s; }
-    .r2 { --at: 10.3s; }
-
-    /* ===== SCENE 7 // END CARD ===== */
-    .endcard { gap: calc(var(--u) * 3.2); }
-
-    .endcard svg {
-      width: 25vmin;
-      height: auto;
-      filter: drop-shadow(0 0 10px rgba(var(--accent-rgb), .4));
-      animation: logoPulse 2.4s var(--ease) infinite;
-    }
-
-    .endcard .endline {
-      color: var(--verdent-lime);
-      background: linear-gradient(135deg, var(--signal-strong), var(--verdent-lime) 55%, var(--cyan));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: calc(var(--u) * 6.8);
-      line-height: 1.12;
-      font-weight: 900;
-      letter-spacing: .04em;
-      text-align: center;
-      animation: endIn .42s 11s var(--snap) both;
-    }
-
-    .endcard .brand-tag {
-      margin-top: calc(var(--u) * 1.4);
-      color: var(--signal-soft);
-      font-size: calc(var(--u) * 2.4);
-      font-weight: 800;
-      letter-spacing: .3em;
-      text-indent: .3em;
-      text-transform: uppercase;
-    }
-
-    /* ===== PROGRESS BAR ===== */
-    .progress {
-      position: absolute;
-      left: 8.5%;
-      right: 8.5%;
-      bottom: 4.1%;
-      z-index: 75;
-      height: 2px;
-      background: rgba(var(--signal-rgb), .16);
-    }
-
-    .progress i {
-      display: block;
-      width: 0;
-      height: 100%;
-      background: linear-gradient(90deg, var(--signal-soft), var(--verdent-lime), var(--cyan));
-      box-shadow: 0 0 8px rgba(var(--cyan-rgb), .18);
-      animation: progress var(--dur) linear both;
-    }
-
-    /* ===== SCENE BINDINGS ===== */
-    .s1 { animation-name: s1; }
-    .s2 { animation-name: s2; }
-    .s3 { animation-name: s3; }
-    .s4 { animation-name: s4; }
-    .s5 { animation-name: s5; }
-    .s6 { animation-name: s6; }
-    .s7 { animation-name: s7; }
-
-    /* 7 scenes / 12s — snap ~0.12s = ~1% of 12s
-       s1 Logo:      0-0.8s    (0-6.67%)
-       s2 Skill:     0.8-2s    (6.67-16.67%)
-       s3 Input:     2-3.5s    (16.67-29.17%)
-       s4 Task:      3.5-5.2s  (29.17-43.33%)
-       s5 Execution: 5.2-8.5s  (43.33-70.83%)
-       s6 Artifact:  8.5-10.8s (70.83-90%)
-       s7 End Card:  10.8-12s  (90-100%) */
-
-    @keyframes s1 {
-      0% { opacity: 0; transform: translateY(8px) scale(.99); }
-      0.8% { opacity: 1; transform: translateY(0) scale(1); }
-      5.7% { opacity: 1; transform: translateY(0) scale(1); }
-      6.67%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s2 {
-      0%, 5.7% { opacity: 0; transform: translateY(14px) scale(.988); }
-      6.67% { opacity: 1; transform: translateY(0) scale(1); }
-      15.7% { opacity: 1; transform: translateY(0) scale(1); }
-      16.67%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s3 {
-      0%, 15.7% { opacity: 0; transform: translateY(14px) scale(.988); }
-      16.67% { opacity: 1; transform: translateY(0) scale(1); }
-      28.2% { opacity: 1; transform: translateY(0) scale(1); }
-      29.17%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s4 {
-      0%, 28.2% { opacity: 0; transform: translateY(14px) scale(.988); }
-      29.17% { opacity: 1; transform: translateY(0) scale(1); }
-      42.3% { opacity: 1; transform: translateY(0) scale(1); }
-      43.33%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s5 {
-      0%, 42.3% { opacity: 0; transform: translateY(14px) scale(.988); }
-      43.33% { opacity: 1; transform: translateY(0) scale(1); }
-      69.8% { opacity: 1; transform: translateY(0) scale(1); }
-      70.83%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s6 {
-      0%, 69.8% { opacity: 0; transform: translateY(14px) scale(.988); }
-      70.83% { opacity: 1; transform: translateY(0) scale(1); }
-      89% { opacity: 1; transform: translateY(0) scale(1); }
-      90%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s7 {
-      0%, 89% { opacity: 0; transform: translateY(14px) scale(.988); }
-      90% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes caret { 50% { opacity: 0; } }
-    @keyframes progress { to { width: 100%; } }
-
-    @keyframes rowLive {
-      from { border-color: rgba(var(--signal-rgb), .2); box-shadow: none; }
-      40% { border-color: rgba(var(--signal-rgb), .7); box-shadow: 0 0 12px rgba(var(--signal-rgb), .16); }
-      to { border-color: rgba(var(--signal-rgb), .48); box-shadow: 0 0 5px rgba(var(--signal-rgb), .08); }
-    }
-    @keyframes boxOff { from { opacity: 1; } 30%, to { opacity: 0; } }
-    @keyframes boxOn {
-      from { opacity: 0; transform: scale(.82); }
-      30% { opacity: 1; transform: scale(1.16); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes txtLive {
-      from { color: rgba(var(--signal-rgb), .4); text-shadow: none; }
-      45% { color: var(--signal-strong); text-shadow: 0 0 10px rgba(var(--accent-rgb), .42); }
-      to { color: var(--signal-strong); text-shadow: 0 0 5px rgba(var(--signal-rgb), .4); }
-    }
-    @keyframes barFill { from { width: 0; } to { width: 100%; } }
-
-    @keyframes unlockBang {
-      0% { opacity: .2; transform: scale(.8); filter: brightness(.7); }
-      55% { opacity: 1; transform: scale(1.05); filter: brightness(1.4); }
-      100% { opacity: 1; transform: scale(1); filter: brightness(1); }
-    }
-    @keyframes chipIn {
-      from { opacity: .25; border-color: rgba(var(--signal-rgb), .2); transform: translateY(8px); }
-      to { opacity: 1; color: var(--signal); border-color: rgba(var(--signal-rgb), .58); transform: translateY(0); box-shadow: 0 0 8px rgba(var(--signal-rgb), .1); }
-    }
-    @keyframes rowIn {
-      from { opacity: 0; transform: translateX(-14px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes endIn {
-      from { opacity: 0; transform: translateY(12px) scale(.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes logoPulse {
-      0%, 100% { filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), .3)); transform: scale(1); }
-      50% { filter: drop-shadow(0 0 16px rgba(var(--accent-rgb), .6)); transform: scale(1.03); }
-    }
-
-    @keyframes screenFlicker {
-      0%, 100% { filter: brightness(1) contrast(1.06); }
-      4% { filter: brightness(.96) contrast(1.1); }
-      5% { filter: brightness(1.04) contrast(1.08); }
-      43% { filter: brightness(.98) contrast(1.1); }
-      44% { filter: brightness(1.06) contrast(1.1); }
-      45% { filter: brightness(.97) contrast(1.06); }
-    }
-    @keyframes crtWake {
-      0% { clip-path: inset(49.6% 0 49.6% 0); filter: brightness(2.4); }
-      2% { clip-path: inset(0); }
-      100% { clip-path: inset(0); }
-    }
-
-    /* brightnessTrack: base .93, flash 1.12 at scene cuts, 1.25 at artifact, no flash at end card */
-    @keyframes brightnessTrack {
-      0% { filter: brightness(.93); }
-      /* s1->s2 at 6.67% */
-      6.2% { filter: brightness(.93); }
-      6.67% { filter: brightness(1.12); }
-      7.1% { filter: brightness(.93); }
-      /* s2->s3 at 16.67% */
-      16.2% { filter: brightness(.93); }
-      16.67% { filter: brightness(1.12); }
-      17.1% { filter: brightness(.93); }
-      /* s3->s4 at 29.17% */
-      28.7% { filter: brightness(.93); }
-      29.17% { filter: brightness(1.12); }
-      29.6% { filter: brightness(.93); }
-      /* s4->s5 at 43.33% */
-      42.8% { filter: brightness(.93); }
-      43.33% { filter: brightness(1.12); }
-      43.8% { filter: brightness(.93); }
-      /* checkbox pulses */
-      45.8% { filter: brightness(1.05); } 46.2% { filter: brightness(.93); }
-      50.8% { filter: brightness(1.05); } 51.2% { filter: brightness(.93); }
-      55.8% { filter: brightness(1.05); } 56.2% { filter: brightness(.93); }
-      60.8% { filter: brightness(1.05); } 61.2% { filter: brightness(.93); }
-      65.8% { filter: brightness(1.05); } 66.2% { filter: brightness(.93); }
-      /* s5->s6 artifact unlock at 70.83% — strongest flash */
-      70.3% { filter: brightness(.93); }
-      70.83% { filter: brightness(1.25); }
-      71.5% { filter: brightness(1); }
-      /* s6->s7 at 90% — no flash, hold steady */
-      89.5% { filter: brightness(1); }
-      90% { filter: brightness(1); }
-      100% { filter: brightness(1); }
-    }
-
-    @keyframes grain {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(-17px, 11px); }
+    @keyframes grain{
+      0%{transform:translate(0,0)}
+      100%{transform:translate(-17px,11px)}
     }
   </style>
 </head>
@@ -645,150 +464,187 @@
   <main class="page" id="stage">
     <div class="noise"></div>
     <div class="frame"></div>
+    <span class="corner tl">VERDENT SKILLBOOK</span>
+    <span class="corner bl">MESSY ASK → WORKING PLAN</span>
 
     <div class="hud">
-      <!-- SCENE 1 // LOGO -->
-      <section class="scene brand s1">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <defs>
-            <linearGradient id="sbLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#75fff7"/>
-              <stop offset=".45" stop-color="#31f9bc"/>
-              <stop offset="1" stop-color="#b8ff7a"/>
-            </linearGradient>
-            <linearGradient id="sbLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#11d7ff"/>
-              <stop offset=".55" stop-color="#18ecc3"/>
-              <stop offset="1" stop-color="#adff78"/>
-            </linearGradient>
-          </defs>
-          <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
-          <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#sbLeafA)"/>
-          <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#sbLeafB)"/>
-          <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
-        </svg>
-        <div class="brand-name">SKILLBOOK</div>
+      <!-- SCENE 1: HOOK (0-3s) -->
+      <section class="scene hook s1">
+        <h1 class="big">NOT A DEMO.<br>A CASE FILE.</h1>
+        <p class="sub">CASE 001 // PLAN MODE</p>
       </section>
 
-      <!-- SCENE 2 // PLAN MODE -->
-      <section class="scene skill s2">
-        <h1 class="skill-name">PLAN MODE</h1>
-        <p class="skill-sub">messy intent → executable plan</p>
+      <!-- SCENE 2: BOOT (3-6s) -->
+      <section class="scene boot s2">
+        <p class="line">VERDENT SKILLBOOK v0.1</p>
+        <p class="line">CASE RUNNER ONLINE</p>
+        <p class="line">NODE 01: PLAN MODE</p>
+        <div class="diag">
+          <div class="diag-item">INPUT RECEIVED</div>
+          <div class="diag-item">SKILL LOCKED</div>
+          <div class="diag-item">OUTPUT PENDING</div>
+          <div class="diag-item">PROOF REQUIRED</div>
+        </div>
       </section>
 
-      <!-- SCENE 3 // INPUT -->
-      <section class="scene s3">
-        <article class="input-card">
-          <h2 class="card-label">INPUT RECEIVED</h2>
+      <!-- SCENE 3: INPUT (6-10s) -->
+      <section class="scene input-scene s3">
+        <article class="card">
+          <h2 class="card-label">INPUT:</h2>
           <p class="quote">"we need a better way<br>to show Verdent skills"</p>
+          <p class="meta">raw intent / no structure / no next step</p>
         </article>
       </section>
 
-      <!-- SCENE 4 // TASK TYPING -->
-      <section class="scene s4">
-        <article class="task-card">
+      <!-- SCENE 4: TASK (10-14s) -->
+      <section class="scene task-scene s4">
+        <article class="card">
           <h2 class="card-label">TASK:</h2>
-          <p class="task-type typed" id="typedTask"></p>
+          <p class="typed" id="typedTask"></p>
         </article>
       </section>
 
-      <!-- SCENE 5 // EXECUTION -->
-      <section class="scene execution s5">
+      <!-- SCENE 5: EXECUTION (14-22s) -->
+      <section class="scene exec s5">
         <p class="label">PLAN MODE RUNNING</p>
-        <ul class="checklist">
-          <li class="check c1">
-            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
-            <span class="txt">SERIES NARRATIVE</span>
-            <span class="bar"><i></i></span>
-          </li>
-          <li class="check c2">
-            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
-            <span class="txt">3 EPISODE OUTLINES</span>
-            <span class="bar"><i></i></span>
-          </li>
-          <li class="check c3">
-            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
-            <span class="txt">DELIVERABLE LIST</span>
-            <span class="bar"><i></i></span>
-          </li>
-          <li class="check c4">
-            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
-            <span class="txt">ACCEPTANCE CRITERIA</span>
-            <span class="bar"><i></i></span>
-          </li>
-          <li class="check c5">
-            <span class="box"><i class="off">[ ]</i><i class="on">[x]</i></span>
-            <span class="txt">NEXT ACTION</span>
-            <span class="bar"><i></i></span>
-          </li>
-        </ul>
+        <div class="core">
+          <div class="nodes">
+            <div class="node n1">
+              <span class="dot"></span>
+              <span class="txt">NARRATIVE</span>
+              <span class="line"><i></i></span>
+            </div>
+            <div class="node n2">
+              <span class="dot"></span>
+              <span class="txt">EPISODES</span>
+              <span class="line"><i></i></span>
+            </div>
+            <div class="node n3">
+              <span class="dot"></span>
+              <span class="txt">ARTIFACTS</span>
+              <span class="line"><i></i></span>
+            </div>
+            <div class="node n4">
+              <span class="dot"></span>
+              <span class="txt">ACCEPTANCE</span>
+              <span class="line"><i></i></span>
+            </div>
+            <div class="node n5">
+              <span class="dot"></span>
+              <span class="txt">NEXT STEP</span>
+              <span class="line"><i></i></span>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <!-- SCENE 6 // ARTIFACT + COMPARE -->
-      <section class="scene s6">
-        <article class="artifact-card">
-          <h2 class="unlock">ARTIFACT UNLOCKED</h2>
-          <p class="artifact-title">PRODUCTION PLAN</p>
-          <div class="doc-outline"><i></i><i></i><i></i><i></i></div>
-          <div class="chips">
-            <div class="chip k1">3 EPISODES</div>
-            <div class="chip k2">CASE STRUCTURE</div>
-            <div class="chip k3">RECORDING CHECKLIST</div>
-            <div class="chip k4">ACCEPTANCE CRITERIA</div>
-          </div>
-          <div class="compare-inline">
-            <div class="row r1"><b>BEFORE:</b><span>scattered idea</span></div>
-            <div class="row r2"><b>AFTER:</b><span>working plan</span></div>
-          </div>
-        </article>
+      <!-- SCENE 6: ARTIFACT (22-26s) -->
+      <section class="scene artifact s6">
+        <h2 class="unlock">ARTIFACT UNLOCKED</h2>
+        <p class="title">PRODUCTION PLAN</p>
+        <div class="chips">
+          <div class="chip ak1">3 EPISODES</div>
+          <div class="chip ak2">CASE STRUCTURE</div>
+          <div class="chip ak3">RECORDING CHECKLIST</div>
+          <div class="chip ak4">ACCEPTANCE CRITERIA</div>
+        </div>
       </section>
 
-      <!-- SCENE 7 // END CARD -->
-      <section class="scene endcard s7">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <defs>
-            <linearGradient id="endLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#75fff7"/>
-              <stop offset=".45" stop-color="#31f9bc"/>
-              <stop offset="1" stop-color="#b8ff7a"/>
-            </linearGradient>
-            <linearGradient id="endLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#11d7ff"/>
-              <stop offset=".55" stop-color="#18ecc3"/>
-              <stop offset="1" stop-color="#adff78"/>
-            </linearGradient>
-          </defs>
-          <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
-          <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#endLeafA)"/>
-          <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#endLeafB)"/>
-          <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
-        </svg>
+      <!-- SCENE 7: COMPARE + END (26-30s) -->
+      <section class="scene ending s7">
+        <div class="rows">
+          <div class="row er1"><b>BEFORE:</b><span>scattered idea</span></div>
+          <div class="row er2"><b>AFTER:</b><span>working plan</span></div>
+          <div class="row er3"><b>NEXT:</b><span>DESIGN → VISUAL SYSTEM</span></div>
+        </div>
         <p class="endline">ONE SKILL.<br>ONE WORKFLOW.<br>ONE ARTIFACT.</p>
-        <p class="brand-tag">VERDENT SKILLBOOK</p>
       </section>
     </div>
 
     <div class="progress"><i></i></div>
+
+    <div class="controls">
+      <button id="btnReplay">REPLAY</button>
+      <button id="btnPause">PAUSE</button>
+      <button id="btnJump" data-t="22">JUMP:22s</button>
+    </div>
+    <input type="range" class="seek" id="seek" min="0" max="30" step="0.1" value="0">
   </main>
 
   <script>
-    const duration = 12;
-    const TYPE_START = 3.7;
-    const TYPE_SPAN = 1.2;
-    const taskText = "turn a messy idea into\na production plan";
+    const duration = 30;
+    const TYPE_START = 10.2;
+    const TYPE_SPAN = 3;
+    const taskText = "turn this messy idea into\na production plan";
     const typedTask = document.getElementById("typedTask");
+    const page = document.getElementById("stage");
+    const seek = document.getElementById("seek");
 
-    const started = performance.now();
+    let started = performance.now();
+    let paused = false;
+    let pauseOffset = 0;
 
-    function tick(now) {
-      const sec = Math.min(duration, (now - started) / 1000);
+    // URL param jump
+    const params = new URLSearchParams(location.search);
+    if (params.has("t")) {
+      const t = parseFloat(params.get("t")) || 0;
+      started = performance.now() - t * 1000;
+    }
+
+    function currentSecond(now = performance.now()) {
+      if (paused) return pauseOffset;
+      return Math.min(duration, (now - started) / 1000);
+    }
+
+    function renderTyped(sec) {
       const local = Math.max(0, Math.min(TYPE_SPAN, sec - TYPE_START));
       const count = Math.round((local / TYPE_SPAN) * taskText.length);
       typedTask.textContent = taskText.slice(0, Math.max(0, Math.min(taskText.length, count)));
-      requestAnimationFrame(tick);
     }
 
+    function tick(now) {
+      const sec = currentSecond(now);
+      renderTyped(sec);
+      seek.value = sec;
+      requestAnimationFrame(tick);
+    }
     requestAnimationFrame(tick);
+
+    // Controls
+    document.getElementById("btnReplay").onclick = () => {
+      started = performance.now();
+      paused = false;
+      page.style.animationPlayState = "running";
+      page.querySelectorAll("*").forEach(el => el.style.animationPlayState = "");
+    };
+
+    document.getElementById("btnPause").onclick = () => {
+      if (!paused) {
+        paused = true;
+        pauseOffset = currentSecond();
+        page.style.animationPlayState = "paused";
+        page.querySelectorAll("*").forEach(el => el.style.animationPlayState = "paused");
+      } else {
+        paused = false;
+        started = performance.now() - pauseOffset * 1000;
+        page.style.animationPlayState = "running";
+        page.querySelectorAll("*").forEach(el => el.style.animationPlayState = "");
+      }
+    };
+
+    document.getElementById("btnJump").onclick = function() {
+      const t = parseFloat(this.dataset.t) || 0;
+      started = performance.now() - t * 1000;
+      paused = false;
+      page.style.animationPlayState = "running";
+      page.querySelectorAll("*").forEach(el => el.style.animationPlayState = "");
+    };
+
+    seek.addEventListener("input", () => {
+      const t = parseFloat(seek.value);
+      started = performance.now() - t * 1000;
+      if (paused) pauseOffset = t;
+    });
   </script>
 </body>
 </html>
