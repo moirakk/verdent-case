@@ -26,7 +26,6 @@
     html,body{margin:0;width:100%;min-height:100%;background:#000;overflow:hidden}
     body{display:grid;min-height:100vh;place-items:center;color:var(--signal)}
 
-    /* === PAGE === */
     .page{
       --u:calc(min(100vw,100vh*9/16,1080px)/100);
       position:relative;
@@ -42,16 +41,14 @@
       animation:
         flicker 5.8s infinite steps(1),
         crtWake var(--dur) linear both,
-        brightness var(--dur) linear both;
+        brightnessTrack var(--dur) linear both;
     }
 
-    /* Scanlines */
     .page::before{
       content:"";position:absolute;inset:0;z-index:80;pointer-events:none;
       background:repeating-linear-gradient(0deg,rgba(var(--sig-rgb),.055) 0 1px,transparent 1px 4px);
       mix-blend-mode:screen;opacity:.5;
     }
-    /* Vignette */
     .page::after{
       content:"";position:absolute;inset:0;z-index:80;pointer-events:none;
       background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.35) 82%,rgba(0,0,0,.72) 100%);
@@ -81,7 +78,6 @@
     .frame::before{top:-2px;left:-2px;border-width:2px 0 0 2px}
     .frame::after{right:-2px;bottom:-2px;border-width:0 2px 2px 0}
 
-    /* Corner labels */
     .corner{
       position:absolute;z-index:84;pointer-events:none;
       font-size:calc(var(--u)*1.7);font-weight:800;
@@ -90,10 +86,8 @@
     .corner.tl{top:6.2%;left:8.5%}
     .corner.bl{bottom:6.2%;left:8.5%}
 
-    /* HUD area */
     .hud{position:absolute;inset:9% 9% 12%;z-index:85}
 
-    /* Scenes */
     .scene{
       position:absolute;inset:0;
       display:grid;align-content:center;justify-items:center;
@@ -104,7 +98,7 @@
     h1,h2,p{margin:0}
     ul{margin:0;padding:0;list-style:none}
 
-    /* === SCENE 1: HOOK (0-3s = 0-10%) === */
+    /* === S1 HOOK (0-1.5s) === */
     .hook .big{
       font-size:calc(var(--u)*10);font-weight:900;line-height:1.05;
       text-align:center;letter-spacing:.04em;
@@ -117,71 +111,71 @@
       letter-spacing:.2em;color:var(--soft);text-align:center;
     }
 
-    /* === SCENE 2: BOOT (3-6s = 10-20%) === */
-    .boot{justify-items:start;gap:calc(var(--u)*2.2)}
+    /* === S2 BOOT (1.5-3s) === */
+    .boot{justify-items:start;gap:calc(var(--u)*1.8)}
     .boot .line{
-      font-size:calc(var(--u)*3.2);font-weight:800;
+      font-size:calc(var(--u)*3);font-weight:800;
       letter-spacing:.08em;color:var(--signal);
-      opacity:0;animation:fadeSlide .4s var(--snap) both;
     }
-    .boot .line:nth-child(1){animation-delay:3.2s}
-    .boot .line:nth-child(2){animation-delay:3.6s}
-    .boot .line:nth-child(3){animation-delay:4s}
     .boot .diag{
-      display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.6);
-      margin-top:calc(var(--u)*3);width:100%;
+      display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.4);
+      margin-top:calc(var(--u)*2.4);width:100%;
     }
     .boot .diag-item{
-      padding:calc(var(--u)*1.6) calc(var(--u)*2);
+      padding:calc(var(--u)*1.4) calc(var(--u)*1.8);
       border:1px solid rgba(var(--sig-rgb),.3);
       background:rgba(6,18,15,.6);
-      font-size:calc(var(--u)*2.2);font-weight:800;
+      font-size:calc(var(--u)*2);font-weight:800;
       letter-spacing:.12em;color:rgba(var(--sig-rgb),.5);
-      opacity:0;animation:fadeSlide .35s var(--snap) both;
     }
-    .boot .diag-item:nth-child(1){animation-delay:4.4s}
-    .boot .diag-item:nth-child(2){animation-delay:4.6s}
-    .boot .diag-item:nth-child(3){animation-delay:4.8s}
-    .boot .diag-item:nth-child(4){animation-delay:5s}
 
-    /* === SCENE 3: INPUT (6-10s = 20-33.3%) === */
+    /* === S3 SKILL (3-5s) === */
+    .skill-intro{gap:calc(var(--u)*2.6)}
+    .skill-intro .skill-name{
+      font-size:calc(var(--u)*11);font-weight:900;line-height:.96;
+      text-align:center;letter-spacing:.06em;
+      color:var(--strong);text-shadow:0 0 9px rgba(var(--sig-rgb),.55);
+    }
+    .skill-intro .skill-sub{
+      font-size:calc(var(--u)*3.4);font-weight:800;
+      letter-spacing:.06em;text-align:center;color:var(--soft);
+    }
+
+    /* === S4 INPUT (5-6.5s) === */
     .input-scene .card{
       width:100%;padding:calc(var(--u)*5);
       border:1px solid rgba(var(--sig-rgb),.45);
       background:linear-gradient(180deg,rgba(2,4,3,.82),rgba(7,21,18,.78));
       box-shadow:0 0 14px rgba(var(--sig-rgb),.07),inset 0 0 20px rgba(var(--sig-rgb),.04);
     }
-    .input-scene .card-label{
+    .card-label{
       font-size:calc(var(--u)*2.8);font-weight:800;
       letter-spacing:.18em;color:var(--strong);
       text-shadow:0 0 5px rgba(var(--acc-rgb),.3);
     }
     .input-scene .quote{
       margin-top:calc(var(--u)*3);
-      font-size:calc(var(--u)*5.4);line-height:1.1;font-weight:900;
+      font-size:calc(var(--u)*5.2);line-height:1.1;font-weight:900;
       color:var(--strong);text-shadow:0 0 6px rgba(var(--sig-rgb),.4);
     }
-    .input-scene .meta{
-      margin-top:calc(var(--u)*2.4);
-      font-size:calc(var(--u)*2.2);letter-spacing:.1em;
-      color:var(--soft);font-weight:700;
+
+    /* === S5 INPUT ANALYSIS (6.5-8s) === */
+    .analysis .meta{
+      font-size:calc(var(--u)*3.6);font-weight:800;
+      letter-spacing:.08em;color:var(--soft);text-align:center;
+      animation:clipReveal .15s 6.7s var(--snap) both;
     }
 
-    /* === SCENE 4: TASK TYPING (10-14s = 33.3-46.7%) === */
+    /* === S6 TASK (8-10s) === */
     .task-scene .card{
       width:100%;padding:calc(var(--u)*5);
       border:1px solid rgba(var(--sig-rgb),.45);
       background:linear-gradient(180deg,rgba(2,4,3,.82),rgba(7,21,18,.78));
       box-shadow:0 0 14px rgba(var(--sig-rgb),.07),inset 0 0 20px rgba(var(--sig-rgb),.04);
     }
-    .task-scene .card-label{
-      font-size:calc(var(--u)*2.8);font-weight:800;
-      letter-spacing:.18em;color:var(--strong);
-      text-shadow:0 0 5px rgba(var(--acc-rgb),.3);
-    }
     .task-scene .typed{
       width:100%;min-height:2.4em;margin-top:calc(var(--u)*3);
-      font-size:calc(var(--u)*5.2);line-height:1.14;font-weight:900;
+      font-size:calc(var(--u)*5);line-height:1.14;font-weight:900;
       color:var(--strong);white-space:pre-line;
       text-shadow:0 0 6px rgba(var(--sig-rgb),.36);
     }
@@ -191,100 +185,150 @@
       vertical-align:-.08em;content:"";animation:caret .62s steps(1) infinite;
     }
 
-    /* === SCENE 5: EXECUTION (14-22s = 46.7-73.3%) === */
-    .exec{justify-items:stretch}
-    .exec .label{
-      text-align:center;margin-bottom:calc(var(--u)*3);
-      font-size:calc(var(--u)*2.8);font-weight:800;
-      letter-spacing:.22em;color:var(--strong);
-      text-shadow:0 0 6px rgba(var(--acc-rgb),.35);
+    /* === S7 EXEC START (10-11.5s) === */
+    .exec-start .label{
+      font-size:calc(var(--u)*3.2);font-weight:800;
+      letter-spacing:.22em;color:var(--strong);text-align:center;
+      text-shadow:0 0 8px rgba(var(--acc-rgb),.4);
+      animation:clipReveal .12s 10.2s var(--snap) both;
     }
-    .exec .core{
-      position:relative;width:100%;
-      padding:calc(var(--u)*4);
+
+    /* === S8 NODES (11.5-15s) === */
+    .exec-nodes{justify-items:stretch}
+    .exec-nodes .label{
+      text-align:center;margin-bottom:calc(var(--u)*2.4);
+      font-size:calc(var(--u)*2.6);font-weight:800;
+      letter-spacing:.22em;color:var(--strong);
+      text-shadow:0 0 5px rgba(var(--acc-rgb),.3);
+    }
+    .exec-nodes .core{
+      width:100%;padding:calc(var(--u)*3.5);
       border:1px solid rgba(var(--sig-rgb),.5);
       background:rgba(6,18,15,.7);
       box-shadow:0 0 20px rgba(var(--sig-rgb),.08),inset 0 0 30px rgba(var(--sig-rgb),.04);
     }
-    .exec .nodes{
-      display:grid;gap:calc(var(--u)*2.2);margin-top:calc(var(--u)*2.4);
-    }
-    .exec .node{
+    .exec-nodes .nodes{display:grid;gap:calc(var(--u)*2)}
+    .node{
       display:grid;grid-template-columns:auto 1fr auto;align-items:center;
       gap:calc(var(--u)*2);
-      padding:calc(var(--u)*2) calc(var(--u)*2.4);
+      padding:calc(var(--u)*1.8) calc(var(--u)*2.2);
       border:1px solid rgba(var(--sig-rgb),.2);
       background:linear-gradient(180deg,rgba(2,4,3,.7),rgba(6,18,15,.7));
-      animation:nodeLive .5s var(--snap) both;
-      animation-delay:var(--at);
+      animation:nodeLive .5s var(--snap) both;animation-delay:var(--at);
     }
     .node .dot{
-      width:calc(var(--u)*2);height:calc(var(--u)*2);border-radius:50%;
+      width:calc(var(--u)*1.8);height:calc(var(--u)*1.8);border-radius:50%;
       background:rgba(var(--sig-rgb),.25);
       animation:dotPulse .5s var(--snap) both;animation-delay:var(--at);
     }
     .node .txt{
-      font-size:calc(var(--u)*3.8);font-weight:900;letter-spacing:.08em;
+      font-size:calc(var(--u)*3.6);font-weight:900;letter-spacing:.08em;
       color:rgba(var(--sig-rgb),.4);
       animation:txtBright .4s var(--snap) both;animation-delay:var(--at);
     }
-    .node .line{
-      height:2px;background:rgba(var(--sig-rgb),.14);
-    }
-    .node .line i{
+    .node .bar{height:2px;background:rgba(var(--sig-rgb),.14)}
+    .node .bar i{
       display:block;width:0;height:100%;
       background:linear-gradient(90deg,var(--soft),var(--lime),var(--cyan));
       animation:barFill .6s var(--snap) both;animation-delay:var(--at);
     }
-    .n1{--at:14.8s} .n2{--at:16s} .n3{--at:17.2s} .n4{--at:18.4s} .n5{--at:19.6s}
+    .n1{--at:11.8s} .n2{--at:12.5s} .n3{--at:13.2s} .n4{--at:13.9s} .n5{--at:14.6s}
 
-    /* === SCENE 6: ARTIFACT (22-26s = 73.3-86.7%) === */
+    /* === S9 PLAN PREVIEW (15-18s) === */
+    .plan-preview{justify-items:start;gap:calc(var(--u)*1.2)}
+    .plan-preview .plan-label{
+      margin-bottom:calc(var(--u)*2);
+      font-size:calc(var(--u)*2.6);font-weight:800;
+      letter-spacing:.18em;color:var(--strong);
+      text-shadow:0 0 5px rgba(var(--acc-rgb),.3);
+    }
+    .plan-preview .plan-line{
+      font-size:calc(var(--u)*3.4);font-weight:800;line-height:1.3;
+      color:var(--signal);letter-spacing:.04em;
+      opacity:0;animation:planLineIn .3s var(--snap) both;
+      animation-delay:var(--at);
+    }
+    .pl1{--at:15.3s} .pl2{--at:15.9s} .pl3{--at:16.5s} .pl4{--at:17.1s}
+
+    /* === S10 IMPACT (18-20s) === */
+    .impact .big-stat{
+      font-size:calc(var(--u)*7.5);font-weight:900;line-height:1.1;
+      text-align:center;letter-spacing:.03em;
+      color:var(--strong);
+      text-shadow:0 0 14px rgba(var(--acc-rgb),.6),0 0 40px rgba(var(--acc-rgb),.2);
+    }
+
+    /* === S11 ARTIFACT (20-23s) === */
     .artifact{text-align:center}
     .artifact .unlock{
       background:linear-gradient(135deg,var(--strong),var(--lime) 52%,var(--cyan));
       -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-      font-size:calc(var(--u)*6.2);font-weight:900;letter-spacing:.05em;line-height:1.06;
-      animation:unlockBang .35s 22.2s var(--snap) both;
+      font-size:calc(var(--u)*6);font-weight:900;letter-spacing:.05em;line-height:1.06;
+      animation:unlockBang .35s 20.2s var(--snap) both;
     }
     .artifact .title{
-      margin-top:calc(var(--u)*2.4);
-      font-size:calc(var(--u)*5);font-weight:900;
+      margin-top:calc(var(--u)*2);
+      font-size:calc(var(--u)*4.8);font-weight:900;
       color:var(--strong);letter-spacing:.04em;
       text-shadow:0 0 10px rgba(var(--sig-rgb),.4);
     }
+    .artifact .doc-outline{
+      width:60%;margin:calc(var(--u)*2.2) auto 0;
+      padding:calc(var(--u)*1.6) calc(var(--u)*2);
+      border:1px solid rgba(var(--sig-rgb),.3);
+      display:grid;gap:calc(var(--u)*1.2);
+    }
+    .artifact .doc-outline i{display:block;height:2px;background:rgba(var(--sig-rgb),.3)}
+    .artifact .doc-outline i:nth-child(1){width:82%}
+    .artifact .doc-outline i:nth-child(2){width:96%}
+    .artifact .doc-outline i:nth-child(3){width:68%}
+    .artifact .doc-outline i:nth-child(4){width:88%}
     .artifact .chips{
-      display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.8);
-      margin-top:calc(var(--u)*3.4);
+      display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.6);
+      margin-top:calc(var(--u)*2.4);
     }
     .artifact .chip{
-      min-height:calc(var(--u)*7);display:flex;align-items:center;justify-content:center;
-      padding:calc(var(--u)*1) calc(var(--u)*1.4);
+      min-height:calc(var(--u)*6.4);display:flex;align-items:center;justify-content:center;
+      padding:calc(var(--u)*.8) calc(var(--u)*1.2);
       border:1px solid rgba(var(--sig-rgb),.32);background:rgba(6,18,15,.72);
-      color:rgba(var(--sig-rgb),.5);font-size:calc(var(--u)*2.7);font-weight:800;
+      color:rgba(var(--sig-rgb),.5);font-size:calc(var(--u)*2.5);font-weight:800;
       letter-spacing:.1em;text-align:center;
       animation:chipIn .4s var(--snap) both;animation-delay:var(--at);
     }
-    .ak1{--at:22.8s} .ak2{--at:23.2s} .ak3{--at:23.6s} .ak4{--at:24s}
+    .ak1{--at:20.8s} .ak2{--at:21.2s} .ak3{--at:21.6s} .ak4{--at:22s}
 
-    /* === SCENE 7: COMPARE + END (26-30s = 86.7-100%) === */
-    .ending{gap:calc(var(--u)*3);justify-items:stretch}
-    .ending .rows{display:grid;gap:calc(var(--u)*2);width:100%}
-    .ending .row{
+    /* === S12 COMPARE (23-26s) === */
+    .compare{gap:calc(var(--u)*2);justify-items:stretch}
+    .compare .rows{display:grid;gap:calc(var(--u)*2);width:100%}
+    .compare .row{
       display:grid;grid-template-columns:22% 1fr;gap:calc(var(--u)*2);
       align-items:center;padding:calc(var(--u)*2) 0;
       border-bottom:1px solid rgba(var(--sig-rgb),.2);
       animation:rowIn .34s var(--snap) both;animation-delay:var(--at);
     }
-    .ending .row b{font-size:calc(var(--u)*2.5);letter-spacing:.12em;color:var(--strong)}
-    .ending .row span{font-size:calc(var(--u)*4.8);font-weight:900;text-shadow:0 0 5px rgba(var(--sig-rgb),.34)}
-    .er1{--at:26.4s} .er2{--at:26.9s} .er3{--at:27.4s}
+    .compare .row b{font-size:calc(var(--u)*2.5);letter-spacing:.12em;color:var(--strong)}
+    .compare .row span{font-size:calc(var(--u)*4.6);font-weight:900;text-shadow:0 0 5px rgba(var(--sig-rgb),.34)}
+    .cr1{--at:23.3s} .cr2{--at:23.8s} .cr3{--at:24.3s}
 
-    .ending .endline{
-      margin-top:calc(var(--u)*4);text-align:center;
+    /* === S13 END CARD (26-30s) === */
+    .endcard{gap:calc(var(--u)*3)}
+    .endcard svg{
+      width:25vmin;height:auto;
+      filter:drop-shadow(0 0 10px rgba(var(--acc-rgb),.4));
+      animation:logoPulse 2.4s var(--ease) infinite;
+    }
+    .endcard .endline{
       background:linear-gradient(135deg,var(--strong),var(--lime) 55%,var(--cyan));
       -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-      font-size:calc(var(--u)*5.8);line-height:1.14;font-weight:900;letter-spacing:.04em;
-      animation:endIn .42s 28.5s var(--snap) both;
+      font-size:calc(var(--u)*6);line-height:1.14;font-weight:900;
+      letter-spacing:.04em;text-align:center;
+      animation:endIn .42s 26.5s var(--snap) both;
+    }
+    .endcard .brand-tag{
+      margin-top:calc(var(--u)*1.4);
+      font-size:calc(var(--u)*2.4);font-weight:800;
+      letter-spacing:.3em;text-indent:.3em;
+      color:var(--soft);text-transform:uppercase;
     }
 
     /* === PROGRESS === */
@@ -322,62 +366,110 @@
     /* === SCENE BINDINGS === */
     .s1{animation-name:s1} .s2{animation-name:s2} .s3{animation-name:s3}
     .s4{animation-name:s4} .s5{animation-name:s5} .s6{animation-name:s6}
-    .s7{animation-name:s7}
+    .s7{animation-name:s7} .s8{animation-name:s8} .s9{animation-name:s9}
+    .s10{animation-name:s10} .s11{animation-name:s11} .s12{animation-name:s12}
+    .s13{animation-name:s13}
 
-    /* 7 scenes / 30s
-       s1 Hook:     0-3s    (0-10%)
-       s2 Boot:     3-6s    (10-20%)
-       s3 Input:    6-10s   (20-33.3%)
-       s4 Task:     10-14s  (33.3-46.7%)
-       s5 Exec:     14-22s  (46.7-73.3%)
-       s6 Artifact: 22-26s  (73.3-86.7%)
-       s7 End:      26-30s  (86.7-100%) */
+    /* 13 scenes / 30s — snap <0.15s ≈ 0.5%
+       s1  Hook:       0-1.5s    (0-5%)
+       s2  Boot:       1.5-3s    (5-10%)
+       s3  Skill:      3-5s      (10-16.67%)
+       s4  Input:      5-6.5s    (16.67-21.67%)
+       s5  Analysis:   6.5-8s    (21.67-26.67%)
+       s6  Task:       8-10s     (26.67-33.33%)
+       s7  ExecStart:  10-11.5s  (33.33-38.33%)
+       s8  Nodes:      11.5-15s  (38.33-50%)
+       s9  Preview:    15-18s    (50-60%)
+       s10 Impact:     18-20s    (60-66.67%)
+       s11 Artifact:   20-23s    (66.67-76.67%)
+       s12 Compare:    23-26s    (76.67-86.67%)
+       s13 EndCard:    26-30s    (86.67-100%) */
 
     @keyframes s1{
       0%{opacity:0;transform:translateY(8px) scale(.99)}
-      0.5%{opacity:1;transform:translateY(0) scale(1)}
-      9%{opacity:1;transform:translateY(0) scale(1)}
-      10%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      .4%{opacity:1;transform:translateY(0) scale(1)}
+      4.5%{opacity:1;transform:translateY(0) scale(1)}
+      5%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s2{
-      0%,9%{opacity:0;transform:translateY(14px) scale(.988)}
-      10%{opacity:1;transform:translateY(0) scale(1)}
-      19%{opacity:1;transform:translateY(0) scale(1)}
-      20%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,4.5%{opacity:0;transform:translateY(14px) scale(.988)}
+      5%{opacity:1;transform:translateY(0) scale(1)}
+      9.5%{opacity:1;transform:translateY(0) scale(1)}
+      10%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s3{
-      0%,19%{opacity:0;transform:translateY(14px) scale(.988)}
-      20%{opacity:1;transform:translateY(0) scale(1)}
-      32.3%{opacity:1;transform:translateY(0) scale(1)}
-      33.3%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,9.5%{opacity:0;transform:translateY(14px) scale(.988)}
+      10%{opacity:1;transform:translateY(0) scale(1)}
+      16.2%{opacity:1;transform:translateY(0) scale(1)}
+      16.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s4{
-      0%,32.3%{opacity:0;transform:translateY(14px) scale(.988)}
-      33.3%{opacity:1;transform:translateY(0) scale(1)}
-      45.7%{opacity:1;transform:translateY(0) scale(1)}
-      46.7%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,16.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      16.67%{opacity:1;transform:translateY(0) scale(1)}
+      21.2%{opacity:1;transform:translateY(0) scale(1)}
+      21.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s5{
-      0%,45.7%{opacity:0;transform:translateY(14px) scale(.988)}
-      46.7%{opacity:1;transform:translateY(0) scale(1)}
-      72.3%{opacity:1;transform:translateY(0) scale(1)}
-      73.3%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,21.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      21.67%{opacity:1;transform:translateY(0) scale(1)}
+      26.2%{opacity:1;transform:translateY(0) scale(1)}
+      26.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s6{
-      0%,72.3%{opacity:0;transform:translateY(14px) scale(.988)}
-      73.3%{opacity:1;transform:translateY(0) scale(1)}
-      85.7%{opacity:1;transform:translateY(0) scale(1)}
-      86.7%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,26.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      26.67%{opacity:1;transform:translateY(0) scale(1)}
+      32.8%{opacity:1;transform:translateY(0) scale(1)}
+      33.33%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s7{
-      0%,85.7%{opacity:0;transform:translateY(14px) scale(.988)}
-      86.7%{opacity:1;transform:translateY(0) scale(1)}
+      0%,32.8%{opacity:0;transform:translateY(14px) scale(.988)}
+      33.33%{opacity:1;transform:translateY(0) scale(1)}
+      37.8%{opacity:1;transform:translateY(0) scale(1)}
+      38.33%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s8{
+      0%,37.8%{opacity:0;transform:translateY(14px) scale(.988)}
+      38.33%{opacity:1;transform:translateY(0) scale(1)}
+      49.5%{opacity:1;transform:translateY(0) scale(1)}
+      50%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s9{
+      0%,49.5%{opacity:0;transform:translateY(14px) scale(.988)}
+      50%{opacity:1;transform:translateY(0) scale(1)}
+      59.5%{opacity:1;transform:translateY(0) scale(1)}
+      60%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s10{
+      0%,59.5%{opacity:0;transform:translateY(14px) scale(.988)}
+      60%{opacity:1;transform:translateY(0) scale(1)}
+      66.2%{opacity:1;transform:translateY(0) scale(1)}
+      66.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s11{
+      0%,66.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      66.67%{opacity:1;transform:translateY(0) scale(1)}
+      76.2%{opacity:1;transform:translateY(0) scale(1)}
+      76.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s12{
+      0%,76.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      76.67%{opacity:1;transform:translateY(0) scale(1)}
+      86.2%{opacity:1;transform:translateY(0) scale(1)}
+      86.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s13{
+      0%,86.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      86.67%{opacity:1;transform:translateY(0) scale(1)}
       100%{opacity:1;transform:translateY(0) scale(1)}
     }
 
-    @keyframes fadeSlide{
-      from{opacity:0;transform:translateY(8px)}
-      to{opacity:1;transform:translateY(0)}
+    @keyframes clipReveal{
+      from{clip-path:inset(0 100% 0 0)}
+      to{clip-path:inset(0 0 0 0)}
+    }
+    @keyframes planLineIn{
+      from{opacity:0;transform:translateX(-10px);clip-path:inset(0 100% 0 0)}
+      to{opacity:1;transform:translateX(0);clip-path:inset(0 0 0 0)}
     }
     @keyframes caret{50%{opacity:0}}
     @keyframes progress{to{width:100%}}
@@ -416,6 +508,10 @@
       from{opacity:0;transform:translateY(12px) scale(.96)}
       to{opacity:1;transform:translateY(0) scale(1)}
     }
+    @keyframes logoPulse{
+      0%,100%{filter:drop-shadow(0 0 8px rgba(var(--acc-rgb),.3));transform:scale(1)}
+      50%{filter:drop-shadow(0 0 16px rgba(var(--acc-rgb),.6));transform:scale(1.03)}
+    }
 
     @keyframes flicker{
       0%,100%{filter:brightness(1) contrast(1.06)}
@@ -427,33 +523,47 @@
     }
     @keyframes crtWake{
       0%{clip-path:inset(49.6% 0 49.6% 0);filter:brightness(2.4)}
-      2%{clip-path:inset(0)}
-      100%{clip-path:inset(0)}
+      2%{clip-path:inset(0)}100%{clip-path:inset(0)}
     }
-    @keyframes brightness{
+
+    /* brightnessTrack: flash at each scene cut, strongest at s11 artifact */
+    @keyframes brightnessTrack{
       0%{filter:brightness(.92)}
-      9.5%{filter:brightness(.92)}
-      10%{filter:brightness(1.12)}10.4%{filter:brightness(.92)}
-      19.5%{filter:brightness(.92)}
-      20%{filter:brightness(1.12)}20.4%{filter:brightness(.92)}
-      32.8%{filter:brightness(.92)}
-      33.3%{filter:brightness(1.12)}33.7%{filter:brightness(.92)}
-      46.2%{filter:brightness(.92)}
-      46.7%{filter:brightness(1.12)}47.1%{filter:brightness(.92)}
+      4.7%{filter:brightness(.92)}
+      5%{filter:brightness(1.12)}5.3%{filter:brightness(.92)}
+      9.7%{filter:brightness(.92)}
+      10%{filter:brightness(1.12)}10.3%{filter:brightness(.92)}
+      16.4%{filter:brightness(.92)}
+      16.67%{filter:brightness(1.12)}17%{filter:brightness(.92)}
+      21.4%{filter:brightness(.92)}
+      21.67%{filter:brightness(1.12)}22%{filter:brightness(.92)}
+      26.4%{filter:brightness(.92)}
+      26.67%{filter:brightness(1.12)}27%{filter:brightness(.92)}
+      33%{filter:brightness(.92)}
+      33.33%{filter:brightness(1.12)}33.6%{filter:brightness(.92)}
+      38%{filter:brightness(.92)}
+      38.33%{filter:brightness(1.12)}38.6%{filter:brightness(.92)}
       /* node pulses */
-      49.3%{filter:brightness(1.04)}49.7%{filter:brightness(.92)}
-      53.3%{filter:brightness(1.04)}53.7%{filter:brightness(.92)}
-      57.3%{filter:brightness(1.04)}57.7%{filter:brightness(.92)}
-      61.3%{filter:brightness(1.04)}61.7%{filter:brightness(.92)}
-      65.3%{filter:brightness(1.04)}65.7%{filter:brightness(.92)}
-      /* artifact unlock — strongest */
-      72.8%{filter:brightness(.92)}
-      73.3%{filter:brightness(1.25)}74%{filter:brightness(1)}
-      /* end — no flash */
-      86.2%{filter:brightness(1)}
-      86.7%{filter:brightness(1)}
+      39.3%{filter:brightness(1.04)}39.6%{filter:brightness(.92)}
+      41.7%{filter:brightness(1.04)}42%{filter:brightness(.92)}
+      44%{filter:brightness(1.04)}44.3%{filter:brightness(.92)}
+      46.3%{filter:brightness(1.04)}46.6%{filter:brightness(.92)}
+      48.7%{filter:brightness(1.04)}49%{filter:brightness(.92)}
+      49.7%{filter:brightness(.92)}
+      50%{filter:brightness(1.12)}50.3%{filter:brightness(.92)}
+      59.7%{filter:brightness(.92)}
+      60%{filter:brightness(1.12)}60.3%{filter:brightness(.92)}
+      /* s11 artifact unlock — strongest */
+      66.4%{filter:brightness(.92)}
+      66.67%{filter:brightness(1.25)}67.2%{filter:brightness(1)}
+      76.4%{filter:brightness(1)}
+      76.67%{filter:brightness(1.12)}77%{filter:brightness(1)}
+      /* s13 end — no flash */
+      86.4%{filter:brightness(1)}
+      86.67%{filter:brightness(1)}
       100%{filter:brightness(1)}
     }
+
     @keyframes grain{
       0%{transform:translate(0,0)}
       100%{transform:translate(-17px,11px)}
@@ -468,13 +578,13 @@
     <span class="corner bl">MESSY ASK → WORKING PLAN</span>
 
     <div class="hud">
-      <!-- SCENE 1: HOOK (0-3s) -->
+      <!-- S1 HOOK (0-1.5s) -->
       <section class="scene hook s1">
         <h1 class="big">NOT A DEMO.<br>A CASE FILE.</h1>
         <p class="sub">CASE 001 // PLAN MODE</p>
       </section>
 
-      <!-- SCENE 2: BOOT (3-6s) -->
+      <!-- S2 BOOT (1.5-3s) -->
       <section class="scene boot s2">
         <p class="line">VERDENT SKILLBOOK v0.1</p>
         <p class="line">CASE RUNNER ONLINE</p>
@@ -487,61 +597,71 @@
         </div>
       </section>
 
-      <!-- SCENE 3: INPUT (6-10s) -->
-      <section class="scene input-scene s3">
+      <!-- S3 SKILL (3-5s) -->
+      <section class="scene skill-intro s3">
+        <h1 class="skill-name">PLAN MODE</h1>
+        <p class="skill-sub">turns vague intent into structured execution</p>
+      </section>
+
+      <!-- S4 INPUT (5-6.5s) -->
+      <section class="scene input-scene s4">
         <article class="card">
-          <h2 class="card-label">INPUT:</h2>
+          <h2 class="card-label">INPUT RECEIVED</h2>
           <p class="quote">"we need a better way<br>to show Verdent skills"</p>
-          <p class="meta">raw intent / no structure / no next step</p>
         </article>
       </section>
 
-      <!-- SCENE 4: TASK (10-14s) -->
-      <section class="scene task-scene s4">
+      <!-- S5 ANALYSIS (6.5-8s) -->
+      <section class="scene analysis s5">
+        <p class="meta">raw intent / no structure / no next step</p>
+      </section>
+
+      <!-- S6 TASK (8-10s) -->
+      <section class="scene task-scene s6">
         <article class="card">
           <h2 class="card-label">TASK:</h2>
           <p class="typed" id="typedTask"></p>
         </article>
       </section>
 
-      <!-- SCENE 5: EXECUTION (14-22s) -->
-      <section class="scene exec s5">
+      <!-- S7 EXEC START (10-11.5s) -->
+      <section class="scene exec-start s7">
+        <p class="label">PLAN MODE RUNNING</p>
+      </section>
+
+      <!-- S8 NODES (11.5-15s) -->
+      <section class="scene exec-nodes s8">
         <p class="label">PLAN MODE RUNNING</p>
         <div class="core">
           <div class="nodes">
-            <div class="node n1">
-              <span class="dot"></span>
-              <span class="txt">NARRATIVE</span>
-              <span class="line"><i></i></span>
-            </div>
-            <div class="node n2">
-              <span class="dot"></span>
-              <span class="txt">EPISODES</span>
-              <span class="line"><i></i></span>
-            </div>
-            <div class="node n3">
-              <span class="dot"></span>
-              <span class="txt">ARTIFACTS</span>
-              <span class="line"><i></i></span>
-            </div>
-            <div class="node n4">
-              <span class="dot"></span>
-              <span class="txt">ACCEPTANCE</span>
-              <span class="line"><i></i></span>
-            </div>
-            <div class="node n5">
-              <span class="dot"></span>
-              <span class="txt">NEXT STEP</span>
-              <span class="line"><i></i></span>
-            </div>
+            <div class="node n1"><span class="dot"></span><span class="txt">NARRATIVE</span><span class="bar"><i></i></span></div>
+            <div class="node n2"><span class="dot"></span><span class="txt">EPISODES</span><span class="bar"><i></i></span></div>
+            <div class="node n3"><span class="dot"></span><span class="txt">ARTIFACTS</span><span class="bar"><i></i></span></div>
+            <div class="node n4"><span class="dot"></span><span class="txt">ACCEPTANCE</span><span class="bar"><i></i></span></div>
+            <div class="node n5"><span class="dot"></span><span class="txt">NEXT STEP</span><span class="bar"><i></i></span></div>
           </div>
         </div>
       </section>
 
-      <!-- SCENE 6: ARTIFACT (22-26s) -->
-      <section class="scene artifact s6">
+      <!-- S9 PLAN PREVIEW (15-18s) -->
+      <section class="scene plan-preview s9">
+        <p class="plan-label">GENERATING PLAN...</p>
+        <p class="plan-line pl1">1. NARRATIVE: case-file video series</p>
+        <p class="plan-line pl2">2. EPISODES: plan / design / build</p>
+        <p class="plan-line pl3">3. ARTIFACTS: one per episode</p>
+        <p class="plan-line pl4">4. CRITERIA: viewer understands the skill</p>
+      </section>
+
+      <!-- S10 IMPACT (18-20s) -->
+      <section class="scene impact s10">
+        <h1 class="big-stat">1 MESSY ASK<br>→ 5 SECTIONS<br>→ 1 EXECUTABLE PLAN</h1>
+      </section>
+
+      <!-- S11 ARTIFACT (20-23s) -->
+      <section class="scene artifact s11">
         <h2 class="unlock">ARTIFACT UNLOCKED</h2>
         <p class="title">PRODUCTION PLAN</p>
+        <div class="doc-outline"><i></i><i></i><i></i><i></i></div>
         <div class="chips">
           <div class="chip ak1">3 EPISODES</div>
           <div class="chip ak2">CASE STRUCTURE</div>
@@ -550,14 +670,37 @@
         </div>
       </section>
 
-      <!-- SCENE 7: COMPARE + END (26-30s) -->
-      <section class="scene ending s7">
+      <!-- S12 COMPARE (23-26s) -->
+      <section class="scene compare s12">
         <div class="rows">
-          <div class="row er1"><b>BEFORE:</b><span>scattered idea</span></div>
-          <div class="row er2"><b>AFTER:</b><span>working plan</span></div>
-          <div class="row er3"><b>NEXT:</b><span>DESIGN → VISUAL SYSTEM</span></div>
+          <div class="row cr1"><b>BEFORE:</b><span>scattered idea</span></div>
+          <div class="row cr2"><b>AFTER:</b><span>working plan</span></div>
+          <div class="row cr3"><b>NEXT:</b><span>DESIGN → VISUAL SYSTEM</span></div>
         </div>
+      </section>
+
+      <!-- S13 END CARD (26-30s) -->
+      <section class="scene endcard s13">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="endLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#75fff7"/>
+              <stop offset=".45" stop-color="#31f9bc"/>
+              <stop offset="1" stop-color="#b8ff7a"/>
+            </linearGradient>
+            <linearGradient id="endLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#11d7ff"/>
+              <stop offset=".55" stop-color="#18ecc3"/>
+              <stop offset="1" stop-color="#adff78"/>
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
+          <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#endLeafA)"/>
+          <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#endLeafB)"/>
+          <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
+        </svg>
         <p class="endline">ONE SKILL.<br>ONE WORKFLOW.<br>ONE ARTIFACT.</p>
+        <p class="brand-tag">VERDENT SKILLBOOK</p>
       </section>
     </div>
 
@@ -566,15 +709,15 @@
     <div class="controls">
       <button id="btnReplay">REPLAY</button>
       <button id="btnPause">PAUSE</button>
-      <button id="btnJump" data-t="22">JUMP:22s</button>
+      <button id="btnJump" data-t="20">JUMP:20s</button>
     </div>
     <input type="range" class="seek" id="seek" min="0" max="30" step="0.1" value="0">
   </main>
 
   <script>
     const duration = 30;
-    const TYPE_START = 10.2;
-    const TYPE_SPAN = 3;
+    const TYPE_START = 8.2;
+    const TYPE_SPAN = 1.6;
     const taskText = "turn this messy idea into\na production plan";
     const typedTask = document.getElementById("typedTask");
     const page = document.getElementById("stage");
@@ -584,7 +727,6 @@
     let paused = false;
     let pauseOffset = 0;
 
-    // URL param jump
     const params = new URLSearchParams(location.search);
     if (params.has("t")) {
       const t = parseFloat(params.get("t")) || 0;
@@ -610,7 +752,6 @@
     }
     requestAnimationFrame(tick);
 
-    // Controls
     document.getElementById("btnReplay").onclick = () => {
       started = performance.now();
       paused = false;
