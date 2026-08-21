@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- VERDENT SKILLBOOK SERIES TEMPLATE: Logo > SkillName > SkillDesc > InputLabel > InputContent > TaskLabel > TaskType > ExecStart > Checkboxes > ArtifactUnlock > ArtifactContent > Compare > Tagline > EndCard -->
+<!-- VERDENT SKILLBOOK SERIES TEMPLATE -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -21,7 +21,7 @@
       --dim: rgba(var(--signal-rgb), .42);
       --faint: rgba(var(--signal-rgb), .13);
       --glass: rgba(8, 15, 9, .76);
-      --dur: 20s;
+      --dur: 12s;
       --ease: cubic-bezier(.22, 1, .36, 1);
       --snap: cubic-bezier(.16, 1, .3, 1);
       font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
@@ -58,108 +58,27 @@
         brightnessTrack var(--dur) linear both;
     }
 
-    /* ===== CYBERPUNK OVERLAYS ===== */
-    .page::before,
+    /* Scanlines */
+    .page::before {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      content: "";
+      z-index: 60;
+      background: repeating-linear-gradient(0deg, rgba(var(--signal-rgb), .06) 0 1px, transparent 1px 4px);
+      mix-blend-mode: screen;
+      opacity: .5;
+    }
+
+    /* Vignette */
     .page::after {
       position: absolute;
       inset: 0;
       pointer-events: none;
       content: "";
       z-index: 60;
-    }
-
-    /* Scanlines (enhanced) + side edge glow */
-    .page::before {
-      background:
-        repeating-linear-gradient(0deg, rgba(var(--signal-rgb), .08) 0 1px, transparent 1px 4px),
-        linear-gradient(90deg, rgba(var(--cyan-rgb), .045), transparent 14%, transparent 86%, rgba(var(--accent-rgb), .04));
-      mix-blend-mode: screen;
-      opacity: .55;
-    }
-
-    /* Vignette */
-    .page::after {
       background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, .34) 84%, rgba(0, 0, 0, .7) 100%);
       opacity: .62;
-    }
-
-    /* Perspective grid (vanishing point at bottom center) */
-    .grid-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 55;
-      pointer-events: none;
-      background:
-        repeating-linear-gradient(90deg, rgba(var(--signal-rgb), .06) 0 1px, transparent 1px 60px),
-        repeating-linear-gradient(180deg, rgba(var(--signal-rgb), .04) 0 1px, transparent 1px 60px);
-      transform: perspective(600px) rotateX(42deg);
-      transform-origin: 50% 100%;
-      opacity: .07;
-      mask-image: linear-gradient(to top, rgba(0,0,0,.8), transparent 70%);
-      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.8), transparent 70%);
-    }
-
-    /* Data stream columns (left + right) */
-    .data-stream {
-      position: absolute;
-      top: 0;
-      width: 12px;
-      height: 200%;
-      z-index: 59;
-      pointer-events: none;
-      font-size: 7px;
-      line-height: 1.3;
-      color: rgba(var(--signal-rgb), .18);
-      overflow: hidden;
-      writing-mode: vertical-rl;
-      animation: streamScroll 8s linear infinite;
-    }
-    .data-stream.left { left: 2.5%; }
-    .data-stream.right { right: 2.5%; animation-duration: 9.4s; animation-direction: reverse; }
-
-    @keyframes streamScroll {
-      from { transform: translateY(0); }
-      to { transform: translateY(-50%); }
-    }
-
-    /* Corner brackets (HUD) */
-    .corner-bracket {
-      position: absolute;
-      width: calc(var(--u) * 3.2);
-      height: calc(var(--u) * 3.2);
-      border-color: rgba(var(--signal-rgb), .35);
-      border-style: solid;
-      z-index: 76;
-      pointer-events: none;
-    }
-    .corner-bracket.tl { top: 3.8%; left: 5.5%; border-width: 1px 0 0 1px; }
-    .corner-bracket.tr { top: 3.8%; right: 5.5%; border-width: 1px 1px 0 0; }
-    .corner-bracket.bl { bottom: 3.8%; left: 5.5%; border-width: 0 0 1px 1px; }
-    .corner-bracket.br { bottom: 3.8%; right: 5.5%; border-width: 0 1px 1px 0; }
-
-    /* Scene indicator dots (right side) */
-    .scene-dots {
-      position: absolute;
-      right: 3.2%;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 76;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      gap: calc(var(--u) * 1.6);
-    }
-    .scene-dots i {
-      display: block;
-      width: calc(var(--u) * 1);
-      height: calc(var(--u) * 1);
-      border-radius: 50%;
-      background: rgba(var(--signal-rgb), .2);
-      transition: background .15s, box-shadow .15s;
-    }
-    .scene-dots i.active {
-      background: var(--verdent-lime);
-      box-shadow: 0 0 6px rgba(var(--accent-rgb), .5);
     }
 
     .noise {
@@ -231,145 +150,47 @@
       text-shadow: 0 0 5px rgba(var(--accent-rgb), .34);
     }
 
-    /* ===== CLIP-PATH REVEAL for important text ===== */
-    .reveal-text {
-      animation: clipReveal .12s var(--snap) both;
-    }
-    @keyframes clipReveal {
-      from { clip-path: inset(0 100% 0 0); }
-      to { clip-path: inset(0 0 0 0); }
-    }
+    /* ===== SCENE 1 // LOGO ===== */
+    .brand { gap: calc(var(--u) * 3.4); }
 
-    /* ===== GLITCH on scene transitions ===== */
-    .scene-glitch {
-      animation: sceneGlitch .05s steps(2) both;
-    }
-    @keyframes sceneGlitch {
-      0% { text-shadow: -2px 0 rgba(var(--cyan-rgb),.6), 2px 0 rgba(var(--accent-rgb),.6); transform: translateX(-1px); }
-      50% { text-shadow: 2px 0 rgba(var(--cyan-rgb),.4), -2px 0 rgba(var(--accent-rgb),.4); transform: translateX(1px); }
-      100% { text-shadow: none; transform: translateX(0); }
-    }
-
-    /* ===== VERDENT PIXEL-BEAD LOGO ===== */
-    .bead-logo {
+    .brand svg {
       width: 30vmin;
-      height: 30vmin;
-      display: grid;
-      grid-template-columns: repeat(16, 1fr);
-      grid-template-rows: repeat(16, 1fr);
-      gap: 1px;
-      filter: drop-shadow(0 0 10px rgba(var(--accent-rgb), .35));
-    }
-
-    .bead-logo .bead {
-      border-radius: 50%;
-      box-shadow: inset 0 -1px 2px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.12);
-    }
-
-    .endcard .bead-logo {
-      width: 24vmin;
-      height: 24vmin;
-    }
-
-    /* ===== PERSISTENT PLAN MODE LABEL ===== */
-    .mode-label {
-      position: absolute;
-      top: 6.5%;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 78;
-      padding: calc(var(--u) * .6) calc(var(--u) * 1.5);
-      color: var(--signal-soft);
-      font-size: calc(var(--u) * 1.8);
-      font-weight: 800;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      background: rgba(var(--signal-rgb), .08);
-      border: 1px solid rgba(var(--signal-rgb), .2);
-      border-radius: 100px;
-      pointer-events: none;
-      animation: modeLabelVis var(--dur) linear both;
-    }
-
-    @keyframes modeLabelVis {
-      0%, 4.5% { opacity: 0; }
-      5.5% { opacity: 1; }
-      92% { opacity: 1; }
-      93.5% { opacity: 0; }
-      100% { opacity: 0; }
-    }
-
-    /* ===== SCENE 1 // 0-1s LOGO FLASH ===== */
-    .brand {
-      gap: calc(var(--u) * 1.8);
-      position: relative;
-    }
-
-    /* Radial glow behind logo */
-    .brand::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 50vmin;
-      height: 50vmin;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(circle, rgba(var(--accent-rgb), .12) 0%, rgba(var(--cyan-rgb), .06) 40%, transparent 70%);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .brand .ep-tag {
-      color: var(--signal-soft);
-      font-size: calc(var(--u) * 2);
-      font-weight: 800;
-      letter-spacing: .4em;
-      text-indent: .4em;
-      text-transform: uppercase;
+      height: auto;
+      filter: drop-shadow(0 0 10px rgba(var(--accent-rgb), .4));
     }
 
     .brand .brand-name {
       color: var(--verdent-lime);
+      background: linear-gradient(135deg, var(--signal-strong), var(--verdent-lime) 55%, var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       font-size: calc(var(--u) * 6.4);
       font-weight: 900;
       letter-spacing: .42em;
       text-indent: .42em;
-      text-shadow: 0 0 9px rgba(var(--accent-rgb), .42);
+      text-shadow: none;
     }
 
-    .brand .brand-sub {
-      color: var(--cyan);
-      font-size: calc(var(--u) * 2.2);
-      font-weight: 800;
-      letter-spacing: .28em;
-      text-indent: .28em;
-      opacity: .8;
-    }
+    /* ===== SCENE 2 // SKILL INTRO ===== */
+    .skill { gap: calc(var(--u) * 2.6); }
 
-    /* ===== SCENE 2 // 1-2.2s SKILL NAME ===== */
-    .skill-name-scene { gap: calc(var(--u) * 2.6); }
-
-    .skill-name-scene .skill-name {
+    .skill .skill-name {
       color: var(--signal-strong);
-      font-size: calc(var(--u) * 12);
+      font-size: calc(var(--u) * 11);
       line-height: .96;
       font-weight: 900;
       text-align: center;
       letter-spacing: .06em;
-      text-shadow: 0 0 9px rgba(var(--signal-rgb), .55), 0 0 4px rgba(var(--accent-rgb), .5);
-      animation: textGlitch .4s 1.15s steps(2) both;
+      text-shadow: 0 0 9px rgba(var(--signal-rgb), .55);
     }
 
-    /* ===== SCENE 3 // 2.2-3.4s SKILL DESC ===== */
-    .skill-desc-scene .skill-sub {
-      max-width: 88%;
+    .skill .skill-sub {
       color: var(--signal-soft);
-      font-size: calc(var(--u) * 3.8);
-      line-height: 1.28;
+      font-size: calc(var(--u) * 3.6);
       font-weight: 800;
       letter-spacing: .06em;
       text-align: center;
-      animation: clipReveal .15s 2.4s var(--snap) both;
     }
 
     /* ===== CARDS ===== */
@@ -389,13 +210,6 @@
       text-shadow: 0 0 5px rgba(var(--accent-rgb), .3);
     }
 
-    /* ===== SCENE 4 // 3.4-4.2s INPUT LABEL ===== */
-    .input-label-scene .card-label {
-      font-size: calc(var(--u) * 4.2);
-      animation: clipReveal .1s 3.5s var(--snap) both;
-    }
-
-    /* ===== SCENE 5 // 4.2-5.8s INPUT CONTENT ===== */
     .quote {
       margin-top: calc(var(--u) * 3);
       color: var(--signal-strong);
@@ -407,13 +221,6 @@
       overflow-wrap: break-word;
     }
 
-    /* ===== SCENE 6 // 5.8-6.6s TASK LABEL ===== */
-    .task-label-scene .card-label {
-      font-size: calc(var(--u) * 4.2);
-      animation: clipReveal .1s 5.9s var(--snap) both;
-    }
-
-    /* ===== SCENE 7 // 6.6-8.4s TASK TYPING ===== */
     .task-type {
       width: 100%;
       min-height: 2.4em;
@@ -439,13 +246,7 @@
       animation: caret .62s steps(1) infinite;
     }
 
-    /* ===== SCENE 8 // 8.4-9.2s EXECUTION START ===== */
-    .exec-start-scene .label {
-      font-size: calc(var(--u) * 3.4);
-      animation: clipReveal .12s 8.5s var(--snap) both;
-    }
-
-    /* ===== SCENE 9 // 9.2-13.2s CHECKBOXES ===== */
+    /* ===== SCENE 5 // EXECUTION ===== */
     .execution { justify-items: stretch; }
 
     .checklist {
@@ -465,26 +266,6 @@
       background: linear-gradient(180deg, rgba(2, 4, 3, .7), rgba(6, 18, 15, .7));
       animation: rowLive .42s var(--snap) both;
       animation-delay: var(--at);
-    }
-
-    /* Horizontal scan line on checkbox activation */
-    .check::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 50%;
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(var(--signal-rgb), .5), var(--verdent-lime), rgba(var(--signal-rgb), .5), transparent);
-      opacity: 0;
-      animation: scanLine .2s var(--snap) both;
-      animation-delay: var(--at);
-    }
-
-    @keyframes scanLine {
-      0% { opacity: 0; transform: translateX(-100%) scaleX(.3); }
-      40% { opacity: .7; }
-      100% { opacity: 0; transform: translateX(100%) scaleX(.3); }
     }
 
     .check .box {
@@ -534,13 +315,13 @@
       animation-delay: var(--at);
     }
 
-    .c1 { --at: 9.5s; }
-    .c2 { --at: 10.3s; }
-    .c3 { --at: 11.1s; }
-    .c4 { --at: 11.9s; }
-    .c5 { --at: 12.7s; }
+    .c1 { --at: 5.5s; }
+    .c2 { --at: 6.1s; }
+    .c3 { --at: 6.7s; }
+    .c4 { --at: 7.3s; }
+    .c5 { --at: 7.9s; }
 
-    /* ===== SCENE 10 // 13.2-14.5s ARTIFACT UNLOCK ===== */
+    /* ===== SCENE 6 // ARTIFACT + COMPARE ===== */
     .artifact-card { text-align: center; }
 
     .unlock {
@@ -549,22 +330,29 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-size: calc(var(--u) * 6.2);
+      font-size: calc(var(--u) * 5.8);
       line-height: 1.06;
       font-weight: 900;
       letter-spacing: .05em;
-      text-shadow: 0 0 12px rgba(var(--accent-rgb), .34);
-      animation: unlockBang .3s 13.2s var(--snap) both;
+      animation: unlockBang .3s 8.5s var(--snap) both;
     }
 
-    /* ===== SCENE 11 // 14.5-16s ARTIFACT CONTENT ===== */
+    .artifact-title {
+      margin-top: calc(var(--u) * 2);
+      color: var(--signal-strong);
+      font-size: calc(var(--u) * 4.8);
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-shadow: 0 0 8px rgba(var(--signal-rgb), .4);
+    }
+
     .doc-outline {
       width: 60%;
-      margin: calc(var(--u) * 3.4) auto 0;
-      padding: calc(var(--u) * 2.2) calc(var(--u) * 2.4);
+      margin: calc(var(--u) * 2.4) auto 0;
+      padding: calc(var(--u) * 1.8) calc(var(--u) * 2);
       border: 1px solid rgba(var(--signal-rgb), .3);
       display: grid;
-      gap: calc(var(--u) * 1.6);
+      gap: calc(var(--u) * 1.4);
     }
 
     .doc-outline i {
@@ -578,24 +366,15 @@
     .doc-outline i:nth-child(3) { width: 68%; }
     .doc-outline i:nth-child(4) { width: 88%; }
 
-    .artifact-title {
-      margin-top: calc(var(--u) * 2.6);
-      color: var(--signal-strong);
-      font-size: calc(var(--u) * 5.6);
-      font-weight: 900;
-      letter-spacing: .04em;
-      text-shadow: 0 0 11px rgba(var(--signal-rgb), .4);
-    }
-
     .chips {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: calc(var(--u) * 1.8);
-      margin-top: calc(var(--u) * 3.4);
+      gap: calc(var(--u) * 1.6);
+      margin-top: calc(var(--u) * 2.4);
     }
 
     .chip {
-      min-height: calc(var(--u) * 6.6);
+      min-height: calc(var(--u) * 6.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -603,7 +382,7 @@
       border: 1px solid rgba(var(--signal-rgb), .32);
       background: rgba(6, 18, 15, .72);
       color: rgba(var(--signal-rgb), .5);
-      font-size: calc(var(--u) * 2.6);
+      font-size: calc(var(--u) * 2.5);
       font-weight: 800;
       letter-spacing: .1em;
       text-align: center;
@@ -611,20 +390,24 @@
       animation-delay: var(--at);
     }
 
-    .k1 { --at: 14.7s; }
-    .k2 { --at: 15.1s; }
-    .k3 { --at: 15.4s; }
-    .k4 { --at: 15.7s; }
+    .k1 { --at: 8.8s; }
+    .k2 { --at: 9.1s; }
+    .k3 { --at: 9.4s; }
+    .k4 { --at: 9.7s; }
 
-    /* ===== SCENE 12 // 16-17.5s COMPARE ===== */
-    .compare-card { display: grid; gap: calc(var(--u) * 2); width: 100%; }
+    .compare-inline {
+      display: grid;
+      gap: calc(var(--u) * 1.4);
+      margin-top: calc(var(--u) * 2.4);
+      width: 100%;
+    }
 
     .row {
       display: grid;
       grid-template-columns: 24% 1fr;
       gap: calc(var(--u) * 2);
       align-items: center;
-      padding: calc(var(--u) * 2.2) 0;
+      padding: calc(var(--u) * 1.6) 0;
       border-bottom: 1px solid rgba(var(--signal-rgb), .2);
       animation: rowIn .34s var(--snap) both;
       animation-delay: var(--at);
@@ -632,56 +415,55 @@
 
     .row b {
       color: var(--signal-strong);
-      font-size: calc(var(--u) * 2.7);
+      font-size: calc(var(--u) * 2.4);
       letter-spacing: .12em;
     }
 
     .row span {
-      font-size: calc(var(--u) * 5.2);
+      font-size: calc(var(--u) * 4.4);
       line-height: 1.06;
       font-weight: 900;
-      overflow-wrap: break-word;
       text-shadow: 0 0 5px rgba(var(--signal-rgb), .34);
     }
 
-    .r1 { --at: 16.3s; }
-    .r2 { --at: 16.8s; }
+    .r1 { --at: 10.0s; }
+    .r2 { --at: 10.3s; }
 
-    /* ===== SCENE 13 // 17.5-18.8s END TAGLINE ===== */
-    .tagline .endline {
-      margin: 0;
+    /* ===== SCENE 7 // END CARD ===== */
+    .endcard { gap: calc(var(--u) * 3.2); }
+
+    .endcard svg {
+      width: 25vmin;
+      height: auto;
+      filter: drop-shadow(0 0 10px rgba(var(--accent-rgb), .4));
+      animation: logoPulse 2.4s var(--ease) infinite;
+    }
+
+    .endcard .endline {
       color: var(--verdent-lime);
       background: linear-gradient(135deg, var(--signal-strong), var(--verdent-lime) 55%, var(--cyan));
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-size: calc(var(--u) * 7.6);
+      font-size: calc(var(--u) * 6.8);
       line-height: 1.12;
       font-weight: 900;
       letter-spacing: .04em;
       text-align: center;
-      text-shadow: 0 0 14px rgba(var(--accent-rgb), .34);
-      animation: endIn .42s 17.7s var(--snap) both;
-    }
-
-    /* ===== SCENE 14 // 18.8-20s END CARD ===== */
-    .endcard { gap: calc(var(--u) * 3.2); }
-
-    .endcard .bead-logo {
-      animation: logoPulse 2.4s var(--ease) infinite;
+      animation: endIn .42s 11s var(--snap) both;
     }
 
     .endcard .brand-tag {
       margin-top: calc(var(--u) * 1.4);
       color: var(--signal-soft);
-      font-size: calc(var(--u) * 2.6);
+      font-size: calc(var(--u) * 2.4);
       font-weight: 800;
       letter-spacing: .3em;
       text-indent: .3em;
       text-transform: uppercase;
     }
 
-    /* ===== PROGRESS ===== */
+    /* ===== PROGRESS BAR ===== */
     .progress {
       position: absolute;
       left: 8.5%;
@@ -701,7 +483,7 @@
       animation: progress var(--dur) linear both;
     }
 
-    /* ===== SCENE ANIMATION BINDINGS ===== */
+    /* ===== SCENE BINDINGS ===== */
     .s1 { animation-name: s1; }
     .s2 { animation-name: s2; }
     .s3 { animation-name: s3; }
@@ -709,99 +491,56 @@
     .s5 { animation-name: s5; }
     .s6 { animation-name: s6; }
     .s7 { animation-name: s7; }
-    .s8 { animation-name: s8; }
-    .s9 { animation-name: s9; }
-    .s10 { animation-name: s10; }
-    .s11 { animation-name: s11; }
-    .s12 { animation-name: s12; }
-    .s13 { animation-name: s13; }
-    .s14 { animation-name: s14; }
 
-    /* 14 scenes / 20s — snap transitions ~0.1s = 0.5% of 20s
-       s1  Logo:       0-1s     (0-5%)
-       s2  SkillName:  1-2.2s   (5-11%)
-       s3  SkillDesc:  2.2-3.4s (11-17%)
-       s4  InputLabel: 3.4-4.2s (17-21%)
-       s5  InputBody:  4.2-5.8s (21-29%)
-       s6  TaskLabel:  5.8-6.6s (29-33%)
-       s7  TaskType:   6.6-8.4s (33-42%)
-       s8  ExecStart:  8.4-9.2s (42-46%)
-       s9  Checkboxes: 9.2-13.2s(46-66%)
-       s10 ArtUnlock:  13.2-14.5s(66-72.5%)
-       s11 ArtContent: 14.5-16s (72.5-80%)
-       s12 Compare:    16-17.5s (80-87.5%)
-       s13 Tagline:    17.5-18.8s(87.5-94%)
-       s14 EndCard:    18.8-20s (94-100%) */
+    /* 7 scenes / 12s — snap ~0.12s = ~1% of 12s
+       s1 Logo:      0-0.8s    (0-6.67%)
+       s2 Skill:     0.8-2s    (6.67-16.67%)
+       s3 Input:     2-3.5s    (16.67-29.17%)
+       s4 Task:      3.5-5.2s  (29.17-43.33%)
+       s5 Execution: 5.2-8.5s  (43.33-70.83%)
+       s6 Artifact:  8.5-10.8s (70.83-90%)
+       s7 End Card:  10.8-12s  (90-100%) */
 
     @keyframes s1 {
       0% { opacity: 0; transform: translateY(8px) scale(.99); }
-      0.5% { opacity: 1; transform: translateY(0) scale(1); }
-      4.5% { opacity: 1; transform: translateY(0) scale(1); }
-      5%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+      0.8% { opacity: 1; transform: translateY(0) scale(1); }
+      5.7% { opacity: 1; transform: translateY(0) scale(1); }
+      6.67%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
     }
     @keyframes s2 {
-      0%, 4.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      5%, 10.5% { opacity: 1; transform: translateY(0) scale(1); }
-      11%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+      0%, 5.7% { opacity: 0; transform: translateY(14px) scale(.988); }
+      6.67% { opacity: 1; transform: translateY(0) scale(1); }
+      15.7% { opacity: 1; transform: translateY(0) scale(1); }
+      16.67%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
     }
     @keyframes s3 {
-      0%, 10.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      11%, 16.5% { opacity: 1; transform: translateY(0) scale(1); }
-      17%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+      0%, 15.7% { opacity: 0; transform: translateY(14px) scale(.988); }
+      16.67% { opacity: 1; transform: translateY(0) scale(1); }
+      28.2% { opacity: 1; transform: translateY(0) scale(1); }
+      29.17%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
     }
     @keyframes s4 {
-      0%, 16.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      17%, 20.5% { opacity: 1; transform: translateY(0) scale(1); }
-      21%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+      0%, 28.2% { opacity: 0; transform: translateY(14px) scale(.988); }
+      29.17% { opacity: 1; transform: translateY(0) scale(1); }
+      42.3% { opacity: 1; transform: translateY(0) scale(1); }
+      43.33%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
     }
     @keyframes s5 {
-      0%, 20.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      21%, 28.5% { opacity: 1; transform: translateY(0) scale(1); }
-      29%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+      0%, 42.3% { opacity: 0; transform: translateY(14px) scale(.988); }
+      43.33% { opacity: 1; transform: translateY(0) scale(1); }
+      69.8% { opacity: 1; transform: translateY(0) scale(1); }
+      70.83%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
     }
     @keyframes s6 {
-      0%, 28.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      29%, 32.5% { opacity: 1; transform: translateY(0) scale(1); }
-      33%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
+      0%, 69.8% { opacity: 0; transform: translateY(14px) scale(.988); }
+      70.83% { opacity: 1; transform: translateY(0) scale(1); }
+      89% { opacity: 1; transform: translateY(0) scale(1); }
+      90%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
     }
     @keyframes s7 {
-      0%, 32.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      33%, 41.5% { opacity: 1; transform: translateY(0) scale(1); }
-      42%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s8 {
-      0%, 41.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      42%, 45.5% { opacity: 1; transform: translateY(0) scale(1); }
-      46%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s9 {
-      0%, 45.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      46%, 65.5% { opacity: 1; transform: translateY(0) scale(1); }
-      66%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s10 {
-      0%, 65.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      66%, 72% { opacity: 1; transform: translateY(0) scale(1); }
-      72.5%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s11 {
-      0%, 72% { opacity: 0; transform: translateY(14px) scale(.988); }
-      72.5%, 79.5% { opacity: 1; transform: translateY(0) scale(1); }
-      80%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s12 {
-      0%, 79.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      80%, 87% { opacity: 1; transform: translateY(0) scale(1); }
-      87.5%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s13 {
-      0%, 87% { opacity: 0; transform: translateY(14px) scale(.988); }
-      87.5%, 93.5% { opacity: 1; transform: translateY(0) scale(1); }
-      94%, 100% { opacity: 0; transform: translateY(-14px) scale(1.01); }
-    }
-    @keyframes s14 {
-      0%, 93.5% { opacity: 0; transform: translateY(14px) scale(.988); }
-      94%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+      0%, 89% { opacity: 0; transform: translateY(14px) scale(.988); }
+      90% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes caret { 50% { opacity: 0; } }
@@ -819,7 +558,7 @@
       to { opacity: 1; transform: scale(1); }
     }
     @keyframes txtLive {
-      from { color: rgba(var(--signal-rgb), .4); text-shadow: none; letter-spacing: .08em; }
+      from { color: rgba(var(--signal-rgb), .4); text-shadow: none; }
       45% { color: var(--signal-strong); text-shadow: 0 0 10px rgba(var(--accent-rgb), .42); }
       to { color: var(--signal-strong); text-shadow: 0 0 5px rgba(var(--signal-rgb), .4); }
     }
@@ -831,7 +570,7 @@
       100% { opacity: 1; transform: scale(1); filter: brightness(1); }
     }
     @keyframes chipIn {
-      from { opacity: .25; color: rgba(var(--signal-rgb), .34); border-color: rgba(var(--signal-rgb), .2); transform: translateY(8px); }
+      from { opacity: .25; border-color: rgba(var(--signal-rgb), .2); transform: translateY(8px); }
       to { opacity: 1; color: var(--signal); border-color: rgba(var(--signal-rgb), .58); transform: translateY(0); box-shadow: 0 0 8px rgba(var(--signal-rgb), .1); }
     }
     @keyframes rowIn {
@@ -843,92 +582,59 @@
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
     @keyframes logoPulse {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), .3)); }
-      50% { transform: scale(1.03); filter: drop-shadow(0 0 16px rgba(var(--accent-rgb), .6)); }
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), .3)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 16px rgba(var(--accent-rgb), .6)); transform: scale(1.03); }
     }
-    @keyframes textGlitch {
-      0%, 100% { transform: translate(0); }
-      20% { transform: translate(-2px, 1px); }
-      35% { transform: translate(3px, -1px); }
-      55% { transform: translate(-1px, -2px); }
-      70% { transform: translate(2px, 2px); }
-    }
+
     @keyframes screenFlicker {
       0%, 100% { filter: brightness(1) contrast(1.06); }
-      4% { filter: brightness(.95) contrast(1.1); }
-      5% { filter: brightness(1.06) contrast(1.08); }
+      4% { filter: brightness(.96) contrast(1.1); }
+      5% { filter: brightness(1.04) contrast(1.08); }
       43% { filter: brightness(.98) contrast(1.1); }
-      44% { filter: brightness(1.08) contrast(1.13); }
+      44% { filter: brightness(1.06) contrast(1.1); }
       45% { filter: brightness(.97) contrast(1.06); }
-      78% { filter: brightness(1.05) contrast(1.1); }
     }
     @keyframes crtWake {
       0% { clip-path: inset(49.6% 0 49.6% 0); filter: brightness(2.4); }
-      1.8% { clip-path: inset(0); }
+      2% { clip-path: inset(0); }
       100% { clip-path: inset(0); }
     }
-    /* brightnessTrack: base .93, flash 1.12 at each scene cut, checkbox pulses,
-       strongest flash 1.25 at artifact unlock (66%), no flash at endcard entry */
+
+    /* brightnessTrack: base .93, flash 1.12 at scene cuts, 1.25 at artifact, no flash at end card */
     @keyframes brightnessTrack {
       0% { filter: brightness(.93); }
-      /* s1→s2 cut at 5% */
-      4.7% { filter: brightness(.93); }
-      5% { filter: brightness(1.12); }
-      5.3% { filter: brightness(.93); }
-      /* s2→s3 cut at 11% */
-      10.7% { filter: brightness(.93); }
-      11% { filter: brightness(1.12); }
-      11.3% { filter: brightness(.93); }
-      /* s3→s4 cut at 17% */
-      16.7% { filter: brightness(.93); }
-      17% { filter: brightness(1.12); }
-      17.3% { filter: brightness(.93); }
-      /* s4→s5 cut at 21% */
-      20.7% { filter: brightness(.93); }
-      21% { filter: brightness(1.12); }
-      21.3% { filter: brightness(.93); }
-      /* s5→s6 cut at 29% */
+      /* s1->s2 at 6.67% */
+      6.2% { filter: brightness(.93); }
+      6.67% { filter: brightness(1.12); }
+      7.1% { filter: brightness(.93); }
+      /* s2->s3 at 16.67% */
+      16.2% { filter: brightness(.93); }
+      16.67% { filter: brightness(1.12); }
+      17.1% { filter: brightness(.93); }
+      /* s3->s4 at 29.17% */
       28.7% { filter: brightness(.93); }
-      29% { filter: brightness(1.12); }
-      29.3% { filter: brightness(.93); }
-      /* s6→s7 cut at 33% */
-      32.7% { filter: brightness(.93); }
-      33% { filter: brightness(1.12); }
-      33.3% { filter: brightness(.93); }
-      /* s7→s8 cut at 42% */
-      41.7% { filter: brightness(.93); }
-      42% { filter: brightness(1.12); }
-      42.3% { filter: brightness(.93); }
-      /* s8→s9 cut at 46% */
-      45.7% { filter: brightness(.93); }
-      46% { filter: brightness(1.12); }
-      46.3% { filter: brightness(.93); }
-      /* checkbox pulses: c1=9.5s(47.5%), c2=10.3s(51.5%), c3=11.1s(55.5%), c4=11.9s(59.5%), c5=12.7s(63.5%) */
-      47.5% { filter: brightness(1.05); } 47.9% { filter: brightness(.93); }
-      51.5% { filter: brightness(1.05); } 51.9% { filter: brightness(.93); }
-      55.5% { filter: brightness(1.05); } 55.9% { filter: brightness(.93); }
-      59.5% { filter: brightness(1.05); } 59.9% { filter: brightness(.93); }
-      63.5% { filter: brightness(1.05); } 63.9% { filter: brightness(.93); }
-      /* s9→s10 artifact unlock at 66% — strongest flash */
-      65.7% { filter: brightness(.93); }
-      66% { filter: brightness(1.25); }
-      66.5% { filter: brightness(1); }
-      /* s10→s11 cut at 72.5% */
-      72.2% { filter: brightness(1); }
-      72.5% { filter: brightness(1.12); }
-      72.8% { filter: brightness(1); }
-      /* s11→s12 cut at 80% */
-      79.7% { filter: brightness(1); }
-      80% { filter: brightness(1.12); }
-      80.3% { filter: brightness(1); }
-      /* s12→s13 cut at 87.5% */
-      87.2% { filter: brightness(1); }
-      87.5% { filter: brightness(1.12); }
-      87.8% { filter: brightness(1); }
-      /* s13→s14 at 94% — NO flash, hold steady for end card */
-      94% { filter: brightness(1); }
+      29.17% { filter: brightness(1.12); }
+      29.6% { filter: brightness(.93); }
+      /* s4->s5 at 43.33% */
+      42.8% { filter: brightness(.93); }
+      43.33% { filter: brightness(1.12); }
+      43.8% { filter: brightness(.93); }
+      /* checkbox pulses */
+      45.8% { filter: brightness(1.05); } 46.2% { filter: brightness(.93); }
+      50.8% { filter: brightness(1.05); } 51.2% { filter: brightness(.93); }
+      55.8% { filter: brightness(1.05); } 56.2% { filter: brightness(.93); }
+      60.8% { filter: brightness(1.05); } 61.2% { filter: brightness(.93); }
+      65.8% { filter: brightness(1.05); } 66.2% { filter: brightness(.93); }
+      /* s5->s6 artifact unlock at 70.83% — strongest flash */
+      70.3% { filter: brightness(.93); }
+      70.83% { filter: brightness(1.25); }
+      71.5% { filter: brightness(1); }
+      /* s6->s7 at 90% — no flash, hold steady */
+      89.5% { filter: brightness(1); }
+      90% { filter: brightness(1); }
       100% { filter: brightness(1); }
     }
+
     @keyframes grain {
       0% { transform: translate(0, 0); }
       100% { transform: translate(-17px, 11px); }
@@ -936,81 +642,58 @@
   </style>
 </head>
 <body>
-  <main class="page" id="stage" aria-label="Verdent Skillbook Episode 1 animated vertical scene">
-    <div class="grid-bg"></div>
+  <main class="page" id="stage">
     <div class="noise"></div>
     <div class="frame"></div>
 
-    <!-- Data stream decoration -->
-    <div class="data-stream left">0x4F 1A 7C 3E 9D 2B 5F 8A 0C 6E 3D 7B 1F 4A 9C 2E 5D 8B 0F 6A 3C 7E 1D 4B 9A 2F 5C 8E 0D 6B 3A 7F 1C 4E 9B 2D 5A 8F 0E 6C 3B 7D 1E 4C 9F 2A 5B 8C 0A 6D 3F 7A 1B 4D 9E 2C 5E 8D 0B 6F</div>
-    <div class="data-stream right">FF A3 27 8E 4C D1 6B 93 0F 5A E7 38 B2 7D 14 C9 56 A0 2E 81 F4 69 3C D7 4A 95 1B E2 78 0D B6 53 A8 2F 84 F1 6C 37 DA 45 90 1E E5 7B 08 B3 50 A7 2C 83 F6 6F 3A D4 49 92 1D E0 76 0B B8</div>
-
-    <!-- Corner brackets -->
-    <div class="corner-bracket tl"></div>
-    <div class="corner-bracket tr"></div>
-    <div class="corner-bracket bl"></div>
-    <div class="corner-bracket br"></div>
-
-    <!-- Scene indicator dots -->
-    <div class="scene-dots" id="sceneDots">
-      <i></i><i></i><i></i><i></i><i></i>
-    </div>
-
     <div class="hud">
-      <!-- PERSISTENT PLAN MODE LABEL (visible s2-s13) -->
-      <div class="mode-label">PLAN MODE</div>
-
-      <!-- SCENE 1 // 0-1s LOGO FLASH -->
+      <!-- SCENE 1 // LOGO -->
       <section class="scene brand s1">
-        <span class="ep-tag">EPISODE 001</span>
-        <div class="bead-logo" id="beadLogo1"></div>
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="sbLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#75fff7"/>
+              <stop offset=".45" stop-color="#31f9bc"/>
+              <stop offset="1" stop-color="#b8ff7a"/>
+            </linearGradient>
+            <linearGradient id="sbLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#11d7ff"/>
+              <stop offset=".55" stop-color="#18ecc3"/>
+              <stop offset="1" stop-color="#adff78"/>
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
+          <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#sbLeafA)"/>
+          <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#sbLeafB)"/>
+          <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
+        </svg>
         <div class="brand-name">SKILLBOOK</div>
-        <span class="brand-sub">PLAN MODE</span>
       </section>
 
-      <!-- SCENE 2 // 1-2.2s SKILL NAME -->
-      <section class="scene skill-name-scene s2">
+      <!-- SCENE 2 // PLAN MODE -->
+      <section class="scene skill s2">
         <h1 class="skill-name">PLAN MODE</h1>
+        <p class="skill-sub">messy intent → executable plan</p>
       </section>
 
-      <!-- SCENE 3 // 2.2-3.4s SKILL DESCRIPTION -->
-      <section class="scene skill-desc-scene s3">
-        <p class="skill-sub">One vague idea in.<br>One executable plan out.</p>
-      </section>
-
-      <!-- SCENE 4 // 3.4-4.2s INPUT LABEL -->
-      <section class="scene input-label-scene s4">
-        <h2 class="card-label">INPUT RECEIVED</h2>
-      </section>
-
-      <!-- SCENE 5 // 4.2-5.8s INPUT CONTENT -->
-      <section class="scene s5">
+      <!-- SCENE 3 // INPUT -->
+      <section class="scene s3">
         <article class="input-card">
           <h2 class="card-label">INPUT RECEIVED</h2>
           <p class="quote">"we need a better way<br>to show Verdent skills"</p>
         </article>
       </section>
 
-      <!-- SCENE 6 // 5.8-6.6s TASK LABEL -->
-      <section class="scene task-label-scene s6">
-        <h2 class="card-label">TASK:</h2>
-      </section>
-
-      <!-- SCENE 7 // 6.6-8.4s TASK TYPING -->
-      <section class="scene s7">
+      <!-- SCENE 4 // TASK TYPING -->
+      <section class="scene s4">
         <article class="task-card">
           <h2 class="card-label">TASK:</h2>
           <p class="task-type typed" id="typedTask"></p>
         </article>
       </section>
 
-      <!-- SCENE 8 // 8.4-9.2s EXECUTION START -->
-      <section class="scene exec-start-scene s8">
-        <p class="label">PLAN MODE RUNNING</p>
-      </section>
-
-      <!-- SCENE 9 // 9.2-13.2s CHECKBOXES -->
-      <section class="scene execution s9">
+      <!-- SCENE 5 // EXECUTION -->
+      <section class="scene execution s5">
         <p class="label">PLAN MODE RUNNING</p>
         <ul class="checklist">
           <li class="check c1">
@@ -1041,16 +724,10 @@
         </ul>
       </section>
 
-      <!-- SCENE 10 // 13.2-14.5s ARTIFACT UNLOCK -->
-      <section class="scene s10">
+      <!-- SCENE 6 // ARTIFACT + COMPARE -->
+      <section class="scene s6">
         <article class="artifact-card">
           <h2 class="unlock">ARTIFACT UNLOCKED</h2>
-        </article>
-      </section>
-
-      <!-- SCENE 11 // 14.5-16s ARTIFACT CONTENT -->
-      <section class="scene s11">
-        <article class="artifact-card">
           <p class="artifact-title">PRODUCTION PLAN</p>
           <div class="doc-outline"><i></i><i></i><i></i><i></i></div>
           <div class="chips">
@@ -1059,25 +736,34 @@
             <div class="chip k3">RECORDING CHECKLIST</div>
             <div class="chip k4">ACCEPTANCE CRITERIA</div>
           </div>
+          <div class="compare-inline">
+            <div class="row r1"><b>BEFORE:</b><span>scattered idea</span></div>
+            <div class="row r2"><b>AFTER:</b><span>working plan</span></div>
+          </div>
         </article>
       </section>
 
-      <!-- SCENE 12 // 16-17.5s COMPARE -->
-      <section class="scene s12">
-        <article class="compare-card">
-          <div class="row r1"><b>BEFORE:</b><span>scattered idea</span></div>
-          <div class="row r2"><b>AFTER:</b><span>working plan</span></div>
-        </article>
-      </section>
-
-      <!-- SCENE 13 // 17.5-18.8s END TAGLINE -->
-      <section class="scene tagline s13">
+      <!-- SCENE 7 // END CARD -->
+      <section class="scene endcard s7">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="endLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#75fff7"/>
+              <stop offset=".45" stop-color="#31f9bc"/>
+              <stop offset="1" stop-color="#b8ff7a"/>
+            </linearGradient>
+            <linearGradient id="endLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#11d7ff"/>
+              <stop offset=".55" stop-color="#18ecc3"/>
+              <stop offset="1" stop-color="#adff78"/>
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
+          <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#endLeafA)"/>
+          <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#endLeafB)"/>
+          <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
+        </svg>
         <p class="endline">ONE SKILL.<br>ONE WORKFLOW.<br>ONE ARTIFACT.</p>
-      </section>
-
-      <!-- SCENE 14 // 18.8-20s END CARD -->
-      <section class="scene endcard s14">
-        <div class="bead-logo" id="beadLogo2"></div>
         <p class="brand-tag">VERDENT SKILLBOOK</p>
       </section>
     </div>
@@ -1086,112 +772,19 @@
   </main>
 
   <script>
-    const duration = 20;
-
-    /* ===== PIXEL BEAD LOGO GENERATION ===== */
-    /* 16x16 grid: 0=empty, 1=left leaf, 2=right leaf, 3=overlap/dark center */
-    const GRID = [
-      [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,1,1,1,0,0,2,0,0,0,0,0],
-      [0,0,0,0,1,1,1,3,0,0,2,2,0,0,0,0],
-      [0,0,0,1,1,1,3,3,0,0,2,2,2,0,0,0],
-      [0,0,0,1,1,1,3,3,0,2,2,2,2,0,0,0],
-      [0,0,1,1,1,1,3,0,0,2,2,2,2,0,0,0],
-      [0,0,1,1,1,3,3,0,0,2,2,2,2,2,0,0],
-      [0,0,1,1,1,3,0,0,0,3,2,2,2,2,0,0],
-      [0,0,0,1,1,3,0,0,0,3,3,2,2,2,0,0],
-      [0,0,0,1,1,0,0,0,3,3,2,2,2,0,0,0],
-      [0,0,0,0,1,0,0,0,3,3,2,2,2,0,0,0],
-      [0,0,0,0,0,0,0,3,3,2,2,2,0,0,0,0],
-      [0,0,0,0,0,0,0,3,2,2,2,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0],
-    ];
-
-    /* Color interpolation for gradient beads */
-    function lerpColor(a, b, t) {
-      const ah = parseInt(a.slice(1), 16);
-      const bh = parseInt(b.slice(1), 16);
-      const ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
-      const br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
-      const r = Math.round(ar + (br - ar) * t);
-      const g = Math.round(ag + (bg - ag) * t);
-      const b2 = Math.round(ab + (bb - ab) * t);
-      return `rgb(${r},${g},${b2})`;
-    }
-
-    function buildBeadLogo(container) {
-      for (let row = 0; row < 16; row++) {
-        for (let col = 0; col < 16; col++) {
-          const val = GRID[row][col];
-          const cell = document.createElement("div");
-          if (val === 0) {
-            /* empty cell — transparent */
-            cell.style.background = "transparent";
-          } else {
-            cell.classList.add("bead");
-            const t = row / 15; /* vertical gradient factor */
-            if (val === 1) {
-              /* left leaf: #75fff7 top → #31f9bc bottom */
-              cell.style.background = lerpColor("#75fff7", "#31f9bc", t);
-            } else if (val === 2) {
-              /* right leaf: #11d7ff top → #18ecc3 bottom */
-              cell.style.background = lerpColor("#11d7ff", "#18ecc3", t);
-            } else {
-              /* overlap/center: dark with subtle green */
-              cell.style.background = lerpColor("#0a3d2e", "#062a1f", t);
-              cell.style.opacity = ".85";
-            }
-          }
-          container.appendChild(cell);
-        }
-      }
-    }
-
-    buildBeadLogo(document.getElementById("beadLogo1"));
-    buildBeadLogo(document.getElementById("beadLogo2"));
-
-    /* Scene 7 typing: starts 6.8s, completes 8.2s (inside the 6.6-8.4s window) */
-    const TYPE_START = 6.8;
-    const TYPE_SPAN = 1.4;
+    const duration = 12;
+    const TYPE_START = 3.7;
+    const TYPE_SPAN = 1.2;
     const taskText = "turn a messy idea into\na production plan";
     const typedTask = document.getElementById("typedTask");
 
     const started = performance.now();
 
-    function currentSecond(now = performance.now()) {
-      return Math.min(duration, (now - started) / 1000);
-    }
-
-    function renderTyped(second) {
-      const local = Math.max(0, Math.min(TYPE_SPAN, second - TYPE_START));
+    function tick(now) {
+      const sec = Math.min(duration, (now - started) / 1000);
+      const local = Math.max(0, Math.min(TYPE_SPAN, sec - TYPE_START));
       const count = Math.round((local / TYPE_SPAN) * taskText.length);
       typedTask.textContent = taskText.slice(0, Math.max(0, Math.min(taskText.length, count)));
-    }
-
-    /* Scene dots: 5 dots map to 14 scenes in groups */
-    const dots = document.querySelectorAll("#sceneDots i");
-    const sceneRanges = [
-      [0, 3.4],    /* dot 0: s1-s4 (logo/skill/input label) */
-      [3.4, 8.4],  /* dot 1: s5-s7 (input/task) */
-      [8.4, 13.2], /* dot 2: s8-s9 (execution) */
-      [13.2, 17.5],/* dot 3: s10-s12 (artifact/compare) */
-      [17.5, 20]   /* dot 4: s13-s14 (tagline/end) */
-    ];
-
-    function updateDots(second) {
-      let active = 0;
-      for (let i = 0; i < sceneRanges.length; i++) {
-        if (second >= sceneRanges[i][0]) active = i;
-      }
-      dots.forEach((d, i) => d.classList.toggle("active", i === active));
-    }
-
-    function tick(now) {
-      const sec = currentSecond(now);
-      renderTyped(sec);
-      updateDots(sec);
       requestAnimationFrame(tick);
     }
 
