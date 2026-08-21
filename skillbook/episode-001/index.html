@@ -44,11 +44,13 @@
         brightnessTrack var(--dur) linear both;
     }
 
+    /* Scanlines */
     .page::before{
       content:"";position:absolute;inset:0;z-index:80;pointer-events:none;
       background:repeating-linear-gradient(0deg,rgba(var(--sig-rgb),.055) 0 1px,transparent 1px 4px);
       mix-blend-mode:screen;opacity:.5;
     }
+    /* Vignette */
     .page::after{
       content:"";position:absolute;inset:0;z-index:80;pointer-events:none;
       background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.35) 82%,rgba(0,0,0,.72) 100%);
@@ -64,19 +66,64 @@
       opacity:.12;animation:grain .28s steps(2) infinite;
     }
 
+    /* === FLOW LINE (vertical dashed progress line) === */
+    .flow-line{
+      position:absolute;left:15%;top:10%;bottom:10%;z-index:81;pointer-events:none;
+      width:1px;
+      background:repeating-linear-gradient(180deg,
+        rgba(var(--sig-rgb),.07) 0 6px,transparent 6px 14px);
+    }
+    .flow-line .dot{
+      position:absolute;left:50%;transform:translateX(-50%);
+      width:5px;height:5px;border-radius:50%;
+      background:rgba(var(--sig-rgb),.12);
+      transition:background .3s,box-shadow .3s;
+    }
+    .flow-line .dot.active{
+      background:var(--lime);
+      box-shadow:0 0 8px rgba(var(--acc-rgb),.5);
+    }
+    .flow-line .dot:nth-child(1){top:12%}
+    .flow-line .dot:nth-child(2){top:28%}
+    .flow-line .dot:nth-child(3){top:48%}
+    .flow-line .dot:nth-child(4){top:68%}
+    .flow-line .dot:nth-child(5){top:85%}
+
+    /* === CORNER BRACKETS === */
+    .bracket{
+      position:absolute;z-index:82;pointer-events:none;
+      width:calc(var(--u)*3.5);height:calc(var(--u)*3.5);
+      opacity:.15;
+    }
+    .bracket::before,.bracket::after{
+      content:"";position:absolute;background:rgba(var(--sig-rgb),1);
+    }
+    .bracket.tl{top:4%;left:5.5%}
+    .bracket.tl::before{top:0;left:0;width:100%;height:1px}
+    .bracket.tl::after{top:0;left:0;width:1px;height:100%}
+    .bracket.tr{top:4%;right:5.5%}
+    .bracket.tr::before{top:0;right:0;width:100%;height:1px}
+    .bracket.tr::after{top:0;right:0;width:1px;height:100%}
+    .bracket.bl{bottom:4%;left:5.5%}
+    .bracket.bl::before{bottom:0;left:0;width:100%;height:1px}
+    .bracket.bl::after{bottom:0;left:0;width:1px;height:100%}
+    .bracket.br{bottom:4%;right:5.5%}
+    .bracket.br::before{bottom:0;right:0;width:100%;height:1px}
+    .bracket.br::after{bottom:0;right:0;width:1px;height:100%}
+
+    /* === STAGE LABEL (above progress bar) === */
+    .stage-label{
+      position:absolute;left:8.5%;bottom:5.8%;z-index:87;pointer-events:none;
+      font-size:calc(var(--u)*1.6);font-weight:800;
+      letter-spacing:.2em;color:var(--soft);opacity:.3;
+      transition:opacity .2s;
+    }
+
     .frame{
       position:absolute;inset:4.5% 6.5%;z-index:82;pointer-events:none;
-      border:1px solid rgba(var(--sig-rgb),.28);
-      box-shadow:inset 0 0 16px rgba(var(--sig-rgb),.04),0 0 10px rgba(var(--acc-rgb),.035);
+      border:1px solid rgba(var(--sig-rgb),.22);
+      box-shadow:inset 0 0 16px rgba(var(--sig-rgb),.03),0 0 10px rgba(var(--acc-rgb),.025);
     }
-    .frame::before,.frame::after{
-      position:absolute;content:"";
-      width:calc(var(--u)*4);height:calc(var(--u)*4);
-      border-color:var(--strong);border-style:solid;
-      filter:drop-shadow(0 0 4px rgba(var(--sig-rgb),.3));opacity:.75;
-    }
-    .frame::before{top:-2px;left:-2px;border-width:2px 0 0 2px}
-    .frame::after{right:-2px;bottom:-2px;border-width:0 2px 2px 0}
 
     .corner{
       position:absolute;z-index:84;pointer-events:none;
@@ -98,50 +145,44 @@
     h1,h2,p{margin:0}
     ul{margin:0;padding:0;list-style:none}
 
-    /* === S1 HOOK (0-1.5s) === */
+    /* === S1 LOGO + PLAN MODE (0-2s) === */
+    .logo-scene{gap:calc(var(--u)*2.4)}
+    .logo-scene svg{
+      width:25vmin;height:auto;
+      filter:drop-shadow(0 0 12px rgba(var(--acc-rgb),.45));
+      animation:logoEnter .3s .1s var(--snap) both;
+    }
+    .logo-scene .skill-label{
+      font-size:calc(var(--u)*5.5);font-weight:900;
+      letter-spacing:.15em;color:var(--strong);
+      text-shadow:0 0 8px rgba(var(--acc-rgb),.4);
+    }
+    .logo-scene .case-label{
+      font-size:calc(var(--u)*2);font-weight:800;
+      letter-spacing:.25em;color:var(--soft);
+    }
+    @keyframes logoEnter{
+      from{opacity:0;transform:scale(.8)}
+      to{opacity:1;transform:scale(1)}
+    }
+
+    /* === S2 HOOK (2-3.5s) === */
     .hook .big{
       font-size:calc(var(--u)*10);font-weight:900;line-height:1.05;
       text-align:center;letter-spacing:.04em;
       color:var(--strong);
       text-shadow:0 0 12px rgba(var(--acc-rgb),.5),0 0 40px rgba(var(--acc-rgb),.15);
     }
-    .hook .sub{
-      margin-top:calc(var(--u)*3);
-      font-size:calc(var(--u)*3.2);font-weight:800;
-      letter-spacing:.2em;color:var(--soft);text-align:center;
-    }
 
-    /* === S2 BOOT (1.5-3s) === */
-    .boot{justify-items:start;gap:calc(var(--u)*1.8)}
-    .boot .line{
-      font-size:calc(var(--u)*3);font-weight:800;
-      letter-spacing:.08em;color:var(--signal);
-    }
-    .boot .diag{
-      display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*1.4);
-      margin-top:calc(var(--u)*2.4);width:100%;
-    }
-    .boot .diag-item{
-      padding:calc(var(--u)*1.4) calc(var(--u)*1.8);
-      border:1px solid rgba(var(--sig-rgb),.3);
-      background:rgba(6,18,15,.6);
-      font-size:calc(var(--u)*2);font-weight:800;
-      letter-spacing:.12em;color:rgba(var(--sig-rgb),.5);
-    }
-
-    /* === S3 SKILL (3-5s) === */
-    .skill-intro{gap:calc(var(--u)*2.6)}
-    .skill-intro .skill-name{
-      font-size:calc(var(--u)*11);font-weight:900;line-height:.96;
-      text-align:center;letter-spacing:.06em;
-      color:var(--strong);text-shadow:0 0 9px rgba(var(--sig-rgb),.55);
-    }
-    .skill-intro .skill-sub{
-      font-size:calc(var(--u)*3.4);font-weight:800;
+    /* === S3 SKILL DESC (3.5-5.5s) === */
+    .skill-desc{gap:calc(var(--u)*2.6)}
+    .skill-desc .skill-sub{
+      font-size:calc(var(--u)*4);font-weight:800;
       letter-spacing:.06em;text-align:center;color:var(--soft);
+      line-height:1.3;
     }
 
-    /* === S4 INPUT (5-6.5s) === */
+    /* === S4 INPUT (5.5-7.5s) === */
     .input-scene .card{
       width:100%;padding:calc(var(--u)*5);
       border:1px solid rgba(var(--sig-rgb),.45);
@@ -159,14 +200,13 @@
       color:var(--strong);text-shadow:0 0 6px rgba(var(--sig-rgb),.4);
     }
 
-    /* === S5 INPUT ANALYSIS (6.5-8s) === */
+    /* === S5 INPUT ANALYSIS (7.5-9s) === */
     .analysis .meta{
       font-size:calc(var(--u)*3.6);font-weight:800;
       letter-spacing:.08em;color:var(--soft);text-align:center;
-      animation:clipReveal .15s 6.7s var(--snap) both;
     }
 
-    /* === S6 TASK (8-10s) === */
+    /* === S6 TASK (9-11.5s) === */
     .task-scene .card{
       width:100%;padding:calc(var(--u)*5);
       border:1px solid rgba(var(--sig-rgb),.45);
@@ -185,15 +225,14 @@
       vertical-align:-.08em;content:"";animation:caret .62s steps(1) infinite;
     }
 
-    /* === S7 EXEC START (10-11.5s) === */
+    /* === S7 EXEC START (11.5-13s) === */
     .exec-start .label{
       font-size:calc(var(--u)*3.2);font-weight:800;
       letter-spacing:.22em;color:var(--strong);text-align:center;
       text-shadow:0 0 8px rgba(var(--acc-rgb),.4);
-      animation:clipReveal .12s 10.2s var(--snap) both;
     }
 
-    /* === S8 NODES (11.5-15s) === */
+    /* === S8 NODES (13-17s) === */
     .exec-nodes{justify-items:stretch}
     .exec-nodes .label{
       text-align:center;margin-bottom:calc(var(--u)*2.4);
@@ -232,9 +271,9 @@
       background:linear-gradient(90deg,var(--soft),var(--lime),var(--cyan));
       animation:barFill .6s var(--snap) both;animation-delay:var(--at);
     }
-    .n1{--at:11.8s} .n2{--at:12.5s} .n3{--at:13.2s} .n4{--at:13.9s} .n5{--at:14.6s}
+    .n1{--at:13.4s} .n2{--at:14.2s} .n3{--at:15s} .n4{--at:15.8s} .n5{--at:16.6s}
 
-    /* === S9 PLAN PREVIEW (15-18s) === */
+    /* === S9 PLAN PREVIEW (17-20.5s) === */
     .plan-preview{justify-items:start;gap:calc(var(--u)*1.2)}
     .plan-preview .plan-label{
       margin-bottom:calc(var(--u)*2);
@@ -248,9 +287,9 @@
       opacity:0;animation:planLineIn .3s var(--snap) both;
       animation-delay:var(--at);
     }
-    .pl1{--at:15.3s} .pl2{--at:15.9s} .pl3{--at:16.5s} .pl4{--at:17.1s}
+    .pl1{--at:17.4s} .pl2{--at:18.2s} .pl3{--at:19s} .pl4{--at:19.8s}
 
-    /* === S10 IMPACT (18-20s) === */
+    /* === S10 IMPACT (20.5-22.5s) === */
     .impact .big-stat{
       font-size:calc(var(--u)*7.5);font-weight:900;line-height:1.1;
       text-align:center;letter-spacing:.03em;
@@ -258,13 +297,13 @@
       text-shadow:0 0 14px rgba(var(--acc-rgb),.6),0 0 40px rgba(var(--acc-rgb),.2);
     }
 
-    /* === S11 ARTIFACT (20-23s) === */
+    /* === S11 ARTIFACT (22.5-26s) === */
     .artifact{text-align:center}
     .artifact .unlock{
       background:linear-gradient(135deg,var(--strong),var(--lime) 52%,var(--cyan));
       -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
       font-size:calc(var(--u)*6);font-weight:900;letter-spacing:.05em;line-height:1.06;
-      animation:unlockBang .35s 20.2s var(--snap) both;
+      animation:unlockBang .35s 22.7s var(--snap) both;
     }
     .artifact .title{
       margin-top:calc(var(--u)*2);
@@ -295,38 +334,38 @@
       letter-spacing:.1em;text-align:center;
       animation:chipIn .4s var(--snap) both;animation-delay:var(--at);
     }
-    .ak1{--at:20.8s} .ak2{--at:21.2s} .ak3{--at:21.6s} .ak4{--at:22s}
+    .ak1{--at:23.2s} .ak2{--at:23.6s} .ak3{--at:24s} .ak4{--at:24.4s}
 
-    /* === S12 COMPARE (23-26s) === */
-    .compare{gap:calc(var(--u)*2);justify-items:stretch}
-    .compare .rows{display:grid;gap:calc(var(--u)*2);width:100%}
-    .compare .row{
+    /* === S12 COMPARE + END (26-30s) === */
+    .final-scene{gap:calc(var(--u)*2.4);justify-items:center}
+    .final-scene .rows{display:grid;gap:calc(var(--u)*1.8);width:100%}
+    .final-scene .row{
       display:grid;grid-template-columns:22% 1fr;gap:calc(var(--u)*2);
-      align-items:center;padding:calc(var(--u)*2) 0;
+      align-items:center;padding:calc(var(--u)*1.6) 0;
       border-bottom:1px solid rgba(var(--sig-rgb),.2);
       animation:rowIn .34s var(--snap) both;animation-delay:var(--at);
     }
-    .compare .row b{font-size:calc(var(--u)*2.5);letter-spacing:.12em;color:var(--strong)}
-    .compare .row span{font-size:calc(var(--u)*4.6);font-weight:900;text-shadow:0 0 5px rgba(var(--sig-rgb),.34)}
-    .cr1{--at:23.3s} .cr2{--at:23.8s} .cr3{--at:24.3s}
-
-    /* === S13 END CARD (26-30s) === */
-    .endcard{gap:calc(var(--u)*3)}
-    .endcard svg{
-      width:25vmin;height:auto;
-      filter:drop-shadow(0 0 10px rgba(var(--acc-rgb),.4));
+    .final-scene .row b{font-size:calc(var(--u)*2.5);letter-spacing:.12em;color:var(--strong)}
+    .final-scene .row span{font-size:calc(var(--u)*4.2);font-weight:900;text-shadow:0 0 5px rgba(var(--sig-rgb),.34)}
+    .cr1{--at:26.3s} .cr2{--at:26.8s} .cr3{--at:27.3s}
+    .final-scene .end-group{
+      margin-top:calc(var(--u)*3);text-align:center;
+      animation:endIn .42s 28s var(--snap) both;
+    }
+    .final-scene .end-logo{
+      width:12vmin;height:auto;margin-bottom:calc(var(--u)*1.5);
+      filter:drop-shadow(0 0 8px rgba(var(--acc-rgb),.35));
       animation:logoPulse 2.4s var(--ease) infinite;
     }
-    .endcard .endline{
+    .final-scene .endline{
       background:linear-gradient(135deg,var(--strong),var(--lime) 55%,var(--cyan));
       -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-      font-size:calc(var(--u)*6);line-height:1.14;font-weight:900;
+      font-size:calc(var(--u)*4.8);line-height:1.14;font-weight:900;
       letter-spacing:.04em;text-align:center;
-      animation:endIn .42s 26.5s var(--snap) both;
     }
-    .endcard .brand-tag{
-      margin-top:calc(var(--u)*1.4);
-      font-size:calc(var(--u)*2.4);font-weight:800;
+    .final-scene .brand-tag{
+      margin-top:calc(var(--u)*1.2);
+      font-size:calc(var(--u)*2.2);font-weight:800;
       letter-spacing:.3em;text-indent:.3em;
       color:var(--soft);text-transform:uppercase;
     }
@@ -368,96 +407,88 @@
     .s4{animation-name:s4} .s5{animation-name:s5} .s6{animation-name:s6}
     .s7{animation-name:s7} .s8{animation-name:s8} .s9{animation-name:s9}
     .s10{animation-name:s10} .s11{animation-name:s11} .s12{animation-name:s12}
-    .s13{animation-name:s13}
 
-    /* 13 scenes / 30s — snap <0.15s ≈ 0.5%
-       s1  Hook:       0-1.5s    (0-5%)
-       s2  Boot:       1.5-3s    (5-10%)
-       s3  Skill:      3-5s      (10-16.67%)
-       s4  Input:      5-6.5s    (16.67-21.67%)
-       s5  Analysis:   6.5-8s    (21.67-26.67%)
-       s6  Task:       8-10s     (26.67-33.33%)
-       s7  ExecStart:  10-11.5s  (33.33-38.33%)
-       s8  Nodes:      11.5-15s  (38.33-50%)
-       s9  Preview:    15-18s    (50-60%)
-       s10 Impact:     18-20s    (60-66.67%)
-       s11 Artifact:   20-23s    (66.67-76.67%)
-       s12 Compare:    23-26s    (76.67-86.67%)
-       s13 EndCard:    26-30s    (86.67-100%) */
+    /* 12 scenes / 30s — snap <0.15s ≈ 0.5%
+       s1  Logo+PM:    0-2s      (0-6.67%)
+       s2  Hook:       2-3.5s    (6.67-11.67%)
+       s3  SkillDesc:  3.5-5.5s  (11.67-18.33%)
+       s4  Input:      5.5-7.5s  (18.33-25%)
+       s5  Analysis:   7.5-9s    (25-30%)
+       s6  Task:       9-11.5s   (30-38.33%)
+       s7  ExecStart:  11.5-13s  (38.33-43.33%)
+       s8  Nodes:      13-17s    (43.33-56.67%)
+       s9  Preview:    17-20.5s  (56.67-68.33%)
+       s10 Impact:     20.5-22.5s(68.33-75%)
+       s11 Artifact:   22.5-26s  (75-86.67%)
+       s12 Final:      26-30s    (86.67-100%) */
 
     @keyframes s1{
-      0%{opacity:0;transform:translateY(8px) scale(.99)}
-      .4%{opacity:1;transform:translateY(0) scale(1)}
-      4.5%{opacity:1;transform:translateY(0) scale(1)}
-      5%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%{opacity:0;transform:translateY(8px) scale(.92)}
+      .5%{opacity:1;transform:translateY(0) scale(1)}
+      6.2%{opacity:1;transform:translateY(0) scale(1)}
+      6.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s2{
-      0%,4.5%{opacity:0;transform:translateY(14px) scale(.988)}
-      5%{opacity:1;transform:translateY(0) scale(1)}
-      9.5%{opacity:1;transform:translateY(0) scale(1)}
-      10%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,6.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      6.67%{opacity:1;transform:translateY(0) scale(1)}
+      11.2%{opacity:1;transform:translateY(0) scale(1)}
+      11.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s3{
-      0%,9.5%{opacity:0;transform:translateY(14px) scale(.988)}
-      10%{opacity:1;transform:translateY(0) scale(1)}
-      16.2%{opacity:1;transform:translateY(0) scale(1)}
-      16.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,11.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      11.67%{opacity:1;transform:translateY(0) scale(1)}
+      17.8%{opacity:1;transform:translateY(0) scale(1)}
+      18.33%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s4{
-      0%,16.2%{opacity:0;transform:translateY(14px) scale(.988)}
-      16.67%{opacity:1;transform:translateY(0) scale(1)}
-      21.2%{opacity:1;transform:translateY(0) scale(1)}
-      21.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,17.8%{opacity:0;transform:translateY(14px) scale(.988)}
+      18.33%{opacity:1;transform:translateY(0) scale(1)}
+      24.5%{opacity:1;transform:translateY(0) scale(1)}
+      25%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s5{
-      0%,21.2%{opacity:0;transform:translateY(14px) scale(.988)}
-      21.67%{opacity:1;transform:translateY(0) scale(1)}
-      26.2%{opacity:1;transform:translateY(0) scale(1)}
-      26.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,24.5%{opacity:0;transform:translateY(14px) scale(.988)}
+      25%{opacity:1;transform:translateY(0) scale(1)}
+      29.5%{opacity:1;transform:translateY(0) scale(1)}
+      30%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s6{
-      0%,26.2%{opacity:0;transform:translateY(14px) scale(.988)}
-      26.67%{opacity:1;transform:translateY(0) scale(1)}
-      32.8%{opacity:1;transform:translateY(0) scale(1)}
-      33.33%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
-    }
-    @keyframes s7{
-      0%,32.8%{opacity:0;transform:translateY(14px) scale(.988)}
-      33.33%{opacity:1;transform:translateY(0) scale(1)}
+      0%,29.5%{opacity:0;transform:translateY(14px) scale(.988)}
+      30%{opacity:1;transform:translateY(0) scale(1)}
       37.8%{opacity:1;transform:translateY(0) scale(1)}
       38.33%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
-    @keyframes s8{
+    @keyframes s7{
       0%,37.8%{opacity:0;transform:translateY(14px) scale(.988)}
       38.33%{opacity:1;transform:translateY(0) scale(1)}
-      49.5%{opacity:1;transform:translateY(0) scale(1)}
-      50%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      42.8%{opacity:1;transform:translateY(0) scale(1)}
+      43.33%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+    }
+    @keyframes s8{
+      0%,42.8%{opacity:0;transform:translateY(14px) scale(.988)}
+      43.33%{opacity:1;transform:translateY(0) scale(1)}
+      56.2%{opacity:1;transform:translateY(0) scale(1)}
+      56.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s9{
-      0%,49.5%{opacity:0;transform:translateY(14px) scale(.988)}
-      50%{opacity:1;transform:translateY(0) scale(1)}
-      59.5%{opacity:1;transform:translateY(0) scale(1)}
-      60%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,56.2%{opacity:0;transform:translateY(14px) scale(.988)}
+      56.67%{opacity:1;transform:translateY(0) scale(1)}
+      67.8%{opacity:1;transform:translateY(0) scale(1)}
+      68.33%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s10{
-      0%,59.5%{opacity:0;transform:translateY(14px) scale(.988)}
-      60%{opacity:1;transform:translateY(0) scale(1)}
-      66.2%{opacity:1;transform:translateY(0) scale(1)}
-      66.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
+      0%,67.8%{opacity:0;transform:translateY(14px) scale(.988)}
+      68.33%{opacity:1;transform:translateY(0) scale(1)}
+      74.5%{opacity:1;transform:translateY(0) scale(1)}
+      75%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
     @keyframes s11{
-      0%,66.2%{opacity:0;transform:translateY(14px) scale(.988)}
-      66.67%{opacity:1;transform:translateY(0) scale(1)}
-      76.2%{opacity:1;transform:translateY(0) scale(1)}
-      76.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
-    }
-    @keyframes s12{
-      0%,76.2%{opacity:0;transform:translateY(14px) scale(.988)}
-      76.67%{opacity:1;transform:translateY(0) scale(1)}
+      0%,74.5%{opacity:0;transform:translateY(14px) scale(.988)}
+      75%{opacity:1;transform:translateY(0) scale(1)}
       86.2%{opacity:1;transform:translateY(0) scale(1)}
       86.67%,100%{opacity:0;transform:translateY(-14px) scale(1.01)}
     }
-    @keyframes s13{
+    @keyframes s12{
       0%,86.2%{opacity:0;transform:translateY(14px) scale(.988)}
       86.67%{opacity:1;transform:translateY(0) scale(1)}
       100%{opacity:1;transform:translateY(0) scale(1)}
@@ -529,38 +560,35 @@
     /* brightnessTrack: flash at each scene cut, strongest at s11 artifact */
     @keyframes brightnessTrack{
       0%{filter:brightness(.92)}
-      4.7%{filter:brightness(.92)}
-      5%{filter:brightness(1.12)}5.3%{filter:brightness(.92)}
-      9.7%{filter:brightness(.92)}
-      10%{filter:brightness(1.12)}10.3%{filter:brightness(.92)}
-      16.4%{filter:brightness(.92)}
-      16.67%{filter:brightness(1.12)}17%{filter:brightness(.92)}
-      21.4%{filter:brightness(.92)}
-      21.67%{filter:brightness(1.12)}22%{filter:brightness(.92)}
-      26.4%{filter:brightness(.92)}
-      26.67%{filter:brightness(1.12)}27%{filter:brightness(.92)}
-      33%{filter:brightness(.92)}
-      33.33%{filter:brightness(1.12)}33.6%{filter:brightness(.92)}
+      6.3%{filter:brightness(.92)}
+      6.67%{filter:brightness(1.12)}7%{filter:brightness(.92)}
+      11.3%{filter:brightness(.92)}
+      11.67%{filter:brightness(1.12)}12%{filter:brightness(.92)}
+      18%{filter:brightness(.92)}
+      18.33%{filter:brightness(1.12)}18.6%{filter:brightness(.92)}
+      24.7%{filter:brightness(.92)}
+      25%{filter:brightness(1.12)}25.3%{filter:brightness(.92)}
+      29.7%{filter:brightness(.92)}
+      30%{filter:brightness(1.12)}30.3%{filter:brightness(.92)}
       38%{filter:brightness(.92)}
       38.33%{filter:brightness(1.12)}38.6%{filter:brightness(.92)}
+      43%{filter:brightness(.92)}
+      43.33%{filter:brightness(1.12)}43.6%{filter:brightness(.92)}
       /* node pulses */
-      39.3%{filter:brightness(1.04)}39.6%{filter:brightness(.92)}
-      41.7%{filter:brightness(1.04)}42%{filter:brightness(.92)}
-      44%{filter:brightness(1.04)}44.3%{filter:brightness(.92)}
-      46.3%{filter:brightness(1.04)}46.6%{filter:brightness(.92)}
-      48.7%{filter:brightness(1.04)}49%{filter:brightness(.92)}
-      49.7%{filter:brightness(.92)}
-      50%{filter:brightness(1.12)}50.3%{filter:brightness(.92)}
-      59.7%{filter:brightness(.92)}
-      60%{filter:brightness(1.12)}60.3%{filter:brightness(.92)}
+      44.7%{filter:brightness(1.04)}45%{filter:brightness(.92)}
+      47.3%{filter:brightness(1.04)}47.6%{filter:brightness(.92)}
+      50%{filter:brightness(1.04)}50.3%{filter:brightness(.92)}
+      52.7%{filter:brightness(1.04)}53%{filter:brightness(.92)}
+      55.3%{filter:brightness(1.04)}55.6%{filter:brightness(.92)}
+      56.3%{filter:brightness(.92)}
+      56.67%{filter:brightness(1.12)}57%{filter:brightness(.92)}
+      68%{filter:brightness(.92)}
+      68.33%{filter:brightness(1.12)}68.6%{filter:brightness(.92)}
       /* s11 artifact unlock — strongest */
-      66.4%{filter:brightness(.92)}
-      66.67%{filter:brightness(1.25)}67.2%{filter:brightness(1)}
-      76.4%{filter:brightness(1)}
-      76.67%{filter:brightness(1.12)}77%{filter:brightness(1)}
-      /* s13 end — no flash */
-      86.4%{filter:brightness(1)}
-      86.67%{filter:brightness(1)}
+      74.7%{filter:brightness(.92)}
+      75%{filter:brightness(1.25)}75.5%{filter:brightness(1)}
+      86.3%{filter:brightness(1)}
+      86.67%{filter:brightness(1.08)}87%{filter:brightness(1)}
       100%{filter:brightness(1)}
     }
 
@@ -574,36 +602,64 @@
   <main class="page" id="stage">
     <div class="noise"></div>
     <div class="frame"></div>
+
+    <!-- Corner brackets -->
+    <div class="bracket tl"></div>
+    <div class="bracket tr"></div>
+    <div class="bracket bl"></div>
+    <div class="bracket br"></div>
+
+    <!-- Flow line with progress dots -->
+    <div class="flow-line">
+      <span class="dot" data-phase="input"></span>
+      <span class="dot" data-phase="task"></span>
+      <span class="dot" data-phase="exec"></span>
+      <span class="dot" data-phase="artifact"></span>
+      <span class="dot" data-phase="output"></span>
+    </div>
+
     <span class="corner tl">VERDENT SKILLBOOK</span>
     <span class="corner bl">MESSY ASK → WORKING PLAN</span>
 
+    <!-- Stage label -->
+    <span class="stage-label" id="stageLabel">READY</span>
+
     <div class="hud">
-      <!-- S1 HOOK (0-1.5s) -->
-      <section class="scene hook s1">
+      <!-- S1 LOGO + PLAN MODE (0-2s) -->
+      <section class="scene logo-scene s1">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="logoLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#75fff7"/>
+              <stop offset=".45" stop-color="#31f9bc"/>
+              <stop offset="1" stop-color="#b8ff7a"/>
+            </linearGradient>
+            <linearGradient id="logoLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#11d7ff"/>
+              <stop offset=".55" stop-color="#18ecc3"/>
+              <stop offset="1" stop-color="#adff78"/>
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
+          <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#logoLeafA)"/>
+          <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#logoLeafB)"/>
+          <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
+        </svg>
+        <p class="skill-label">PLAN MODE</p>
+        <p class="case-label">CASE 001</p>
+      </section>
+
+      <!-- S2 HOOK (2-3.5s) -->
+      <section class="scene hook s2">
         <h1 class="big">NOT A DEMO.<br>A CASE FILE.</h1>
-        <p class="sub">CASE 001 // PLAN MODE</p>
       </section>
 
-      <!-- S2 BOOT (1.5-3s) -->
-      <section class="scene boot s2">
-        <p class="line">VERDENT SKILLBOOK v0.1</p>
-        <p class="line">CASE RUNNER ONLINE</p>
-        <p class="line">NODE 01: PLAN MODE</p>
-        <div class="diag">
-          <div class="diag-item">INPUT RECEIVED</div>
-          <div class="diag-item">SKILL LOCKED</div>
-          <div class="diag-item">OUTPUT PENDING</div>
-          <div class="diag-item">PROOF REQUIRED</div>
-        </div>
+      <!-- S3 SKILL DESC (3.5-5.5s) -->
+      <section class="scene skill-desc s3">
+        <p class="skill-sub">turns vague intent<br>into structured execution</p>
       </section>
 
-      <!-- S3 SKILL (3-5s) -->
-      <section class="scene skill-intro s3">
-        <h1 class="skill-name">PLAN MODE</h1>
-        <p class="skill-sub">turns vague intent into structured execution</p>
-      </section>
-
-      <!-- S4 INPUT (5-6.5s) -->
+      <!-- S4 INPUT (5.5-7.5s) -->
       <section class="scene input-scene s4">
         <article class="card">
           <h2 class="card-label">INPUT RECEIVED</h2>
@@ -611,12 +667,12 @@
         </article>
       </section>
 
-      <!-- S5 ANALYSIS (6.5-8s) -->
+      <!-- S5 ANALYSIS (7.5-9s) -->
       <section class="scene analysis s5">
         <p class="meta">raw intent / no structure / no next step</p>
       </section>
 
-      <!-- S6 TASK (8-10s) -->
+      <!-- S6 TASK (9-11.5s) -->
       <section class="scene task-scene s6">
         <article class="card">
           <h2 class="card-label">TASK:</h2>
@@ -624,12 +680,12 @@
         </article>
       </section>
 
-      <!-- S7 EXEC START (10-11.5s) -->
+      <!-- S7 EXEC START (11.5-13s) -->
       <section class="scene exec-start s7">
         <p class="label">PLAN MODE RUNNING</p>
       </section>
 
-      <!-- S8 NODES (11.5-15s) -->
+      <!-- S8 NODES (13-17s) -->
       <section class="scene exec-nodes s8">
         <p class="label">PLAN MODE RUNNING</p>
         <div class="core">
@@ -643,7 +699,7 @@
         </div>
       </section>
 
-      <!-- S9 PLAN PREVIEW (15-18s) -->
+      <!-- S9 PLAN PREVIEW (17-20.5s) -->
       <section class="scene plan-preview s9">
         <p class="plan-label">GENERATING PLAN...</p>
         <p class="plan-line pl1">1. NARRATIVE: case-file video series</p>
@@ -652,12 +708,12 @@
         <p class="plan-line pl4">4. CRITERIA: viewer understands the skill</p>
       </section>
 
-      <!-- S10 IMPACT (18-20s) -->
+      <!-- S10 IMPACT (20.5-22.5s) -->
       <section class="scene impact s10">
         <h1 class="big-stat">1 MESSY ASK<br>→ 5 SECTIONS<br>→ 1 EXECUTABLE PLAN</h1>
       </section>
 
-      <!-- S11 ARTIFACT (20-23s) -->
+      <!-- S11 ARTIFACT (22.5-26s) -->
       <section class="scene artifact s11">
         <h2 class="unlock">ARTIFACT UNLOCKED</h2>
         <p class="title">PRODUCTION PLAN</p>
@@ -670,37 +726,35 @@
         </div>
       </section>
 
-      <!-- S12 COMPARE (23-26s) -->
-      <section class="scene compare s12">
+      <!-- S12 COMPARE + END (26-30s) -->
+      <section class="scene final-scene s12">
         <div class="rows">
           <div class="row cr1"><b>BEFORE:</b><span>scattered idea</span></div>
           <div class="row cr2"><b>AFTER:</b><span>working plan</span></div>
           <div class="row cr3"><b>NEXT:</b><span>DESIGN → VISUAL SYSTEM</span></div>
         </div>
-      </section>
-
-      <!-- S13 END CARD (26-30s) -->
-      <section class="scene endcard s13">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <defs>
-            <linearGradient id="endLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#75fff7"/>
-              <stop offset=".45" stop-color="#31f9bc"/>
-              <stop offset="1" stop-color="#b8ff7a"/>
-            </linearGradient>
-            <linearGradient id="endLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#11d7ff"/>
-              <stop offset=".55" stop-color="#18ecc3"/>
-              <stop offset="1" stop-color="#adff78"/>
-            </linearGradient>
-          </defs>
-          <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
-          <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#endLeafA)"/>
-          <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#endLeafB)"/>
-          <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
-        </svg>
-        <p class="endline">ONE SKILL.<br>ONE WORKFLOW.<br>ONE ARTIFACT.</p>
-        <p class="brand-tag">VERDENT SKILLBOOK</p>
+        <div class="end-group">
+          <svg class="end-logo" viewBox="0 0 100 100" aria-hidden="true">
+            <defs>
+              <linearGradient id="endLeafA" x1="32" y1="15" x2="59" y2="78" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#75fff7"/>
+                <stop offset=".45" stop-color="#31f9bc"/>
+                <stop offset="1" stop-color="#b8ff7a"/>
+              </linearGradient>
+              <linearGradient id="endLeafB" x1="68" y1="24" x2="43" y2="91" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#11d7ff"/>
+                <stop offset=".55" stop-color="#18ecc3"/>
+                <stop offset="1" stop-color="#adff78"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="34" fill="rgba(3,21,10,.72)" stroke="rgba(88,255,165,.38)" stroke-width="1.4"/>
+            <path d="M47.8 17.2C35.8 26.6 27.6 36.5 24.8 47c-3.3 12 2 22.8 18.7 31.7 1.6.8 3.4 1.7 5.5 2.7-5.4-11.3-4-22.1 4.3-33 6.7-8.8 8-18.8-5.5-31.2Z" fill="url(#endLeafA)"/>
+            <path d="M57.5 27.1c12.8 5.2 20.9 14.5 22 25.5 1.4 13.4-7.7 24.9-27.4 34.9 4.1-11.5 1.2-20.1-5.7-28 8.2-8 14.8-18.5 11.1-32.4Z" fill="url(#endLeafB)"/>
+            <path d="M50 81.2c-1.8-12.1.7-21.5 8.3-31.2 5-6.3 6.2-12.9 3.6-19.6 8.8 11.8 5.2 25.3-4.8 36-4.2 4.5-6.2 8.8-7.1 14.8Z" fill="#021f1b" opacity=".76"/>
+          </svg>
+          <p class="endline">ONE SKILL.<br>ONE WORKFLOW.<br>ONE ARTIFACT.</p>
+          <p class="brand-tag">VERDENT SKILLBOOK</p>
+        </div>
       </section>
     </div>
 
@@ -709,19 +763,36 @@
     <div class="controls">
       <button id="btnReplay">REPLAY</button>
       <button id="btnPause">PAUSE</button>
-      <button id="btnJump" data-t="20">JUMP:20s</button>
+      <button id="btnJump" data-t="22.5">JUMP:22s</button>
     </div>
     <input type="range" class="seek" id="seek" min="0" max="30" step="0.1" value="0">
   </main>
 
   <script>
     const duration = 30;
-    const TYPE_START = 8.2;
-    const TYPE_SPAN = 1.6;
+    const TYPE_START = 9.2;
+    const TYPE_SPAN = 2;
     const taskText = "turn this messy idea into\na production plan";
     const typedTask = document.getElementById("typedTask");
     const page = document.getElementById("stage");
     const seek = document.getElementById("seek");
+    const stageLabel = document.getElementById("stageLabel");
+    const flowDots = document.querySelectorAll(".flow-line .dot");
+
+    const phases = [
+      {t:0, label:"READY", dots:[]},
+      {t:2, label:"HOOK", dots:[]},
+      {t:3.5, label:"SKILL", dots:[]},
+      {t:5.5, label:"INPUT", dots:[0]},
+      {t:7.5, label:"ANALYSIS", dots:[0]},
+      {t:9, label:"TASK", dots:[0,1]},
+      {t:11.5, label:"EXECUTING", dots:[0,1,2]},
+      {t:13, label:"EXECUTING", dots:[0,1,2]},
+      {t:17, label:"GENERATING", dots:[0,1,2,3]},
+      {t:20.5, label:"IMPACT", dots:[0,1,2,3]},
+      {t:22.5, label:"OUTPUT", dots:[0,1,2,3,4]},
+      {t:26, label:"COMPLETE", dots:[0,1,2,3,4]}
+    ];
 
     let started = performance.now();
     let paused = false;
@@ -744,9 +815,21 @@
       typedTask.textContent = taskText.slice(0, Math.max(0, Math.min(taskText.length, count)));
     }
 
+    function updatePhase(sec) {
+      let current = phases[0];
+      for (let i = phases.length - 1; i >= 0; i--) {
+        if (sec >= phases[i].t) { current = phases[i]; break; }
+      }
+      stageLabel.textContent = current.label;
+      flowDots.forEach((d, i) => {
+        d.classList.toggle("active", current.dots.includes(i));
+      });
+    }
+
     function tick(now) {
       const sec = currentSecond(now);
       renderTyped(sec);
+      updatePhase(sec);
       seek.value = sec;
       requestAnimationFrame(tick);
     }
