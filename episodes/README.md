@@ -31,7 +31,7 @@ messy input -> Verdent skill -> reusable artifact
 EP001 example:
 
 ```text
-Vague content brief -> Plan Mode -> executable content plan
+Vague brief -> Plan Mode -> content plan
 ```
 
 ## Naming

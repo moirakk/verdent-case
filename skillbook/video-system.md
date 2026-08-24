@@ -25,31 +25,29 @@ Each episode should feel like watching Verdent process a case.
 
 ## Standard Duration
 
-Target: `25-30s`
+Target: `28s`
 
 Default timing:
 
 ```text
-0-1s    Verdent Skillbook identity
-1-4s    Skill transformation hook
-4-7s    Messy input
-7-10s   Skill extracts structure
-10-18s  Skill execution
-18-21s  Artifact reveal
-21-25s  Before / after / next
+0-4.6s     Hook
+4.6-9.8s   Raw / messy input
+9.8-16.4s  Skill process / document mockup
+16.4-21.6s Artifact reveal
+21.6-28s   Before / after / next
 ```
 
-Shorter platform cuts can remove the last 2-3 seconds, but the full HTML should remain 25-30 seconds.
+Shorter platform cuts can remove the last 2-3 seconds, but the full HTML should keep the 28s master runtime.
 
 ## Visual Identity
 
 The style is:
 
-- black-green CRT terminal
-- cyberpunk but restrained
-- mission-control case file
+- editorial green letterbox
+- product-launch reel
+- case file, but designed like a magazine spread
 - product workflow proof
-- cinematic single-screen transmission
+- confident type-led short video
 
 It should not feel like:
 
@@ -57,7 +55,8 @@ It should not feel like:
 - a documentation page
 - a normal slide deck
 - a busy dashboard
-- generic hacker neon
+- terminal / CRT / scanline / mission-control HUD
+- neon cyberpunk
 
 ## Brand Signals
 
@@ -68,60 +67,57 @@ Always include:
 - episode ID, such as `CASE 001 // PLAN MODE`
 - one clear transformation line
 - one final series line
-- a subtle Verdent leaf watermark or recurring phosphor signal
+- a bottom letterbox brand lockup
 
 Logo treatment:
 
-- black rounded-square app icon
-- glowing mint / aqua leaf mark
-- subtle rim light
+- real Verdent flame/leaf silhouette
+- single flat brand green fill
+- no gradient
 - never tiny enough to be missed
-- appears in the final section and can appear during boot
+- appears in the bottom bar and can appear in the final section
 
 ## Palette
 
 Use this palette consistently.
 
 ```css
---black: #020403;
---deep: #06120f;
---panel: #071512;
---signal: #49dca4;
---strong: #7dffe0;
---accent: #39f6ad;
---cyan: #1fd6ff;
---dim: #1f7c68;
---warn: #ffb545;
---red: #ff5347;
+--sage: #d9e6dc;
+--moss: #e6ecd9;
+--paper: #eef5ee;
+--deep-green: #0f2a1e;
+--brand-green: #1f9d6c;
+--coral: #d9663f;
 ```
 
 Rules:
 
-- Black must dominate.
-- Green glow should identify the system, not cover every surface.
-- Cyan is for rare highlights, active routes, or logo gradients.
-- Amber/red are only for warning, messy input, or interruption moments.
+- Stay in the green family across scenes.
+- Use lightness and darkness for contrast instead of switching hue.
+- Coral is a single small accent detail, not a second palette.
+- Artifact reveal is the one dark scene.
 
 ## Typography
 
-Use terminal typography for labels and system text:
+Use editorial typography for headlines:
 
 ```css
-"IBM Plex Mono", "SFMono-Regular", Consolas, Menlo, monospace
+"Fraunces", Georgia, serif
 ```
 
-Use a clean sans-serif only for large hero lines:
+Use clean sans-serif and mono for support text:
 
 ```css
 Inter, "Helvetica Neue", Arial, sans-serif
+"IBM Plex Mono", "SFMono-Regular", Consolas, Menlo, monospace
 ```
 
 Text rules:
 
 - Use short phrases only.
-- No paragraphs on screen.
-- No explanatory text that can be shown visually.
+- No dense paragraphs on screen.
 - One dominant phrase per scene.
+- Headlines use normal casing; uppercase is reserved for eyebrows, tags, and mono labels.
 - Keep mobile readability as the first constraint.
 
 ## Screen Layout
@@ -130,8 +126,9 @@ Default format:
 
 ```text
 9:16 portrait
+letterbox: top and bottom bars around 19%
+content lives in the middle band
 1080 x 1920 recording mindset
-safe margin: 8%
 ```
 
 Layout hierarchy:
@@ -139,7 +136,7 @@ Layout hierarchy:
 1. Main phrase or artifact name
 2. Skill / mode / case label
 3. Small diagnostics
-4. Status line
+4. Bottom brand / next tag
 
 The viewer should understand the frame in under one second.
 
@@ -148,13 +145,11 @@ The viewer should understand the frame in under one second.
 Reusable components:
 
 - `CaseLabel`
-- `VerdentIntro`
 - `InputCard`
-- `SkillCore`
-- `WorkflowNode`
+- `ProcessDocument`
 - `ArtifactUnlock`
 - `BeforeAfterNext`
-- `VerdentEndCard`
+- `LetterboxBrandBar`
 
 Avoid adding new visual patterns unless an episode truly needs them.
 
@@ -164,29 +159,27 @@ Use one master JavaScript timeline per HTML file.
 
 Required:
 
-- `const T = 25000` to `30000`
+- `const T = 28000`
 - scene envelopes based on millisecond ranges
 - `?t=seconds` frozen preview
-- no visible preview controls inside the recording frame
+- debug HUD can exist for editing, but must not obscure the recording frame
+- `body.frozen` pauses CSS animations as well as JS timeline
 
 Motion rules:
 
-- Verdent identity must land within 1 second
-- hook must land by 4 seconds
-- nodes should light sequentially
-- artifact reveal should be the strongest moment
-- final logo should feel like a clean lock-up
+- hook must land by 4.6 seconds
+- every scene needs a distinct entrance
+- reveal cadence should accelerate
+- artifact reveal is the one loud beat
+- final scene should land, not bounce
 
 Use:
 
-- fade + slide
-- type-in text
-- neon line pulses
-- CRT flicker
-- scanlines
-- grain
-- vignette
-- subtle camera push
+- scale-in punch for hook
+- slight tilt for messy input
+- fast translateY for document/process scenes
+- flash + bounce for artifact reveal
+- continuous subtle camera drift
 
 Avoid:
 
@@ -194,7 +187,7 @@ Avoid:
 - long static text cards
 - decorative motion that does not explain the workflow
 - too many simultaneous labels
-- top bars, timers, bottom status strips, or debug controls in the recorded frame
+- terminal chrome, scanlines, HUDs, timers, and cyberpunk glow
 
 ## Episode File Rule
 
@@ -228,8 +221,9 @@ recording(ep-001): mark plan mode as recording-ready
 Before recording:
 
 - [ ] File is a single HTML page
-- [ ] Duration is 25-30 seconds
-- [ ] No preview controls appear inside the recording frame
+- [ ] Duration is 28 seconds
+- [ ] Letterbox top/bottom bars are present
+- [ ] Debug HUD does not obscure the recording frame
 - [ ] `?t=seconds` works for preview
 - [ ] Verdent logo appears clearly
 - [ ] Important text sits inside safe margins

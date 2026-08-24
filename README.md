@@ -47,7 +47,7 @@ EP001 当前定位：
 
 ```text
 PLAN MODE
-Vague content brief -> executable content plan
+Vague brief -> Content plan
 ```
 
 当前可编辑文件：
@@ -68,7 +68,7 @@ open episodes/ep-001-plan-mode.html?t=18.5
 ## 新建一条 Skillbook Episode
 
 1. 在 `episodes/` 下创建一个主 HTML 文件，例如 `ep-002-visual-system.html`。
-2. 沿用 EP001 的 CRT / Verdent Skillbook 视觉语言，只替换 skill、输入、节点、artifact 和 next。
+2. 沿用 EP001 的 editorial green letterbox 视觉语言，只替换 skill、输入、process fields、artifact 和 next。
 3. 在 `cases/` 下创建对应 case 说明，记录目标、受众、镜头、录屏状态和发布链接。
 4. 第一次能打开页面时 commit：`video(ep-002): create visual system episode`。
 5. 每次明显改动后保存版本：`scripts/save-episode-version.sh episodes/ep-002-visual-system.html "refine pacing"`。
