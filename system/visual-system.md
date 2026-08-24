@@ -14,6 +14,7 @@ Verdent videos should feel like:
 - confident green brand field
 - sharp transformation proof
 - designed for portrait short-form feeds
+- controlled cyberpunk energy: scanlines, sweep cuts, glow, and system motion
 
 They should not feel like:
 
@@ -21,7 +22,7 @@ They should not feel like:
 - a slide deck
 - a terminal recording
 - a busy HUD
-- generic cyberpunk decoration
+- generic cyberpunk decoration with no narrative job
 
 ## Brand Structure
 
@@ -66,6 +67,10 @@ Default runtime is `28s` unless a specific episode needs a different cut.
 - one dominant idea per scene
 - one loud reveal beat per video
 - no unnecessary meters, timers, chrome, or debug UI in the recording frame
+- every scene must show an action, not only a text card
+- transitions should feel edited: scan sweep, flash cut, or motion bridge
+- process scenes should show transformation, such as fragments being sorted,
+  routed, grouped, or converted into an output
 
 ## Palette
 
@@ -116,6 +121,36 @@ Each video should have:
 - a calm final landing
 
 Avoid long static frames and repeated identical transitions.
+
+## Video Feel Rules
+
+The page must behave like a short video, not a moving slide deck.
+
+Required beats:
+
+- A first-second brand signal.
+- A visible problem state, such as scattered fragments or unclear input.
+- A processing state with changing status labels, not a single static label.
+- A visible transformation from input into structure.
+- A concentrated artifact reveal with one flash or impact beat.
+- A clean final brand-only lockup for at least the last second.
+
+Recommended process status pattern:
+
+```text
+SORTING THE MESS
+EXTRACTING STRUCTURE
+PLAN READY
+```
+
+Recommended transition pattern:
+
+```text
+scene cut -> scan sweep -> next scene lands
+```
+
+Use cyberpunk effects only when they clarify state change or brand feel. Avoid
+decorative visual noise that competes with the message.
 
 ## Reuse
 
