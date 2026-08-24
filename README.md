@@ -37,14 +37,42 @@ verdent-case/
 └── assets/                 # 共享素材
 ```
 
+## 当前重点
+
+当前主线是 `Verdent Skillbook`。
+
+Skillbook 只是系列容器，每一集的主角必须是一个 Verdent skill 的核心能力。
+
+EP001 当前定位：
+
+```text
+PLAN MODE
+Vague content brief -> executable content plan
+```
+
+当前可编辑文件：
+
+```text
+episodes/ep-001-plan-mode.html
+```
+
+预览方式：
+
+```text
+open episodes/ep-001-plan-mode.html
+open episodes/ep-001-plan-mode.html?t=18.5
+```
+
+`?t=seconds` 用来冻结关键帧，方便逐帧检查文字是否越界、画面是否太乱。
+
 ## 新建一条 Skillbook Episode
 
-1. 在 `episodes/` 下创建一个主 HTML 文件，命名为 `ep-001-plan-mode.html`。
-2. 从 `templates/skillbook-episode-template.html` 复制视觉结构。
+1. 在 `episodes/` 下创建一个主 HTML 文件，例如 `ep-002-visual-system.html`。
+2. 沿用 EP001 的 CRT / Verdent Skillbook 视觉语言，只替换 skill、输入、节点、artifact 和 next。
 3. 在 `cases/` 下创建对应 case 说明，记录目标、受众、镜头、录屏状态和发布链接。
-4. 第一次能打开页面时 commit：`video(ep-001): create plan mode episode`。
-5. 每次明显改动后保存版本：`scripts/save-episode-version.sh episodes/ep-001-plan-mode.html "refine pacing"`。
-6. 录屏前 commit：`recording(ep-001): mark plan mode as recording-ready`。
+4. 第一次能打开页面时 commit：`video(ep-002): create visual system episode`。
+5. 每次明显改动后保存版本：`scripts/save-episode-version.sh episodes/ep-002-visual-system.html "refine pacing"`。
+6. 录屏前 commit：`recording(ep-002): mark visual system as recording-ready`。
 7. 录屏后把最终链接、备注和复盘写回该 case 的 `README.md`。
 
 ## Commit 命名约定

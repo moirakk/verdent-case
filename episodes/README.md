@@ -14,6 +14,26 @@ Use this folder when you want to edit or record an episode.
 
 Use `cases/` for supporting notes, README files, recording history, and retrospective material.
 
+## Series Rule
+
+Skillbook is the container. The skill is the main character.
+
+Each episode must show one Verdent skill producing a useful artifact from a real messy input.
+
+Do not make episodes about "introducing Skillbook" or "showing Verdent skills" in the abstract.
+
+Use this structure:
+
+```text
+messy input -> Verdent skill -> reusable artifact
+```
+
+EP001 example:
+
+```text
+Vague content brief -> Plan Mode -> executable content plan
+```
+
 ## Naming
 
 ```text
@@ -49,7 +69,7 @@ and creates a Git commit with a clear episode name.
 Open the file directly in a browser:
 
 ```text
-episodes/ep-001-plan-mode.html?clean=1
+episodes/ep-001-plan-mode.html
 ```
 
 Freeze a frame for review:
@@ -57,3 +77,17 @@ Freeze a frame for review:
 ```text
 episodes/ep-001-plan-mode.html?t=16
 ```
+
+Before recording, check key frames:
+
+```text
+t=0.6    brand identity
+t=1.5    hook
+t=4.2    messy input
+t=8      extraction
+t=12     skill running
+t=18.5   artifact unlock
+t=22     final result
+```
+
+No visible debug controls, timers, or top/bottom status bars should appear in the recording frame.

@@ -10,18 +10,25 @@
 cases/YYYY-MM-DD-topic/
 ```
 
-然后创建：
+然后确认主编辑 HTML 在：
 
 ```text
-README.md
-index.html
-assets/
+episodes/ep-000-topic.html
+```
+
+case 文件夹用于说明和复盘：
+
+```text
+cases/YYYY-MM-DD-topic/README.md
+cases/YYYY-MM-DD-topic/assets/
 ```
 
 立项时只需要写清楚四件事：
 
 - Goal：这条视频为什么做
 - Audience：给谁看
+- Skill：这一集展示哪个 Verdent skill
+- Transformation：输入被这个 skill 变成什么
 - Core message：观众看完应该记住什么
 - Desired action：观众下一步应该做什么
 
@@ -81,6 +88,7 @@ docs: add launch retrospective
 - 页面能本地打开
 - 关键文字无错别字
 - 录屏视口下没有遮挡、溢出、错位
+- 使用 `?t=seconds` 检查关键帧
 - 动画不会影响阅读
 - 需要展示的素材已经进入仓库
 - case README 已写清楚录屏目标
@@ -136,7 +144,7 @@ case/YYYY-MM-DD-topic
 - `docs/`
 - `assets/`
 
-这些目录可以作为参考和素材来源。新的 HTML 视频统一放进 `cases/`，不要把新项目继续散落到旧资料目录里。
+这些目录可以作为参考和素材来源。新的主编辑 HTML 视频统一放进 `episodes/`，不要把新项目继续散落到旧资料目录里。`cases/` 只放说明、素材、录屏记录和复盘。
 
 如果复用旧资料，在 case README 中记录：
 
@@ -152,7 +160,7 @@ case/YYYY-MM-DD-topic
 一条 case 完成时，至少应该满足：
 
 - `cases/YYYY-MM-DD-topic/README.md` 已记录 brief、录屏版本、发布链接和复盘
-- `index.html` 是最终可打开版本
+- `episodes/ep-000-topic.html` 是最终可打开版本
 - 录屏前有 `recording-ready` commit
 - 发布后有一次 `docs:` 或 `recording:` commit 补充结果
 

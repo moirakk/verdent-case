@@ -10,12 +10,15 @@ assignees: ""
 
 - Goal:
 - Audience:
+- Skill:
+- Transformation:
 - Core message:
 - Desired action:
 
-## Proposed Folder
+## Proposed Files
 
 ```text
+episodes/ep-000-topic.html
 cases/YYYY-MM-DD-topic/
 ```
 
@@ -34,9 +37,11 @@ cases/YYYY-MM-DD-topic/
 ## Done When
 
 - [ ] Case folder created
+- [ ] Episode HTML created under `episodes/`
 - [ ] First HTML version committed
 - [ ] Copy checked
 - [ ] Visual checked
+- [ ] Key frames checked with `?t=seconds`
 - [ ] Recording-ready commit created
 - [ ] Recorded
 - [ ] Published
