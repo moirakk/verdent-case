@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verdent Skillbook // EP003 AI2UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;0,900;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sage:#d9e6dc;
+  --sage-ink:#12211a;
+  --cream:#e6ecd9;
+  --cream-ink:#1a2414;
+  --canvas:#eef5ee;
+  --canvas-ink:#152119;
+  --plum:#0f2a1e;
+  --plum-ink:#eafff2;
+  --coral:#d9663f;
+  --brand:#1f9d6c;
+  --serif:"Fraunces",Georgia,serif;
+  --sans:Inter,"Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono","SFMono-Regular",Consolas,Menlo,monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --T:24000;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#000}
+body{display:grid;place-items:center;font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+.stage{
+  position:relative;
+  width:min(100vw,56.25vh);
+  height:min(100vh,177.777vw);
+  aspect-ratio:9/16;
+  overflow:hidden;
+  background:#000;
+  animation:camdrift calc(var(--T) * 1ms) linear infinite;
+}
+@keyframes camdrift{0%{transform:scale(1)}100%{transform:scale(1.035)}}
+.stage::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(rgba(31,157,108,.055) 1px,transparent 1px),
+    radial-gradient(70% 50% at 50% 48%,rgba(31,157,108,.16),transparent 64%);
+  background-size:100% 4px,auto;
+  mix-blend-mode:screen;opacity:.72;
+}
+.stage::after{
+  content:"";position:absolute;inset:0;z-index:42;pointer-events:none;
+  background:radial-gradient(72% 70% at 50% 48%,transparent 46%,rgba(0,0,0,.36) 100%);
+}
+
+.bar{position:absolute;left:0;right:0;height:19%;z-index:6;display:flex;padding:0 9%;color:#eef4f0}
+.bar.top{top:0;align-items:flex-end;padding-bottom:16px}
+.bar.bottom{bottom:0;align-items:flex-start;padding-top:16px;justify-content:space-between}
+.case-tag{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;opacity:.68}
+.brandmark{display:flex;align-items:center;gap:8px;opacity:.82;transform-origin:left center;will-change:transform}
+.ink-logo{
+  display:block;background:var(--brand);
+  -webkit-mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
+  mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
+  filter:drop-shadow(0 0 10px rgba(31,157,108,.5));
+}
+.brandmark .ink-logo{width:72px;height:26px}
+.brandmark span{font:900 11px var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.next-tag{font:600 9.5px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;opacity:.5;align-self:flex-start;text-align:right;max-width:120px}
+
+.frame{position:absolute;left:0;right:0;top:19%;bottom:19%;overflow:hidden;z-index:2}
+
+.scene{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:9% 9%;
+  opacity:0;
+  transition:opacity .45s var(--ease),transform .45s var(--ease);
+}
+.scene.on{opacity:1}
+
+/* 每个场景类型用不同的进场手法,避免全片一个节奏 */
+[data-scene="0"]{transform:scale(.94);transition-duration:.5s;transition-timing-function:var(--pop)}
+[data-scene="0"].on{transform:scale(1)}
+
+[data-scene="1"]{transform:translateY(22px) rotate(-1.2deg);transition-duration:.4s}
+[data-scene="1"].on{transform:translateY(0) rotate(0deg)}
+
+[data-scene="2"]{transform:translateY(26px);transition-duration:.42s}
+[data-scene="2"].on{transform:translateY(0)}
+
+[data-scene="3"]{transform:scale(.9) translateY(14px);transition-duration:.62s;transition-timing-function:var(--pop)}
+[data-scene="3"].on{transform:scale(1) translateY(0)}
+
+[data-scene="4"]{transform:translateY(24px);transition-duration:.46s}
+[data-scene="4"].on{transform:translateY(0)}
+
+.bg-sage{background:var(--sage);color:var(--sage-ink)}
+.bg-cream{background:var(--cream);color:var(--cream-ink)}
+.bg-canvas{background:var(--canvas);color:var(--canvas-ink)}
+.bg-plum{background:var(--plum);color:var(--plum-ink)}
+
+.eyebrow{font:600 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;opacity:.6;margin-bottom:18px}
+.headline{font:700 clamp(30px,6.4vh,45px)/1.04 var(--serif);letter-spacing:-.01em}
+.headline b{font-weight:900}
+.outline{
+  -webkit-text-stroke:1px rgba(18,33,26,.34);
+  text-shadow:0 0 20px rgba(31,157,108,.24);
+}
+.bg-plum .outline{
+  -webkit-text-stroke:1px rgba(234,255,242,.28);
+  text-shadow:0 0 22px rgba(31,157,108,.48);
+}
+.emph{font-weight:900;position:relative;display:inline-block}
+.emph::after{
+  content:"";position:absolute;left:0;bottom:-.06em;height:.09em;width:calc(var(--underline,0) * 100%);
+  background:var(--brand);border-radius:2px;
+}
+.sub{margin-top:16px;font:500 14px/1.5 var(--sans);opacity:.68;max-width:88%}
+
+/* Scene 0: hook line-by-line entrance */
+.hl-line{display:inline-block;opacity:0;transform:translateY(16px)}
+#hookSub{opacity:0;transform:translateY(10px)}
+.brand-flash{
+  position:absolute;left:9%;top:9%;display:flex;align-items:center;gap:10px;
+  font:950 14px var(--sans);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--sage-ink);opacity:0;transform:translateY(10px);
+}
+.brand-flash .ink-logo{width:86px;height:31px}
+
+/* Scene 1: raw input */
+.quote-wrap{border-left:2px solid currentColor;padding-left:22px;position:relative;z-index:2}
+.quote{font:italic 500 clamp(24px,5.2vh,36px)/1.14 var(--serif);letter-spacing:-.01em}
+.wireframe{
+  position:relative;z-index:2;margin-bottom:18px;width:72%;height:132px;
+  border:1px solid rgba(18,33,26,.34);background:rgba(255,255,255,.22);
+  padding:12px;display:grid;grid-template-rows:18px 1fr 22px;gap:10px;
+  box-shadow:0 0 0 1px rgba(31,157,108,.1);
+}
+.wireframe i{display:block;background:rgba(18,33,26,.18)}
+.wireframe .wf-top{width:46%;height:100%}
+.wireframe .wf-mid{display:grid;grid-template-columns:1fr 1fr;gap:9px;background:transparent}
+.wireframe .wf-mid i{height:100%}
+.wireframe .wf-bottom{width:64%;height:100%}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.tag{border:1px solid currentColor;opacity:.55;padding:7px 11px;font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;border-radius:2px}
+.fragment-field{position:absolute;inset:0;pointer-events:none}
+.fragment{
+  position:absolute;left:var(--x);top:var(--y);
+  font:700 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(18,33,26,.22);background:rgba(255,255,255,.2);
+  padding:7px 9px;border-radius:2px;opacity:0;transform:translateY(18px) rotate(var(--r));
+}
+
+/* Scene 2: skill processor */
+.doc-toolbar{
+  display:flex;align-items:center;gap:8px;padding-bottom:14px;margin-bottom:20px;
+  border-bottom:1px solid rgba(0,0,0,.12);
+}
+.doc-toolbar .dots{display:flex;gap:4px}
+.doc-toolbar .dots i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.3;animation:dotpulse 1.4s ease-in-out infinite}
+.doc-toolbar .dots i:nth-child(2){animation-delay:.18s}
+.doc-toolbar .dots i:nth-child(3){animation-delay:.36s}
+.doc-toolbar.done .dots i{background:var(--brand);opacity:.9;animation:none}
+@keyframes dotpulse{0%,60%,100%{opacity:.25}30%{opacity:.85}}
+.doc-toolbar span{font:600 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.55}
+.doc-toolbar.done span{opacity:.75;color:var(--brand)}
+.processor{position:relative;height:320px;margin-top:2px}
+.core{
+  position:absolute;left:50%;top:48%;width:112px;height:112px;transform:translate(-50%,-50%) scale(.92);
+  border:1px solid rgba(31,157,108,.72);background:rgba(31,157,108,.08);
+  display:grid;place-items:center;text-align:center;color:var(--canvas-ink);
+  box-shadow:0 0 0 0 rgba(31,157,108,0);
+}
+.core::before,.core::after{
+  content:"";position:absolute;inset:-13px;border:1px solid rgba(31,157,108,.26);
+}
+.core::after{inset:-26px;opacity:.45}
+.core span{font:800 10.5px/1.25 var(--mono);letter-spacing:.13em;text-transform:uppercase}
+.process-callout{
+  position:absolute;left:50%;top:-2px;transform:translate(-50%,10px);
+  font:900 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--brand);opacity:0;white-space:nowrap;
+  text-shadow:0 0 14px rgba(31,157,108,.42);
+}
+.process-callout::before,.process-callout::after{
+  content:"";display:inline-block;width:18px;height:1px;background:currentColor;
+  vertical-align:middle;margin:0 8px;opacity:.55;
+}
+.beam{
+  position:absolute;left:50%;top:48%;height:1px;width:122px;transform-origin:left center;
+  background:linear-gradient(90deg,rgba(31,157,108,.9),rgba(31,157,108,0));
+  opacity:0;
+}
+.beam.b0{transform:rotate(-142deg)}
+.beam.b1{transform:rotate(-64deg)}
+.beam.b2{transform:rotate(24deg)}
+.beam.b3{transform:rotate(138deg)}
+.input-bit,.plan-node{
+  position:absolute;font:700 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(21,33,25,.2);padding:8px 9px;border-radius:2px;background:rgba(255,255,255,.28);
+  white-space:nowrap;opacity:0;
+}
+.input-bit{color:rgba(21,33,25,.62)}
+.bit0{left:0;top:22%;transform:rotate(-8deg)}
+.bit1{right:0;top:14%;transform:rotate(7deg)}
+.bit2{left:4%;bottom:18%;transform:rotate(5deg)}
+.bit3{right:5%;bottom:11%;transform:rotate(-7deg)}
+.plan-node{
+  min-width:108px;text-align:center;background:rgba(238,245,238,.64);
+  border-color:rgba(31,157,108,.42);color:var(--canvas-ink);
+}
+.node0{left:0;top:8%}
+.node1{right:0;top:8%}
+.node2{left:0;bottom:2%}
+.node3{right:0;bottom:2%}
+.node-kicker{display:block;margin-bottom:5px;font:700 8.5px var(--mono);letter-spacing:.12em;color:var(--brand)}
+.node-main{font:800 12px/1.1 var(--serif)}
+.node-sub{display:block;margin-top:5px;font:700 7.5px/1.15 var(--mono);letter-spacing:.08em;opacity:.58}
+.rows{display:none}
+.field-row{
+  position:relative;
+  display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:baseline;
+  opacity:0;transform:translateY(16px);
+  padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.08);
+}
+.field-row::before{
+  content:"";position:absolute;inset:-4px -8px;background:rgba(31,157,108,.16);
+  opacity:var(--flash-op,0);pointer-events:none;border-radius:3px;
+}
+.field-row b{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.55}
+.field-row span{font:600 19px/1.28 var(--serif)}
+
+/* Scene 3: artifact */
+.chip-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:28px}
+.chip{border:1px solid currentColor;opacity:0;transform:translateY(12px);padding:8px 12px;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;border-radius:2px}
+.artifact-card{
+  margin-top:20px;border:1px solid rgba(234,255,242,.22);padding:12px 13px;
+  background:rgba(234,255,242,.055);display:grid;gap:8px;opacity:0;transform:translateY(14px);
+  box-shadow:0 0 0 rgba(31,157,108,0);
+}
+.artifact-line{display:block;height:7px;background:rgba(234,255,242,.2);transform-origin:left center;transform:scaleX(0)}
+.artifact-line:nth-child(1){width:84%}.artifact-line:nth-child(2){width:62%}.artifact-line:nth-child(3){width:74%}
+
+/* Scene 4: result */
+.result{display:grid;gap:14px}
+.result-row{
+  display:grid;grid-template-columns:78px minmax(0,1fr);gap:16px;align-items:baseline;
+  opacity:0;transform:translateY(14px);
+  padding-bottom:13px;border-bottom:1px solid rgba(0,0,0,.1);
+}
+.result-row b{font:700 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.55}
+.result-row span{font:700 clamp(19px,3.6vh,24px)/1.15 var(--serif)}
+.endline{margin-top:22px;font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(10px)}
+.page-logo{
+  margin:28px auto 0;display:block;width:180px;height:64px;background:var(--brand);
+  -webkit-mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
+  mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
+  opacity:0;transform:translateY(12px) scale(.96);
+  filter:drop-shadow(0 0 14px rgba(31,157,108,.34));
+}
+.fade{position:absolute;inset:0;z-index:50;pointer-events:none;background:#000;opacity:1}
+.flash{position:absolute;inset:0;z-index:45;pointer-events:none;opacity:0;background:radial-gradient(60% 46% at 50% 40%,rgba(255,255,255,.55),transparent 62%);mix-blend-mode:screen}
+.transition-sweep{
+  position:absolute;inset:19% 0;z-index:44;pointer-events:none;opacity:0;
+  background:
+    linear-gradient(90deg,transparent 0%,rgba(31,157,108,.08) 26%,rgba(234,255,242,.52) 50%,rgba(31,157,108,.08) 74%,transparent 100%),
+    repeating-linear-gradient(180deg,rgba(234,255,242,.16) 0 1px,transparent 1px 5px);
+  transform:translateX(-112%) skewX(-12deg);
+  mix-blend-mode:screen;
+}
+
+.hud{
+  position:fixed;left:50%;bottom:18px;z-index:200;transform:translateX(-50%);
+  display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:999px;
+  background:rgba(2,4,3,.78);border:1px solid rgba(255,255,255,.18);
+  color:#eafff3;font:500 11px var(--mono);letter-spacing:.06em;
+}
+.hud button{all:unset;cursor:pointer;border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:5px 10px}
+.hud .bar-track{width:110px;height:3px;background:rgba(255,255,255,.16);overflow:hidden;border-radius:2px}
+.hud .bar-track i{display:block;width:0;height:100%;background:var(--coral)}
+body.clean .hud{display:none}
+body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:paused!important}
+
+@media(max-width:390px){
+  .headline{font-size:29px}
+  .quote{font-size:24px}
+  .processor{height:300px}
+  .core{width:100px;height:100px}
+  .plan-node{min-width:96px;padding:7px 8px}
+  .field-row{grid-template-columns:78px minmax(0,1fr)}
+  .field-row span{font-size:16px}
+  .result-row span{font-size:18px}
+}
+</style>
+</head>
+<body>
+  <main class="stage" aria-label="Verdent Skillbook EP003 AI2UI">
+    <div class="bar top"><span class="case-tag">EP003 // AI2UI</span></div>
+    <div class="bar bottom">
+      <div class="brandmark">
+        <i class="ink-logo" aria-hidden="true"></i>
+        <span>Skillbook</span>
+      </div>
+      <div class="next-tag" id="nextTag"></div>
+    </div>
+    <div class="frame">
+      <section class="scene on bg-sage" data-scene="0">
+        <div class="brand-flash" id="brandFlash"><i class="ink-logo" aria-hidden="true"></i><span>Verdent</span></div>
+        <div class="eyebrow">Case file — Skillbook EP003</div>
+        <h1 class="headline"><span class="hl-line" data-h="0">One image.</span><br><span class="hl-line outline" data-h="1"><b>Working UI.</b></span></h1>
+        <p class="sub" id="hookSub">AI2UI turns a picture into code that runs.</p>
+      </section>
+
+      <section class="scene bg-cream" data-scene="1">
+        <div class="eyebrow">Raw input</div>
+        <div class="fragment-field">
+          <span class="fragment" data-f="0" style="--x:54%;--y:8%;--r:8deg">no markup</span>
+          <span class="fragment" data-f="1" style="--x:4%;--y:18%;--r:-6deg">no styles</span>
+          <span class="fragment" data-f="2" style="--x:62%;--y:62%;--r:-9deg">no logic</span>
+          <span class="fragment" data-f="3" style="--x:6%;--y:76%;--r:7deg">static image</span>
+          <span class="fragment" data-f="4" style="--x:48%;--y:80%;--r:5deg">no components</span>
+          <span class="fragment" data-f="5" style="--x:14%;--y:4%;--r:-10deg">no behavior</span>
+        </div>
+        <div class="quote-wrap">
+          <div class="wireframe" aria-hidden="true">
+            <i class="wf-top"></i>
+            <div class="wf-mid"><i></i><i></i></div>
+            <i class="wf-bottom"></i>
+          </div>
+          <p class="quote">Just this screenshot.<br>No spec.<br>No code.</p>
+        </div>
+        <div class="tags">
+          <span class="tag">no markup</span>
+          <span class="tag">static image</span>
+          <span class="tag">no logic</span>
+        </div>
+      </section>
+
+      <section class="scene bg-canvas" data-scene="2">
+        <div class="doc-toolbar" id="toolbar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <span id="toolbarStatus">ui.tsx — reading image</span>
+        </div>
+          <div class="processor">
+          <div class="process-callout" id="processCallout">Reading the image</div>
+          <span class="input-bit bit0" data-bit="0">static image</span>
+          <span class="input-bit bit1" data-bit="1">no markup</span>
+          <span class="input-bit bit2" data-bit="2">no styles</span>
+          <span class="input-bit bit3" data-bit="3">no logic</span>
+          <div class="beam b0"></div>
+          <div class="beam b1"></div>
+          <div class="beam b2"></div>
+          <div class="beam b3"></div>
+          <div class="core"><span>AI2UI<br>Mode</span></div>
+          <div class="plan-node node0" data-node="0"><span class="node-kicker">01</span><span class="node-main">Layout</span><span class="node-sub">screen map</span></div>
+          <div class="plan-node node1" data-node="1"><span class="node-kicker">02</span><span class="node-main">Components</span><span class="node-sub">ui parts</span></div>
+          <div class="plan-node node2" data-node="2"><span class="node-kicker">03</span><span class="node-main">Styles</span><span class="node-sub">visual rules</span></div>
+          <div class="plan-node node3" data-node="3"><span class="node-kicker">04</span><span class="node-main">Interactions</span><span class="node-sub">click paths</span></div>
+        </div>
+        <div class="rows">
+          <div class="field-row" data-r="0"><b>Layout</b><span>Image structure mapped</span></div>
+          <div class="field-row" data-r="1"><b>Components</b><span>Reusable components generated</span></div>
+          <div class="field-row" data-r="2"><b>Styles</b><span>CSS tokens and responsive styles</span></div>
+          <div class="field-row" data-r="3"><b>Interactions</b><span>Buttons, inputs, transitions</span></div>
+          <div class="field-row" data-r="4"><b>Next</b><span>Build ready for wiring</span></div>
+        </div>
+      </section>
+
+      <section class="scene bg-plum" data-scene="3">
+        <div class="eyebrow">Styles unlocked</div>
+        <h2 class="headline">Working<br><span class="emph outline">UI.</span></h2>
+        <p class="sub">Structure, style, interaction. Ready to run.</p>
+        <div class="artifact-card" id="artifactCard">
+          <i class="artifact-line"></i>
+          <i class="artifact-line"></i>
+          <i class="artifact-line"></i>
+        </div>
+        <div class="chip-row">
+          <span class="chip" data-c="0">Layout</span>
+          <span class="chip" data-c="1">Components</span>
+          <span class="chip" data-c="2">Styles</span>
+          <span class="chip" data-c="3">Interactions</span>
+        </div>
+      </section>
+
+      <section class="scene bg-sage" data-scene="4">
+        <div class="result">
+          <div class="result-row" data-x="0"><b>Before</b><span>a static image</span></div>
+          <div class="result-row" data-x="1"><b>After</b><span>a running component</span></div>
+          <div class="result-row" data-x="2"><b>Next</b><span>data wiring queued</span></div>
+        </div>
+        <p class="endline" id="endline">One skill. One workflow. One artifact.</p>
+        <i class="page-logo" id="pageLogo" aria-label="Verdent"></i>
+      </section>
+    </div>
+
+    <div class="flash" id="flash"></div>
+    <div class="transition-sweep" id="transitionSweep"></div>
+    <div class="fade" id="fade"></div>
+  </main>
+
+  <div class="hud" id="hud">
+    <button id="play">PAUSE</button>
+    <button id="replay">REPLAY</button>
+    <div class="bar-track"><i id="bar"></i></div>
+    <span id="time">0.00s</span>
+  </div>
+
+<script>
+  const T = 24000;
+  const params = new URLSearchParams(location.search);
+  const freezeAt = params.has('t') ? Math.max(0, Math.min(T - 1, Number(params.get('t')) * 1000)) : null;
+
+  const scenes = [...document.querySelectorAll('.scene')];
+  const hookLines = [...document.querySelectorAll('.hl-line')];
+  const hookSub = document.querySelector('#hookSub');
+  const brandFlash = document.querySelector('#brandFlash');
+  const brandmark = document.querySelector('.brandmark');
+  const fragments = [...document.querySelectorAll('.fragment')];
+  const inputBits = [...document.querySelectorAll('.input-bit')];
+  const beams = [...document.querySelectorAll('.beam')];
+  const planNodes = [...document.querySelectorAll('.plan-node')];
+  const core = document.querySelector('.core');
+  const processCallout = document.querySelector('#processCallout');
+  const artifactCard = document.querySelector('#artifactCard');
+  const artifactLines = [...document.querySelectorAll('.artifact-line')];
+  const fieldRows = [...document.querySelectorAll('.field-row')];
+  const chips = [...document.querySelectorAll('.chip')];
+  const resultRows = [...document.querySelectorAll('.result-row')];
+  const endline = document.querySelector('#endline');
+  const pageLogo = document.querySelector('#pageLogo');
+  const nextTag = document.querySelector('#nextTag');
+  const fade = document.querySelector('#fade');
+  const flash = document.querySelector('#flash');
+  const transitionSweep = document.querySelector('#transitionSweep');
+  const toolbar = document.querySelector('#toolbar');
+  const toolbarStatus = document.querySelector('#toolbarStatus');
+
+  // 状态文案随着字段逐个生成而更新,让 AI2UI 的处理过程具体可见,
+  // 而不是一段模糊的loading。每条状态对应一个字段生成完成的时间点。
+  const statusSteps = [
+    [5000,  'ui.tsx — reading image'],
+    [5480,  'ui.tsx — mapping layout'],
+    [6420,  'ui.tsx — generating components'],
+    [7240,  'ui.tsx — writing styles'],
+    [7920,  'ui.tsx — wiring interactions'],
+    [8460,  'ui.tsx — build ready']
+  ];
+
+  // 场景边界(ms)。整体从28s压缩到24s,用于X/TikTok/IG短视频投放,
+  // 处理场景进一步加速展开字段,腾出更多比例给artifact揭晓重音。
+  const ranges = [
+    [0, 2200],      // 0 hook
+    [2200, 5000],   // 1 raw input
+    [5000, 10200],  // 2 skill processor
+    [10200, 15000], // 3 artifact reveal
+    [15000, 24000]  // 4 before/after/next
+  ];
+
+  // 文档字段的出现间隔逐渐变短,制造"越来越快"的加速感。
+  const fieldStarts = [5480, 6420, 7240, 7920, 8460];
+
+  const clamp = (v,a=0,b=1)=>v<a?a:v>b?b:v;
+  const smooth = v => { v=clamp(v); return v*v*(3-2*v); };
+  // 回弹缓动,用在字段/chip的轻微"啪"入效果上,避免全片只有一种匀速滑入
+  const backOut = x => { x=clamp(x); const c1=1.70158,c3=c1+1; return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2); };
+  const env = (t,a,b,c,d)=>{
+    if(t<=a || t>=d) return 0;
+    if(t<b) return smooth((t-a)/(b-a));
+    if(t<=c) return 1;
+    return smooth(1-(t-c)/(d-c));
+  };
+
+  function render(t){
+    let active = 0;
+    ranges.forEach((r,i)=>{ if(t >= r[0] && t < r[1]) active = i; });
+    scenes.forEach((s,i)=>s.classList.toggle('on', i === active));
+
+    const fo = t < 160 ? 1 : t < 520 ? 1 - smooth((t-160)/360) : t > T-320 ? smooth((t-(T-320))/300) : 0;
+    fade.style.opacity = fo.toFixed(3);
+
+    const sweepHits = [2200,5000,10200,15000];
+    let sweep = 0;
+    for(const hit of sweepHits){
+      sweep = Math.max(sweep, env(t, hit-90, hit+20, hit+150, hit+360));
+    }
+    transitionSweep.style.opacity = (sweep*.78).toFixed(3);
+    transitionSweep.style.transform = `translateX(${(-112 + sweep*224).toFixed(1)}%) skewX(-12deg)`;
+
+    // Scene 0 hook: 两行标题错落弹入,而不是整段一起出现,
+    // 给前3.2s加一层"正在发生"的动感,增强抓人力。
+    hookLines.forEach((el,i)=>{
+      const s = 150 + i * 350;
+      const p = smooth((t - s) / 400);
+      const pop = backOut((t - s) / 400);
+      el.style.opacity = p.toFixed(3);
+      el.style.transform = `translateY(${(16 - 16*p).toFixed(2)}px) scale(${(1 + (pop-1)*0.03).toFixed(4)})`;
+    });
+    const hsp = smooth((t - 850) / 380);
+    hookSub.style.opacity = (hsp * .68).toFixed(3);
+    hookSub.style.transform = `translateY(${(10 - 10*hsp).toFixed(2)}px)`;
+    const bfp = env(t, 0, 140, 860, 1320);
+    brandFlash.style.opacity = bfp.toFixed(3);
+    brandFlash.style.transform = `translateY(${(10 - 10*bfp).toFixed(2)}px) scale(${(0.96 + bfp*.04).toFixed(3)})`;
+
+    fragments.forEach((el,i)=>{
+      const s = 2380 + i * 145;
+      const p = env(t, s, s+180, 4460, 4960);
+      const drift = smooth((t - s) / 2500);
+      el.style.opacity = (p * .74).toFixed(3);
+      el.style.transform = `translate(${(drift * (i%2 ? 10 : -8)).toFixed(2)}px, ${(18 - 18*p - drift*8).toFixed(2)}px) rotate(var(--r))`;
+    });
+
+    // 收尾前的品牌落版:最后0.6s让底部brandmark轻微放大+提亮,
+    // 形成一次明确的"final lockup"节拍,而不是全程同一个小图标。
+    const introBrand = env(t, 0, 180, 760, 1180);
+    const lockup = smooth((t - 19400) / 520);
+    const brandScale = 1 + introBrand * 0.08 + lockup * 0.24;
+    brandmark.style.transform = `scale(${brandScale.toFixed(3)})`;
+    brandmark.style.opacity = (0.84 + introBrand*0.14 + lockup*0.16).toFixed(3);
+
+    // artifact场景开场那一下真正的"啪"——揭晓瞬间的高光闪
+    flash.style.opacity = (env(t,10150,10200,10270,10500) * .9).toFixed(3);
+
+    inputBits.forEach((el,i)=>{
+      const s = 5100 + i * 130;
+      const p = env(t, s, s+180, 7000, 8300);
+      const pull = smooth((t - 7320) / 680);
+      const dx = i === 0 || i === 2 ? 34 : -34;
+      const dy = i < 2 ? 34 : -34;
+      el.style.opacity = (p * (1 - pull*.78)).toFixed(3);
+      el.style.transform = `translate(${(dx*pull).toFixed(2)}px, ${(dy*pull).toFixed(2)}px) scale(${(1 - pull*.12).toFixed(3)})`;
+    });
+
+    const coreIn = smooth((t - 5600) / 400);
+    const corePulse = env(t, 7150, 7500, 9700, 10100);
+    core.style.opacity = coreIn.toFixed(3);
+    core.style.transform = `translate(-50%,-50%) scale(${(.92 + coreIn*.08 + corePulse*.05).toFixed(3)})`;
+    core.style.boxShadow = `0 0 ${Math.round(corePulse*34)}px rgba(31,157,108,${(.1 + corePulse*.34).toFixed(3)})`;
+
+    const calloutP = env(t, 5550, 5820, 9050, 9680);
+    const calloutLabel = t < 6900 ? 'Reading the image' : t < 8150 ? 'Generating UI' : 'Build ready';
+    processCallout.textContent = calloutLabel;
+    processCallout.style.opacity = calloutP.toFixed(3);
+    const calloutPop = backOut((t - (t < 6900 ? 5550 : t < 8150 ? 6900 : 8150)) / 260);
+    processCallout.style.transform = `translate(-50%, ${(10 - 10*calloutP).toFixed(2)}px) scale(${(1 + Math.max(0,calloutPop-1)*.035).toFixed(3)})`;
+
+    beams.forEach((el,i)=>{
+      const p = env(t, 7460 + i*85, 7620 + i*85, 9560, 10100);
+      el.style.opacity = (p * .72).toFixed(3);
+      el.style.width = `${(26 + p * 116).toFixed(1)}px`;
+    });
+
+    planNodes.forEach((el,i)=>{
+      const s = fieldStarts[i+1] || 11255;
+      const p = smooth((t - s) / 380);
+      const pop = backOut((t - s) / 380);
+      el.style.opacity = p.toFixed(3);
+      el.style.transform = `translateY(${(14 - 14*p).toFixed(2)}px) scale(${(1 + (pop-1)*0.055).toFixed(4)})`;
+    });
+
+    fieldRows.forEach((el,i)=>{
+      const s = fieldStarts[i];
+      const p = smooth((t - s) / 380);
+      const pop = backOut((t - s) / 380);
+      el.style.opacity = p.toFixed(3);
+      el.style.transform = `translateY(${(16 - 16*p).toFixed(2)}px) scale(${(1 + (pop-1)*0.045).toFixed(4)})`;
+      // 每条字段出现后短暂高光扫过一次,像是"刚刚被生成"
+      const hp = clamp(1 - (t - (s+380)) / 650);
+      el.style.setProperty('--flash-op', (t > s ? Math.max(0,hp) : 0).toFixed(3));
+    });
+
+    let statusText = statusSteps[0][1];
+    for(const [st, label] of statusSteps){ if(t >= st) statusText = label; }
+    toolbarStatus.textContent = statusText;
+    toolbar.classList.toggle('done', t >= 11635);
+
+    chips.forEach((el,i)=>{
+      const s = 13196 + i*115;
+      const p = smooth((t - s) / 300);
+      const pop = backOut((t - s) / 300);
+      el.style.opacity = p.toFixed(3);
+      el.style.transform = `translateY(${(12 - 12*p).toFixed(2)}px) scale(${(1 + (pop-1)*0.06).toFixed(4)})`;
+    });
+
+    // artifact标题下方的强调下划线,揭晓后随即扫入
+    const cardP = smooth((t - 10680) / 300);
+    const cardKick = env(t, 10200, 10260, 10720, 11000);
+    artifactCard.style.opacity = cardP.toFixed(3);
+    artifactCard.style.transform = `translateY(${(14 - 14*cardP).toFixed(2)}px) scale(${(1 + cardKick*.035).toFixed(3)})`;
+    artifactCard.style.boxShadow = `0 0 ${Math.round(cardKick*32)}px rgba(31,157,108,${(cardKick*.28).toFixed(3)})`;
+    artifactLines.forEach((el,i)=>{
+      const lp = smooth((t - (10890 + i*105)) / 300);
+      el.style.transform = `scaleX(${lp.toFixed(3)})`;
+    });
+
+    const up = smooth((t - 10760) / 340);
+    document.documentElement.style.setProperty('--underline', up.toFixed(3));
+
+    resultRows.forEach((el,i)=>{
+      const s = 15300 + i*290;
+      const p = smooth((t - s) / 400);
+      el.style.opacity = p.toFixed(3);
+      el.style.transform = `translateY(${(14 - 14*p).toFixed(2)}px)`;
+    });
+
+    const ep = smooth((t - 16480) / 340);
+    endline.style.opacity = ep.toFixed(3);
+    endline.style.transform = `translateY(${(10 - 10*ep).toFixed(2)}px)`;
+
+    const pageLogoP = smooth((t - 18600) / 420);
+    pageLogo.style.opacity = pageLogoP.toFixed(3);
+    pageLogo.style.transform = `translateY(${(12 - 12*pageLogoP).toFixed(2)}px) scale(${(.96 + pageLogoP*.04).toFixed(3)})`;
+
+    nextTag.style.opacity = 0;
+    nextTag.textContent = '';
+
+    bar.style.width = ((t/T)*100).toFixed(2)+'%';
+    timeEl.textContent = (t/1000).toFixed(2)+'s';
+  }
+
+  const bar = document.querySelector('#bar');
+  const timeEl = document.querySelector('#time');
+  const playBtn = document.querySelector('#play');
+  const replayBtn = document.querySelector('#replay');
+  let start = performance.now();
+  let paused = false;
+  let pausedAt = 0;
+
+  if(freezeAt !== null){
+    document.body.classList.add('frozen','clean');
+    render(freezeAt);
+  }
+
+  playBtn.onclick = () => {
+    if(freezeAt !== null) return;
+    if(paused){
+      start = performance.now() - pausedAt;
+      paused = false;
+      playBtn.textContent = 'PAUSE';
+    }else{
+      pausedAt = (performance.now() - start) % T;
+      paused = true;
+      playBtn.textContent = 'PLAY';
+    }
+  };
+  replayBtn.onclick = () => {
+    if(freezeAt !== null) return;
+    start = performance.now();
+    pausedAt = 0;
+    paused = false;
+    playBtn.textContent = 'PAUSE';
+  };
+
+  function frame(now){
+    if(freezeAt === null && !paused){
+      render((now - start) % T);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+</script>
+</body>
+</html>
