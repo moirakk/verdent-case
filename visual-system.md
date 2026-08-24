@@ -36,6 +36,15 @@ Every video needs:
 Sub-series labels, such as `VERDENT SKILLBOOK`, are secondary. They identify the
 container, but the visual system belongs to Verdent.
 
+Logo source:
+
+```text
+assets/verdent-logo-ink.ai
+```
+
+Use this as the source reference when creating flattened SVG or PNG logo assets
+for HTML videos.
+
 ## Format
 
 ```text

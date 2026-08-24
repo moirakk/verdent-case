@@ -18,11 +18,10 @@ unclear input -> Verdent system/skill -> usable output
 ## What Stays Here
 
 ```text
-episodes/   current editable HTML episode files
-versions/   saved HTML snapshots for each episode
 visual-system.md
             shared Verdent video visual rules
-skillbook/  Skillbook sub-series rules and episode notes
+episodes/   current editable HTML video files
+versions/   saved HTML snapshots for each episode
 assets/     shared Verdent visual assets
 scripts/    helper scripts for saving episode versions
 ```
@@ -51,6 +50,20 @@ episodes/ep-001-plan-mode.html?t=18
 - The viewer should understand the transformation, not just the format.
 - Each episode should end with a clear output artifact.
 
+## Skillbook EP001
+
+```text
+PLAN MODE
+Messy Ask -> Working Plan
+```
+
+Current decision:
+
+- Skillbook is only the sub-series name.
+- EP001 should prove what Plan Mode does.
+- The example is still being selected before the HTML is rebuilt.
+- Avoid PRD, meta explanations, and long concept slides.
+
 ## Save A Version
 
 ```text
@@ -66,6 +79,4 @@ versions/ep-001-plan-mode/
 ## Key Files
 
 - [Current episode](/private/tmp/verdent-case-work/episodes/ep-001-plan-mode.html)
-- [Episodes guide](/private/tmp/verdent-case-work/episodes/README.md)
 - [Shared visual system](/private/tmp/verdent-case-work/visual-system.md)
-- [Skillbook video system](/private/tmp/verdent-case-work/skillbook/video-system.md)
