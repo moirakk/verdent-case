@@ -75,5 +75,7 @@ series/skillbook/versions/ep-001-plan-mode/
 
 ## Key Files
 
+- [Visual system folder](/private/tmp/verdent-case-work/system/README.md)
 - [Shared visual system](/private/tmp/verdent-case-work/system/visual-system.md)
+- [Brand lockup reference](/private/tmp/verdent-case-work/system/brand-lockup.html)
 - [Skillbook EP001](/private/tmp/verdent-case-work/series/skillbook/episodes/ep-001-plan-mode.html)
