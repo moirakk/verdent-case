@@ -1,4 +1,10 @@
-# Verdent Skillbook Visual System
+# Verdent Skillbook Visual Notes
+
+Skillbook uses the shared [Verdent Motion System](../visual-system.md).
+
+This file only records Skillbook-specific notes from EP001. Do not treat
+Skillbook as the parent visual identity. It is one sub-series inside the broader
+Verdent video system.
 
 ## Direction
 

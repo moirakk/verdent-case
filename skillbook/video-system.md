@@ -1,8 +1,9 @@
-# Verdent Skillbook Video System
+# Verdent Skillbook Sub-Series
 
-This is the long-term video system for Verdent Skillbook episodes.
+This is the sub-series rulebook for Verdent Skillbook.
 
-Skillbook is only the series name. The main character of each episode is one
+Use the shared [Verdent Motion System](../visual-system.md) for the visual
+language. Skillbook only defines the content pattern: each episode records one
 Verdent skill and the useful output it creates.
 
 ## Core Format
@@ -34,24 +35,22 @@ Default timing:
 Shorter platform cuts can remove the last 2-3 seconds, but the full HTML should
 keep the 28s master runtime.
 
-## Visual Identity
+## Skillbook Identity
 
-The style is:
+Skillbook should feel like:
 
-- editorial green letterbox
-- product-launch reel
-- case file, but designed like a magazine spread
-- product workflow proof
-- confident type-led short video
+- a record of one skill in action
+- a short transformation proof
+- practical enough that a builder understands the value immediately
+- part of Verdent's broader video system
 
 It should not feel like:
 
-- a marketing landing page
-- a documentation page
-- a normal slide deck
-- a busy dashboard
-- terminal / CRT / scanline / mission-control HUD
-- neon cyberpunk
+- a Skillbook introduction
+- a feature dictionary
+- a PRD
+- a normal tutorial
+- a generic product demo
 
 ## Brand Signals
 
@@ -72,48 +71,7 @@ Logo treatment:
 - never tiny enough to be missed
 - appears in the bottom bar and can appear in the final section
 
-## Palette
-
-Use this palette consistently.
-
-```css
---sage: #d9e6dc;
---moss: #e6ecd9;
---paper: #eef5ee;
---deep-green: #0f2a1e;
---brand-green: #1f9d6c;
---coral: #d9663f;
-```
-
-Rules:
-
-- Stay in the green family across scenes.
-- Use lightness and darkness for contrast instead of switching hue.
-- Coral is a single small accent detail, not a second palette.
-- Artifact reveal is the one dark scene.
-
-## Typography
-
-Use editorial typography for headlines:
-
-```css
-"Fraunces", Georgia, serif
-```
-
-Use clean sans-serif and mono for support text:
-
-```css
-Inter, "Helvetica Neue", Arial, sans-serif
-"IBM Plex Mono", "SFMono-Regular", Consolas, Menlo, monospace
-```
-
-Text rules:
-
-- Use short phrases only.
-- No dense paragraphs on screen.
-- One dominant phrase per scene.
-- Headlines use normal casing; uppercase is reserved for eyebrows, tags, and mono labels.
-- Keep mobile readability as the first constraint.
+Use the shared color, type, logo, and motion rules in `visual-system.md`.
 
 ## Screen Layout
 

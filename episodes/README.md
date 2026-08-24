@@ -1,6 +1,6 @@
 # Episodes
 
-`episodes/` holds the current editable HTML files for Verdent Skillbook videos.
+`episodes/` holds the current editable HTML files for Verdent videos.
 
 Each file should be standalone and ready to screen-record in portrait format.
 
@@ -12,12 +12,12 @@ ep-003-ai2ui.html
 
 ## Episode Principle
 
-Skillbook is only the container.
+Each sub-series is only a container. Skillbook is the first one.
 
-The episode must show what one Verdent skill does:
+The episode must show a clear Verdent transformation:
 
 ```text
-messy input -> skill runs -> usable output
+unclear input -> Verdent system/skill -> usable output
 ```
 
 Avoid abstract explanations. Show a real transformation.
