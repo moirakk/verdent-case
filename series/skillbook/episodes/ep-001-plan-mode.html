@@ -24,7 +24,7 @@
   --mono:"IBM Plex Mono","SFMono-Regular",Consolas,Menlo,monospace;
   --ease:cubic-bezier(.16,1,.3,1);
   --pop:cubic-bezier(.34,1.56,.64,1);
-  --T:28000;
+  --T:24000;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#000}
@@ -267,7 +267,7 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
   </div>
 
 <script>
-  const T = 28000;
+  const T = 24000;
   const params = new URLSearchParams(location.search);
   const freezeAt = params.has('t') ? Math.max(0, Math.min(T - 1, Number(params.get('t')) * 1000)) : null;
 
@@ -285,27 +285,26 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
   // 状态文案随着字段逐个生成而更新,让Plan Mode的"处理过程"具体可见,
   // 而不是一段模糊的loading。每条状态对应一个字段生成完成的时间点。
   const statusSteps = [
-    [9800,  'plan.doc — parsing brief'],
-    [10500, 'plan.doc — extracting goal'],
-    [12000, 'plan.doc — mapping angle'],
-    [13250, 'plan.doc — listing assets'],
-    [14250, 'plan.doc — sequencing checklist'],
-    [15050, 'plan.doc — plan ready']
+    [6800,  'plan.doc — parsing brief'],
+    [7394,  'plan.doc — extracting goal'],
+    [8667,  'plan.doc — mapping angle'],
+    [9727,  'plan.doc — listing assets'],
+    [10576, 'plan.doc — sequencing checklist'],
+    [11255, 'plan.doc — plan ready']
   ];
 
-  // 场景边界(ms)。文档场景从原来匀速8.4s压缩到6.6s并加速展开字段,
-  // 腾出的时间给artifact揭晓重音(更长的回弹)和结尾更从容的收尾。
+  // 场景边界(ms)。整体从28s压缩到24s,用于X/TikTok/IG短视频投放,
+  // 处理场景进一步加速展开字段,腾出更多比例给artifact揭晓重音。
   const ranges = [
-    [0, 4600],      // 0 hook
-    [4600, 9800],   // 1 raw input
-    [9800, 16400],  // 2 plan doc mockup(加速节奏)
-    [16400, 21600], // 3 artifact reveal(最大重音)
-    [21600, 28000]  // 4 before/after/next
+    [0, 3200],      // 0 hook
+    [3200, 6800],   // 1 raw input
+    [6800, 12400],  // 2 plan doc mockup(加速节奏)
+    [12400, 17000], // 3 artifact reveal(最大重音)
+    [17000, 24000]  // 4 before/after/next
   ];
 
-  // 文档字段的出现间隔逐渐变短(1500→1250→1000→800ms),
-  // 制造"越来越快"的加速感,替代原来死板的匀速间隔。
-  const fieldStarts = [10500, 12000, 13250, 14250, 15050];
+  // 文档字段的出现间隔逐渐变短,制造"越来越快"的加速感。
+  const fieldStarts = [7394, 8667, 9727, 10576, 11255];
 
   const clamp = (v,a=0,b=1)=>v<a?a:v>b?b:v;
   const smooth = v => { v=clamp(v); return v*v*(3-2*v); };
@@ -327,7 +326,7 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     fade.style.opacity = fo.toFixed(3);
 
     // artifact场景开场那一下真正的"啪"——揭晓瞬间的高光闪
-    flash.style.opacity = (env(t,16350,16400,16480,16750) * .85).toFixed(3);
+    flash.style.opacity = (env(t,12350,12400,12480,12750) * .85).toFixed(3);
 
     fieldRows.forEach((el,i)=>{
       const s = fieldStarts[i];
@@ -343,10 +342,10 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     let statusText = statusSteps[0][1];
     for(const [st, label] of statusSteps){ if(t >= st) statusText = label; }
     toolbarStatus.textContent = statusText;
-    toolbar.classList.toggle('done', t >= 15050);
+    toolbar.classList.toggle('done', t >= 11255);
 
     chips.forEach((el,i)=>{
-      const s = 17300 + i*130;
+      const s = 13196 + i*115;
       const p = smooth((t - s) / 300);
       const pop = backOut((t - s) / 300);
       el.style.opacity = p.toFixed(3);
@@ -354,23 +353,23 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     });
 
     // artifact标题"Plan."下方的强调下划线,揭晓后随即扫入
-    const up = smooth((t - 17000) / 480);
+    const up = smooth((t - 12931) / 480);
     document.documentElement.style.setProperty('--underline', up.toFixed(3));
 
     resultRows.forEach((el,i)=>{
-      const s = 21900 + i*360;
+      const s = 17328 + i*394;
       const p = smooth((t - s) / 400);
       el.style.opacity = p.toFixed(3);
       el.style.transform = `translateY(${(14 - 14*p).toFixed(2)}px)`;
     });
 
-    const ep = smooth((t - 23200) / 420);
+    const ep = smooth((t - 18750) / 420);
     endline.style.opacity = ep.toFixed(3);
     endline.style.transform = `translateY(${(10 - 10*ep).toFixed(2)}px)`;
 
-    const ntp = smooth((t - 24800) / 420);
+    const ntp = smooth((t - 20500) / 420);
     nextTag.style.opacity = (ntp * .82).toFixed(3);
-    nextTag.textContent = t > 24800 ? 'NEXT: DESIGN → VISUAL SYSTEM' : '';
+    nextTag.textContent = t > 20500 ? 'NEXT: DESIGN' : '';
 
     bar.style.width = ((t/T)*100).toFixed(2)+'%';
     timeEl.textContent = (t/1000).toFixed(2)+'s';
