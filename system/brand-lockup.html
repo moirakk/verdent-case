@@ -1,146 +1,285 @@
-<!--
-  VERDENT BRAND LOCKUP — current standard reference
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verdent Brand Lockup Reference</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --black: #000000;
+        --sage: #dce8de;
+        --sage-shadow: #c5d0c7;
+        --ink: #07170f;
+        --muted: #637169;
+        --line: rgba(7, 23, 15, 0.13);
+        --brand: #16c58f;
+        --brand-dark: #0c8f68;
+        --mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --sans: "Inter", Arial, sans-serif;
+        --serif: "Fraunces", Georgia, serif;
+      }
 
-  This file is a reference snippet, not a standalone episode.
-  Use it to keep brand treatment consistent across Verdent video series.
--->
+      * {
+        box-sizing: border-box;
+      }
 
-<!-- LOCKED — logo source assets
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        margin: 0;
+        background: var(--black);
+      }
 
-Source vector:
-  assets/verdent-logo-ink.ai
+      body {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
 
-HTML-ready mask asset:
-  assets/verdent-logo-ink.svg
+      .stage {
+        position: relative;
+        width: min(100vw, 56.25vh);
+        height: min(100vh, 177.777vw);
+        aspect-ratio: 9 / 16;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 40%, rgba(22, 197, 143, 0.13), transparent 44%),
+          linear-gradient(180deg, #020806 0%, #000000 24%, #000000 78%, #020806 100%);
+        color: #eef6f1;
+        font-family: var(--sans);
+      }
 
-Path note:
-  Use a relative path from the episode file to the asset. For current Skillbook
-  episodes, that path is "../../../assets/verdent-logo-ink.svg".
--->
+      .stage::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 8;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.05) 0,
+          rgba(255, 255, 255, 0.05) 1px,
+          rgba(0, 0, 0, 0) 3px,
+          rgba(0, 0, 0, 0) 7px
+        );
+        mix-blend-mode: soft-light;
+        opacity: 0.34;
+      }
 
-<!-- LOCKED — ink logo mask CSS -->
-<style id="verdent-ink-logo-css">
-.ink-logo{
-  display:block;
-  background:var(--brand);
-  -webkit-mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
-  mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
-  filter:drop-shadow(0 0 10px rgba(31,157,108,.5));
-}
-</style>
+      .stage::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 7;
+        pointer-events: none;
+        background:
+          linear-gradient(115deg, transparent 0 34%, rgba(22, 197, 143, 0.12) 42%, transparent 54%),
+          radial-gradient(circle at center, transparent 52%, rgba(0, 0, 0, 0.55) 100%);
+      }
 
-<!-- LOCKED — bottom series brandmark pattern -->
-<style id="verdent-series-brandmark-css">
-.brandmark{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  opacity:.82;
-  transform-origin:left center;
-  will-change:transform;
-}
-.brandmark .ink-logo{width:72px;height:26px}
-.brandmark span{
-  font:900 11px var(--sans);
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-</style>
+      .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 3;
+        display: flex;
+        padding-inline: 9%;
+      }
 
-<!-- PER-SERIES — bottom brandmark HTML -->
-<!--
-<div class="brandmark">
-  <i class="ink-logo" aria-hidden="true"></i>
-  <span>Skillbook</span>
-</div>
--->
+      .bar.top {
+        top: 0;
+        height: 19%;
+        align-items: flex-end;
+        padding-bottom: 22px;
+      }
 
-<!-- LOCKED — final result page logo pattern -->
-<style id="verdent-final-page-logo-css">
-.page-logo{
-  margin:28px auto 0;
-  display:block;
-  width:180px;
-  height:64px;
-  background:var(--brand);
-  -webkit-mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
-  mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
-  opacity:0;
-  transform:translateY(12px) scale(.96);
-  filter:drop-shadow(0 0 14px rgba(31,157,108,.34));
-}
-</style>
+      .bar.bottom {
+        bottom: 0;
+        height: 19%;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding-top: 22px;
+      }
 
-<!-- PER-EPISODE — final result page HTML -->
-<!--
-<i class="page-logo" id="pageLogo" aria-label="Verdent"></i>
--->
+      .episode {
+        color: rgba(238, 246, 241, 0.62);
+        font: 700 15px / 1 var(--mono);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
 
-<!-- LOCKED — final result page logo animation -->
-<script id="verdent-final-page-logo-js">
-/*
-const pageLogo = document.querySelector('#pageLogo');
+      .brandmark {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
 
-const pageLogoP = smooth((t - 18600) / 420);
-const pageLogoClear = smooth((t - 22950) / 360);
-pageLogo.style.opacity = (pageLogoP * (1 - pageLogoClear)).toFixed(3);
-pageLogo.style.transform =
-  `translateY(${(12 - 12*pageLogoP - pageLogoClear*8).toFixed(2)}px) scale(${(.96 + pageLogoP*.04).toFixed(3)})`;
-*/
-</script>
+      .ink-logo {
+        display: block;
+        flex: 0 0 auto;
+        background: var(--brand);
+        -webkit-mask: url("../assets/verdent-logo-ink.svg") center / contain no-repeat;
+        mask: url("../assets/verdent-logo-ink.svg") center / contain no-repeat;
+        filter: drop-shadow(0 0 10px rgba(22, 197, 143, 0.36));
+      }
 
-<!-- LOCKED — scan sweep transition pattern -->
-<style id="verdent-transition-sweep-css">
-.transition-sweep{
-  position:absolute;
-  inset:19% 0;
-  z-index:44;
-  pointer-events:none;
-  opacity:0;
-  background:
-    linear-gradient(90deg,transparent 0%,rgba(31,157,108,.08) 26%,rgba(234,255,242,.52) 50%,rgba(31,157,108,.08) 74%,transparent 100%),
-    repeating-linear-gradient(180deg,rgba(234,255,242,.16) 0 1px,transparent 1px 5px);
-  transform:translateX(-112%) skewX(-12deg);
-  mix-blend-mode:screen;
-}
-</style>
+      .brandmark .ink-logo {
+        width: 74px;
+        height: 30px;
+      }
 
-<script id="verdent-transition-sweep-js">
-/*
-const transitionSweep = document.querySelector('#transitionSweep');
-const sweepHits = [2200,5000,10200,15000];
-let sweep = 0;
-for(const hit of sweepHits){
-  sweep = Math.max(sweep, env(t, hit-90, hit+20, hit+150, hit+360));
-}
-transitionSweep.style.opacity = (sweep*.78).toFixed(3);
-transitionSweep.style.transform =
-  `translateX(${(-112 + sweep*224).toFixed(1)}%) skewX(-12deg)`;
-*/
-</script>
+      .brandmark span,
+      .series-name {
+        color: rgba(238, 246, 241, 0.76);
+        font: 900 18px / 1 var(--sans);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
 
-<!-- LOCKED — process status pattern -->
-<script id="verdent-process-status-js">
-/*
-const calloutLabel =
-  t < 6900 ? 'Sorting the mess' :
-  t < 8150 ? 'Extracting structure' :
-  'Plan ready';
-processCallout.textContent = calloutLabel;
-*/
-</script>
+      .frame {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 19%;
+        bottom: 19%;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 9%;
+        color: var(--ink);
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.38), transparent 38%),
+          radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.42), transparent 36%),
+          var(--sage);
+        box-shadow:
+          inset 0 0 80px rgba(0, 0, 0, 0.12),
+          0 0 54px rgba(22, 197, 143, 0.16);
+      }
 
-<!-- LOCKED — motion utility functions -->
-<script id="verdent-motion-utils">
-/*
-const clamp = (v,a=0,b=1)=>v<a?a:v>b?b:v;
-const smooth = v => { v=clamp(v); return v*v*(3-2*v); };
-const backOut = x => { x=clamp(x); const c1=1.70158,c3=c1+1; return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2); };
-const env = (t,a,b,c,d)=>{
-  if(t<=a || t>=d) return 0;
-  if(t<b) return smooth((t-a)/(b-a));
-  if(t<=c) return 1;
-  return smooth(1-(t-c)/(d-c));
-};
-*/
-</script>
+      .frame::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        transform: translateX(-120%);
+        animation: sweep 4.8s ease-in-out infinite;
+        opacity: 0.55;
+      }
+
+      .result {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 18px;
+      }
+
+      .result-row {
+        display: grid;
+        grid-template-columns: 86px minmax(0, 1fr);
+        align-items: baseline;
+        gap: 18px;
+        padding-bottom: 17px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .label {
+        color: var(--muted);
+        font: 900 17px / 1 var(--sans);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .value {
+        color: var(--ink);
+        font: 800 clamp(32px, 7vw, 48px) / 0.98 var(--serif);
+        letter-spacing: 0;
+      }
+
+      .endline {
+        margin-top: 10px;
+        color: var(--ink);
+        font: 900 17px / 1.25 var(--mono);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .page-logo {
+        width: 210px;
+        height: 72px;
+        margin: 36px auto 0;
+        background: var(--brand-dark);
+        filter: none;
+      }
+
+      @keyframes sweep {
+        0%,
+        42% {
+          transform: translateX(-120%);
+        }
+        72%,
+        100% {
+          transform: translateX(120%);
+        }
+      }
+
+      @media (max-width: 460px) {
+        .result-row {
+          grid-template-columns: 72px minmax(0, 1fr);
+          gap: 14px;
+        }
+
+        .value {
+          font-size: clamp(30px, 8.6vw, 42px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Direct preview path from this file:
+      ../assets/verdent-logo-ink.svg
+
+      Episode path from series/skillbook/episodes/*.html:
+      ../../../assets/verdent-logo-ink.svg
+    -->
+    <main class="stage" aria-label="Verdent brand lockup reference">
+      <div class="bar top">
+        <div class="episode">EP001 // PLAN MODE</div>
+      </div>
+
+      <section class="frame">
+        <div class="result">
+          <div class="result-row">
+            <div class="label">Before</div>
+            <div class="value">scattered intent</div>
+          </div>
+          <div class="result-row">
+            <div class="label">After</div>
+            <div class="value">executable plan</div>
+          </div>
+          <div class="result-row">
+            <div class="label">Next</div>
+            <div class="value">Design -> Visual System</div>
+          </div>
+          <div class="endline">One skill. One workflow. One artifact.</div>
+          <span class="ink-logo page-logo" aria-label="Verdent logo"></span>
+        </div>
+      </section>
+
+      <div class="bar bottom">
+        <div class="brandmark">
+          <span class="ink-logo" aria-hidden="true"></span>
+          <span>Verdent</span>
+        </div>
+        <div class="series-name">Skillbook</div>
+      </div>
+    </main>
+  </body>
+</html>
