@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Verdent Skillbook // Case 001 // Plan Mode</title>
+  <style>
+    :root{
+      --T: 30s;
+      --black:#020403;
+      --deep:#06120f;
+      --dark:#071512;
+      --panel:#0a1a15;
+      --signal:#49dca4;
+      --strong:#7dffe0;
+      --accent:#39f6ad;
+      --cyan:#1fd6ff;
+      --dim:#1f7c68;
+      --warn:#ffb545;
+      --red:#ff5347;
+      --mono:"IBM Plex Mono","SFMono-Regular",Consolas,Menlo,monospace;
+      --sans:Inter,"Helvetica Neue",Arial,sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+    body{
+      display:grid;
+      place-items:center;
+      color:var(--signal);
+      font-family:var(--mono);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    .stage{
+      position:relative;
+      width:min(100vw,calc(100vh * 9 / 16));
+      height:min(100vh,calc(100vw * 16 / 9));
+      max-width:1080px;
+      max-height:1920px;
+      aspect-ratio:9/16;
+      overflow:hidden;
+      isolation:isolate;
+      background:
+        radial-gradient(90% 44% at 50% 16%,rgba(31,214,255,.085),transparent 62%),
+        radial-gradient(86% 48% at 50% 64%,rgba(57,246,173,.12),transparent 64%),
+        linear-gradient(180deg,#000 0%,var(--deep) 48%,var(--black) 100%);
+    }
+
+    .stage::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:80;
+      pointer-events:none;
+      background:repeating-linear-gradient(0deg,rgba(73,220,164,.08) 0 1px,transparent 1px 4px);
+      mix-blend-mode:screen;
+      opacity:.48;
+    }
+
+    .stage::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:81;
+      pointer-events:none;
+      background:radial-gradient(ellipse at center,transparent 48%,rgba(0,0,0,.42) 78%,rgba(0,0,0,.82) 100%);
+    }
+
+    .grain{
+      position:absolute;
+      inset:-20%;
+      z-index:79;
+      pointer-events:none;
+      opacity:.075;
+      mix-blend-mode:screen;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='130' height='130'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='130' height='130' filter='url(%23n)'/></svg>");
+      animation:grain .42s steps(3,end) infinite;
+    }
+
+    @keyframes grain{
+      0%{transform:translate(0,0)}
+      33%{transform:translate(-22px,14px)}
+      66%{transform:translate(18px,-20px)}
+      100%{transform:translate(0,0)}
+    }
+
+    .flicker{
+      position:absolute;
+      inset:0;
+      z-index:82;
+      pointer-events:none;
+      background:rgba(125,255,224,.04);
+      mix-blend-mode:screen;
+      opacity:0;
+      animation:flicker var(--T) steps(1,end) infinite;
+    }
+
+    @keyframes flicker{
+      0%,3.2%,5.6%,12%,29%,44%,62%,75%,100%{opacity:0}
+      3.4%,5.8%,29.3%,44.2%,62.2%,75.2%{opacity:.15}
+      3.55%,6%,29.5%,44.38%,62.38%,75.38%{opacity:0}
+    }
+
+    .grid{
+      position:absolute;
+      left:-12%;
+      right:-12%;
+      top:38%;
+      bottom:-30%;
+      z-index:1;
+      pointer-events:none;
+      opacity:.065;
+      background:
+        repeating-linear-gradient(90deg,rgba(73,220,164,.9) 0 1px,transparent 1px 58px),
+        repeating-linear-gradient(0deg,rgba(73,220,164,.9) 0 1px,transparent 1px 58px);
+      transform:perspective(520px) rotateX(62deg);
+      transform-origin:center top;
+      animation:gridMove 16s linear infinite;
+    }
+
+    @keyframes gridMove{
+      to{background-position:0 58px,58px 0}
+    }
+
+    .scanbeam{
+      position:absolute;
+      left:0;
+      right:0;
+      top:-10%;
+      z-index:84;
+      height:14%;
+      pointer-events:none;
+      opacity:.18;
+      background:linear-gradient(to bottom,transparent,rgba(125,255,224,.08),rgba(125,255,224,.13),transparent);
+      mix-blend-mode:screen;
+      animation:sweep 8.4s linear infinite;
+    }
+
+    @keyframes sweep{
+      to{top:108%}
+    }
+
+    .cam{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      transform-origin:50% 47%;
+      animation:camera var(--T) linear infinite;
+    }
+
+    @keyframes camera{
+      0%{transform:scale(1) translateY(0)}
+      20%{transform:scale(1.015) translateY(.2%)}
+      48%{transform:scale(1.04) translateY(-.1%)}
+      72%{transform:scale(1.075) translateY(-.4%)}
+      100%{transform:scale(1.11) translateY(-.8%)}
+    }
+
+    .safe{
+      position:absolute;
+      inset:5.8% 6%;
+      border:1px solid rgba(73,220,164,.2);
+      box-shadow:0 0 0 1px rgba(125,255,224,.05),inset 0 0 44px rgba(57,246,173,.035);
+      pointer-events:none;
+    }
+
+    .safe i{
+      position:absolute;
+      background:var(--strong);
+      box-shadow:0 0 14px rgba(125,255,224,.55);
+    }
+
+    .safe .t{top:-1px;left:0;width:22%;height:1px}
+    .safe .r{right:-1px;top:0;width:1px;height:14%}
+    .safe .b{bottom:-1px;right:0;width:26%;height:1px}
+    .safe .l{left:-1px;bottom:0;width:1px;height:17%}
+
+    .topbar{
+      position:absolute;
+      left:8%;
+      right:8%;
+      top:7.2%;
+      z-index:10;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      color:rgba(125,255,224,.72);
+      font-size:11px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+
+    .topbar .tc{
+      color:rgba(73,220,164,.58);
+      min-width:5.4ch;
+      text-align:right;
+    }
+
+    .act{
+      position:absolute;
+      left:8%;
+      right:8%;
+      top:12%;
+      bottom:10%;
+      z-index:8;
+      opacity:0;
+      transform:translateY(18px) scale(.985);
+      will-change:opacity,transform;
+    }
+
+    .act.center{
+      display:grid;
+      place-items:center;
+      text-align:center;
+    }
+
+    .eyebrow{
+      color:rgba(73,220,164,.68);
+      font-size:12px;
+      letter-spacing:.24em;
+      text-transform:uppercase;
+    }
+
+    h1,h2,p{margin:0}
+
+    .hook h1{
+      margin-top:22px;
+      color:#effff7;
+      font-family:var(--sans);
+      font-size:58px;
+      line-height:.94;
+      letter-spacing:0;
+      text-shadow:0 0 14px rgba(57,246,173,.42),0 0 30px rgba(31,214,255,.14);
+    }
+
+    .hook-chip{
+      display:inline-block;
+      margin-top:24px;
+      border:1px solid rgba(125,255,224,.28);
+      background:rgba(7,21,18,.62);
+      padding:10px 13px;
+      color:rgba(125,255,224,.74);
+      font-size:12px;
+      letter-spacing:.18em;
+    }
+
+    .boot{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:18px;
+    }
+
+    .boot-title{
+      border:1px solid rgba(73,220,164,.24);
+      background:rgba(7,21,18,.7);
+      padding:22px;
+      box-shadow:inset 0 0 28px rgba(57,246,173,.045);
+    }
+
+    .boot-title b{
+      display:block;
+      color:#effff7;
+      font:700 27px var(--sans);
+      letter-spacing:0;
+    }
+
+    .boot-title span{
+      display:block;
+      margin-top:10px;
+      color:rgba(125,255,224,.68);
+      font-size:12px;
+      letter-spacing:.16em;
+    }
+
+    .diag{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .diag-card{
+      min-height:76px;
+      border:1px solid rgba(73,220,164,.22);
+      background:rgba(7,21,18,.56);
+      padding:13px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      color:rgba(125,255,224,.7);
+      box-shadow:inset 0 0 18px rgba(57,246,173,.03);
+    }
+
+    .diag-card b{
+      color:#effff7;
+      font-size:12px;
+      letter-spacing:.12em;
+    }
+
+    .diag-card span{
+      color:rgba(73,220,164,.55);
+      font-size:10px;
+      letter-spacing:.12em;
+    }
+
+    .input{
+      display:grid;
+      place-items:center;
+    }
+
+    .input-card{
+      width:100%;
+      border:1px solid rgba(125,255,224,.34);
+      background:linear-gradient(180deg,rgba(7,21,18,.78),rgba(7,21,18,.5));
+      padding:26px 24px;
+      box-shadow:0 0 34px rgba(57,246,173,.1),inset 0 0 28px rgba(57,246,173,.04);
+    }
+
+    .label{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      color:rgba(73,220,164,.72);
+      font-size:12px;
+      letter-spacing:.17em;
+      text-transform:uppercase;
+      margin-bottom:22px;
+    }
+
+    .label span:last-child{
+      color:rgba(255,181,69,.72);
+      text-align:right;
+    }
+
+    .quote{
+      color:#effff7;
+      font:700 32px var(--sans);
+      line-height:1.12;
+      letter-spacing:0;
+      text-shadow:0 0 10px rgba(57,246,173,.24);
+    }
+
+    .input-card p{
+      margin-top:22px;
+      color:rgba(125,255,224,.62);
+      font-size:12px;
+      letter-spacing:.13em;
+      line-height:1.7;
+      text-transform:uppercase;
+    }
+
+    .typing{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:18px;
+    }
+
+    .task-panel{
+      border:1px solid rgba(73,220,164,.24);
+      background:rgba(7,21,18,.68);
+      padding:24px;
+    }
+
+    .task-title{
+      color:rgba(73,220,164,.72);
+      font-size:12px;
+      letter-spacing:.18em;
+      margin-bottom:20px;
+    }
+
+    .type-lines{
+      color:#effff7;
+      font:700 30px/1.22 var(--sans);
+      letter-spacing:0;
+      min-height:115px;
+    }
+
+    .cursor{
+      display:inline-block;
+      width:.55em;
+      height:.9em;
+      margin-left:4px;
+      background:var(--accent);
+      box-shadow:0 0 12px rgba(57,246,173,.75);
+      vertical-align:-.08em;
+      animation:blink .68s steps(2,end) infinite;
+    }
+
+    @keyframes blink{50%{opacity:.12}}
+
+    .execute{
+      display:grid;
+      grid-template-rows:auto 1fr;
+      gap:18px;
+    }
+
+    .exec-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:18px;
+    }
+
+    .exec-head b{
+      color:#effff7;
+      font:700 26px var(--sans);
+      letter-spacing:0;
+    }
+
+    .exec-head span{
+      color:rgba(73,220,164,.58);
+      font-size:11px;
+      letter-spacing:.14em;
+      text-align:right;
+    }
+
+    .system-map{
+      position:relative;
+      min-height:0;
+      border:1px solid rgba(73,220,164,.14);
+      background:rgba(2,4,3,.18);
+      overflow:hidden;
+    }
+
+    .wire{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      overflow:visible;
+    }
+
+    .wire path{
+      fill:none;
+      stroke:rgba(73,220,164,.22);
+      stroke-width:1.2;
+    }
+
+    .wire .pulse{
+      stroke:var(--strong);
+      stroke-width:2.2;
+      stroke-dasharray:28 240;
+      opacity:0;
+      filter:drop-shadow(0 0 8px rgba(125,255,224,.65));
+      animation:flow 1.4s linear infinite;
+    }
+
+    @keyframes flow{to{stroke-dashoffset:-268}}
+
+    .skill-core{
+      position:absolute;
+      left:50%;
+      top:46%;
+      transform:translate(-50%,-50%);
+      width:58%;
+      min-height:132px;
+      border:1px solid rgba(125,255,224,.42);
+      background:rgba(7,21,18,.86);
+      display:grid;
+      place-items:center;
+      text-align:center;
+      box-shadow:0 0 34px rgba(57,246,173,.15),inset 0 0 28px rgba(57,246,173,.06);
+    }
+
+    .skill-core b{
+      color:#effff7;
+      font:700 28px var(--sans);
+      letter-spacing:0;
+    }
+
+    .skill-core span{
+      display:block;
+      margin-top:10px;
+      color:rgba(73,220,164,.62);
+      font-size:11px;
+      letter-spacing:.17em;
+    }
+
+    .node{
+      position:absolute;
+      width:38%;
+      min-height:58px;
+      border:1px solid rgba(73,220,164,.18);
+      background:rgba(7,21,18,.64);
+      padding:11px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      opacity:.34;
+      transition:opacity .18s linear,border-color .18s linear,box-shadow .18s linear;
+    }
+
+    .node b{
+      color:#effff7;
+      font-size:12px;
+      letter-spacing:.12em;
+    }
+
+    .node span{
+      color:rgba(73,220,164,.48);
+      font-size:10px;
+      letter-spacing:.12em;
+    }
+
+    .node.on{
+      opacity:1;
+      border-color:rgba(125,255,224,.52);
+      box-shadow:0 0 20px rgba(57,246,173,.18),inset 0 0 18px rgba(57,246,173,.06);
+    }
+
+    .n1{left:5%;top:8%}
+    .n2{right:5%;top:18%}
+    .n3{left:5%;bottom:22%}
+    .n4{right:5%;bottom:12%}
+    .n5{left:31%;bottom:2%}
+
+    .artifact{
+      display:grid;
+      place-items:center;
+      text-align:center;
+    }
+
+    .unlock{
+      width:100%;
+      border:1px solid rgba(125,255,224,.42);
+      background:rgba(7,21,18,.82);
+      padding:26px 22px;
+      box-shadow:0 0 42px rgba(57,246,173,.18),inset 0 0 30px rgba(31,214,255,.04);
+    }
+
+    .unlock small{
+      display:block;
+      color:rgba(73,220,164,.7);
+      font-size:12px;
+      letter-spacing:.2em;
+      margin-bottom:13px;
+    }
+
+    .unlock h2{
+      color:#effff7;
+      font:800 38px/.98 var(--sans);
+      letter-spacing:0;
+      text-shadow:0 0 16px rgba(57,246,173,.42);
+    }
+
+    .chips{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:24px;
+    }
+
+    .outchip{
+      border:1px solid rgba(73,220,164,.22);
+      background:rgba(2,4,3,.32);
+      min-height:56px;
+      display:grid;
+      place-items:center;
+      padding:10px;
+      color:rgba(125,255,224,.78);
+      font-size:11px;
+      letter-spacing:.11em;
+      text-transform:uppercase;
+    }
+
+    .final{
+      display:grid;
+      grid-template-rows:1fr auto;
+      gap:22px;
+    }
+
+    .ba{
+      display:grid;
+      gap:14px;
+      align-content:center;
+    }
+
+    .ba-card{
+      border:1px solid rgba(73,220,164,.22);
+      background:rgba(7,21,18,.66);
+      padding:19px;
+    }
+
+    .ba-card small{
+      display:block;
+      color:rgba(73,220,164,.62);
+      font-size:12px;
+      letter-spacing:.18em;
+      margin-bottom:10px;
+    }
+
+    .ba-card b{
+      color:#effff7;
+      font:700 31px var(--sans);
+      letter-spacing:0;
+    }
+
+    .ba-card.next{
+      border-color:rgba(125,255,224,.38);
+      box-shadow:0 0 24px rgba(57,246,173,.12);
+    }
+
+    .endline{
+      color:rgba(125,255,224,.82);
+      text-align:center;
+      font-size:13px;
+      line-height:1.6;
+      letter-spacing:.16em;
+      padding:12px 0 4px;
+      border-top:1px solid rgba(73,220,164,.16);
+    }
+
+    .status{
+      position:absolute;
+      left:8%;
+      right:8%;
+      bottom:5.8%;
+      z-index:10;
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      gap:14px;
+      border-top:1px solid rgba(73,220,164,.16);
+      padding-top:12px;
+      color:rgba(73,220,164,.56);
+      font-size:10px;
+      letter-spacing:.11em;
+      text-transform:uppercase;
+    }
+
+    .status b{
+      color:rgba(125,255,224,.82);
+      font-weight:500;
+      white-space:nowrap;
+    }
+
+    .fade{
+      position:absolute;
+      inset:0;
+      z-index:90;
+      background:#000;
+      pointer-events:none;
+    }
+
+    .hud{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      z-index:100;
+      transform:translateX(-50%);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(2,4,3,.74);
+      border:1px solid rgba(73,220,164,.22);
+      color:rgba(125,255,224,.82);
+      font:500 11px var(--mono);
+      letter-spacing:.08em;
+      transition:opacity .35s ease;
+    }
+
+    .hud.hide{opacity:0;pointer-events:none}
+
+    .hud button{
+      all:unset;
+      cursor:pointer;
+      border:1px solid rgba(73,220,164,.24);
+      border-radius:999px;
+      padding:5px 9px;
+    }
+
+    .bar{
+      width:128px;
+      height:3px;
+      background:rgba(73,220,164,.14);
+      overflow:hidden;
+      border-radius:2px;
+    }
+
+    .bar i{
+      display:block;
+      width:0;
+      height:100%;
+      background:var(--accent);
+      box-shadow:0 0 8px rgba(57,246,173,.7);
+    }
+
+    body.clean .hud{display:none}
+    body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:paused!important}
+
+    @media (max-width:420px){
+      .hook h1{font-size:48px}
+      .quote{font-size:28px}
+      .type-lines{font-size:26px}
+      .skill-core b{font-size:24px}
+      .unlock h2{font-size:32px}
+      .ba-card b{font-size:27px}
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" aria-label="Verdent Skillbook Case 001 Plan Mode">
+    <div class="grain"></div>
+    <div class="grid"></div>
+    <div class="scanbeam"></div>
+    <div class="flicker"></div>
+
+    <div class="cam">
+      <div class="safe" aria-hidden="true"><i class="t"></i><i class="r"></i><i class="b"></i><i class="l"></i></div>
+
+      <div class="topbar">
+        <span>VERDENT SKILLBOOK // CASE 001</span>
+        <span class="tc" id="clock">00.00</span>
+      </div>
+
+      <section class="act center hook" id="actHook">
+        <div>
+          <div class="eyebrow">CRT CASE FILE</div>
+          <h1>NOT A DEMO.<br>A CASE FILE.</h1>
+          <div class="hook-chip">MESSY ASK -> WORKING PLAN</div>
+        </div>
+      </section>
+
+      <section class="act boot" id="actBoot">
+        <div class="boot-title">
+          <b>VERDENT SKILLBOOK v0.1</b>
+          <span>CASE RUNNER ONLINE // NODE 01: PLAN MODE</span>
+        </div>
+        <div class="diag">
+          <div class="diag-card" id="diag1"><b>INPUT RECEIVED</b><span>WAITING</span></div>
+          <div class="diag-card" id="diag2"><b>SKILL LOCKED</b><span>PLAN MODE</span></div>
+          <div class="diag-card" id="diag3"><b>OUTPUT PENDING</b><span>ARTIFACT</span></div>
+          <div class="diag-card" id="diag4"><b>PROOF REQUIRED</b><span>WORKFLOW</span></div>
+        </div>
+      </section>
+
+      <section class="act input" id="actInput">
+        <div class="input-card">
+          <div class="label"><span>INPUT</span><span>RAW INTENT</span></div>
+          <div class="quote">"we need a better way<br>to show Verdent skills"</div>
+          <p>raw intent / no structure / no next step</p>
+        </div>
+      </section>
+
+      <section class="act typing" id="actTyping">
+        <div class="task-panel">
+          <div class="task-title">TASK:</div>
+          <div class="type-lines"><span id="typed"></span><span class="cursor"></span></div>
+        </div>
+      </section>
+
+      <section class="act execute" id="actExecute">
+        <div class="exec-head">
+          <b>Plan Mode execution</b>
+          <span>SKILL CORE<br>ACTIVE</span>
+        </div>
+
+        <div class="system-map">
+          <svg class="wire" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M8 42 C26 42 27 46 50 46"></path>
+            <path d="M50 46 C60 15 70 14 92 18"></path>
+            <path d="M50 46 C66 32 72 31 92 34"></path>
+            <path d="M50 46 C28 59 26 70 8 70"></path>
+            <path d="M50 46 C66 58 74 72 92 76"></path>
+            <path d="M50 46 C50 68 50 82 50 94"></path>
+            <path class="pulse" id="pulse1" d="M8 42 C26 42 27 46 50 46"></path>
+            <path class="pulse" id="pulse2" d="M50 46 C60 15 70 14 92 18"></path>
+            <path class="pulse" id="pulse3" d="M50 46 C66 32 72 31 92 34"></path>
+            <path class="pulse" id="pulse4" d="M50 46 C28 59 26 70 8 70"></path>
+            <path class="pulse" id="pulse5" d="M50 46 C66 58 74 72 92 76"></path>
+            <path class="pulse" id="pulse6" d="M50 46 C50 68 50 82 50 94"></path>
+          </svg>
+
+          <div class="skill-core">
+            <div>
+              <b>PLAN MODE<br>RUNNING</b>
+              <span>MESSY ASK -> WORKING PLAN</span>
+            </div>
+          </div>
+
+          <div class="node n1" id="node1"><b>NARRATIVE</b><span>01</span></div>
+          <div class="node n2" id="node2"><b>EPISODES</b><span>02</span></div>
+          <div class="node n3" id="node3"><b>ARTIFACTS</b><span>03</span></div>
+          <div class="node n4" id="node4"><b>ACCEPTANCE</b><span>04</span></div>
+          <div class="node n5" id="node5"><b>NEXT STEP</b><span>05</span></div>
+        </div>
+      </section>
+
+      <section class="act artifact" id="actArtifact">
+        <div class="unlock">
+          <small>ARTIFACT UNLOCKED</small>
+          <h2>PRODUCTION<br>PLAN</h2>
+          <div class="chips">
+            <div class="outchip">3 Episodes</div>
+            <div class="outchip">Case Structure</div>
+            <div class="outchip">Recording Checklist</div>
+            <div class="outchip">Acceptance Criteria</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="act final" id="actFinal">
+        <div class="ba">
+          <div class="ba-card">
+            <small>BEFORE</small>
+            <b>scattered idea</b>
+          </div>
+          <div class="ba-card">
+            <small>AFTER</small>
+            <b>working plan</b>
+          </div>
+          <div class="ba-card next">
+            <small>NEXT</small>
+            <b>DESIGN -> VISUAL SYSTEM</b>
+          </div>
+        </div>
+        <div class="endline">ONE SKILL. ONE WORKFLOW. ONE ARTIFACT.</div>
+      </section>
+
+      <div class="status">
+        <span id="statusText">case file initializing</span>
+        <b id="statusMode">BOOT</b>
+      </div>
+    </div>
+
+    <div class="fade" id="fade"></div>
+  </main>
+
+  <div class="hud" id="hud">
+    <button id="play">PAUSE</button>
+    <button id="replay">REPLAY</button>
+    <div class="bar"><i id="bar"></i></div>
+    <span id="time">0.00s</span>
+  </div>
+
+  <script>
+    const T = 30000;
+    const $ = s => document.querySelector(s);
+    const clamp = (v,a=0,b=1)=>v<a?a:v>b?b:v;
+    const smooth = t => { t=clamp(t); return t*t*(3-2*t); };
+    function env(t,a,b,c,d){
+      if(t<=a || t>=d) return 0;
+      if(t<b) return smooth((t-a)/(b-a));
+      if(t<=c) return 1;
+      return smooth(1-(t-c)/(d-c));
+    }
+
+    const acts = [
+      ['actHook', 250, 680, 2700, 3150],
+      ['actBoot', 3000, 3380, 5650, 6100],
+      ['actInput', 6000, 6420, 9600, 10100],
+      ['actTyping', 10000, 10360, 13650, 14150],
+      ['actExecute', 14000, 14580, 21650, 22250],
+      ['actArtifact', 22000, 22480, 25700, 26250],
+      ['actFinal', 26000, 26520, 29900, 29990],
+    ].map(([id,a,b,c,d])=>({el:$('#'+id),a,b,c,d}));
+
+    const typeText = 'turn this messy idea into\na production plan';
+    const typed = $('#typed');
+    const nodes = [1,2,3,4,5].map(n=>$('#node'+n));
+    const pulses = [1,2,3,4,5,6].map(n=>$('#pulse'+n));
+    const diags = [1,2,3,4].map(n=>$('#diag'+n));
+    const fade = $('#fade');
+    const clock = $('#clock');
+    const statusText = $('#statusText');
+    const statusMode = $('#statusMode');
+    const bar = $('#bar');
+    const time = $('#time');
+
+    function render(t){
+      acts.forEach(({el,a,b,c,d})=>{
+        const o = env(t,a,b,c,d);
+        el.style.opacity = o.toFixed(3);
+        el.style.transform = `translateY(${((1-o)*18).toFixed(2)}px) scale(${(0.985+0.015*o).toFixed(4)})`;
+      });
+
+      const fo = t < 260 ? 1 : t < 720 ? 1 - smooth((t-260)/460) : t > 29600 ? smooth((t-29600)/360) : 0;
+      fade.style.opacity = fo.toFixed(3);
+
+      const typeP = clamp((t-10300)/2700);
+      const clean = typeText.slice(0,Math.floor(typeText.length*typeP));
+      typed.innerHTML = clean.replace(/\n/g,'<br>');
+
+      diags.forEach((card,i)=>{
+        const on = t > 3450 + i*360;
+        card.style.borderColor = on ? 'rgba(125,255,224,.5)' : 'rgba(73,220,164,.22)';
+        card.style.boxShadow = on ? '0 0 18px rgba(57,246,173,.14), inset 0 0 18px rgba(57,246,173,.05)' : 'inset 0 0 18px rgba(57,246,173,.03)';
+        card.querySelector('span').textContent = on ? 'CONFIRMED' : 'WAITING';
+      });
+
+      nodes.forEach((node,i)=>{
+        node.classList.toggle('on', t > 15100 + i*1150);
+      });
+      pulses.forEach((pulse,i)=>{
+        pulse.style.opacity = t > 14600 + i*820 && t < 21900 ? '1' : '0';
+      });
+
+      if(t < 3000){
+        statusText.textContent = 'powering CRT case file';
+        statusMode.textContent = 'WAKE';
+      } else if(t < 6000){
+        statusText.textContent = 'case runner online // node 01';
+        statusMode.textContent = 'PLAN MODE';
+      } else if(t < 10000){
+        statusText.textContent = 'input received: raw intent';
+        statusMode.textContent = 'MESSY ASK';
+      } else if(t < 14000){
+        statusText.textContent = 'prompt compiling into task';
+        statusMode.textContent = 'TASK';
+      } else if(t < 22000){
+        statusText.textContent = 'workflow nodes lighting sequentially';
+        statusMode.textContent = 'RUNNING';
+      } else if(t < 26000){
+        statusText.textContent = 'artifact unlocked: production plan';
+        statusMode.textContent = 'OUTPUT';
+      } else {
+        statusText.textContent = 'next episode: design visual system';
+        statusMode.textContent = 'NEXT';
+      }
+
+      clock.textContent = (t/1000).toFixed(2).padStart(5,'0');
+      bar.style.width = ((t/T)*100).toFixed(2)+'%';
+      time.textContent = (t/1000).toFixed(2)+'s';
+    }
+
+    const qs = new URLSearchParams(location.search);
+    if(qs.has('clean')) document.body.classList.add('clean');
+    const freezeAt = qs.has('t') ? parseFloat(qs.get('t'))*1000 : null;
+    let start = performance.now();
+    let paused = false;
+    let pausedAt = 0;
+
+    if(freezeAt !== null){
+      document.body.classList.add('frozen');
+      if(!qs.has('hud')) document.body.classList.add('clean');
+      const frame = Math.max(0,Math.min(T-1,freezeAt));
+      render(frame);
+      requestAnimationFrame(()=>render(frame));
+      setTimeout(()=>render(frame),120);
+    } else {
+      requestAnimationFrame(frame);
+    }
+
+    function frame(now){
+      if(!paused) render((now-start)%T);
+      requestAnimationFrame(frame);
+    }
+
+    $('#play').onclick = ()=>{
+      if(paused){
+        start = performance.now() - pausedAt;
+        paused = false;
+        $('#play').textContent = 'PAUSE';
+      } else {
+        pausedAt = (performance.now()-start)%T;
+        paused = true;
+        $('#play').textContent = 'PLAY';
+      }
+    };
+
+    $('#replay').onclick = ()=>{
+      start = performance.now();
+      pausedAt = 0;
+      paused = false;
+      $('#play').textContent = 'PAUSE';
+    };
+
+    let hideTimer;
+    function poke(){
+      $('#hud').classList.remove('hide');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(()=>$('#hud').classList.add('hide'),2200);
+    }
+    addEventListener('mousemove',poke);
+    addEventListener('keydown',e=>{
+      if(e.code==='Space'){e.preventDefault();$('#play').click();}
+      if(e.key==='r'||e.key==='R') $('#replay').click();
+      if(e.key==='c'||e.key==='C') document.body.classList.toggle('clean');
+    });
+    poke();
+  </script>
+</body>
+</html>
