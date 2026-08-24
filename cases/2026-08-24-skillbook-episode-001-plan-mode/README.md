@@ -21,6 +21,7 @@
 
 ## Recording Version
 
+- Primary episode file: `episodes/ep-001-plan-mode.html`
 - Recording-ready commit:
 - Recording date:
 - Recording file/link:
