@@ -1,0 +1,149 @@
+<!--
+  VERDENT BRAND LOCKUP — 标准参考片段
+  =====================================
+  这个文件不单独播放使用,是"标准件"仓库。
+  新建任何一集 Skillbook episode 时,下面标了 LOCKED 的部分
+  必须逐字节复制,不允许改动、不允许"顺手优化"、不允许AI自由发挥。
+  标了 PER-EPISODE 的部分才是每集需要替换内容的地方。
+
+  验收标准:把新一集的对应代码块和这个文件做逐行diff,
+  LOCKED区域应该是 0 差异。
+-->
+
+<!-- ============================================================
+     LOCKED — 字体引入,三集必须完全一致
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;0,900;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     LOCKED — 色板与字体 token,唯一真源。
+     任何场景样式只能引用这些变量,不允许写新的十六进制色值。
+     ============================================================ -->
+<style id="brand-tokens">
+:root{
+  --sage:#d9e6dc;
+  --sage-ink:#12211a;
+  --cream:#e6ecd9;
+  --cream-ink:#1a2414;
+  --canvas:#eef5ee;
+  --canvas-ink:#152119;
+  --plum:#0f2a1e;
+  --plum-ink:#eafff2;
+  --coral:#d9663f;
+  --brand:#1f9d6c;
+  --serif:"Fraunces",Georgia,serif;
+  --sans:Inter,"Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono","SFMono-Regular",Consolas,Menlo,monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --pop:cubic-bezier(.34,1.56,.64,1);
+  --T:24000; /* PER-EPISODE：总时长(ms)，默认24000，如需不同时长在这里改 */
+}
+</style>
+
+<!-- ============================================================
+     LOCKED — 品牌chrome的CSS。logo尺寸、bar高度、安全边距、
+     accent-dot呼吸动画，三集完全一致。
+     ============================================================ -->
+<style id="brand-chrome-css">
+.bar{position:absolute;left:0;right:0;height:19%;z-index:5;display:flex;padding:0 9%;color:#eef4f0}
+.bar.top{top:0;align-items:flex-end;padding-bottom:16px}
+.bar.bottom{bottom:0;align-items:flex-start;padding-top:16px;justify-content:space-between}
+.case-tag{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;opacity:.68}
+.brandmark{display:flex;align-items:center;gap:8px;opacity:.82;transform-origin:left center;will-change:transform}
+.brandmark svg{width:14px;height:17px}
+.brandmark span{font:700 11px var(--sans);letter-spacing:.1em;text-transform:uppercase}
+.next-tag{font:600 9.5px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;opacity:.5;align-self:flex-start;text-align:right;max-width:120px}
+
+.accent-dot{
+  position:absolute;right:9%;top:19%;z-index:6;width:13px;height:13px;border-radius:50%;
+  background:var(--coral);transform:translate(50%,-50%);
+  box-shadow:0 0 0 4px rgba(0,0,0,.9);
+  animation:dotbreathe 3.4s ease-in-out infinite;
+}
+@keyframes dotbreathe{50%{opacity:.72;transform:translate(50%,-50%) scale(.9)}}
+
+.frame{position:absolute;left:0;right:0;top:19%;bottom:19%;overflow:hidden}
+</style>
+
+<!-- ============================================================
+     LOCKED — 品牌标记 HTML 结构 + logo SVG 路径。
+     只有 case-tag 文字内容(EP编号+集名)和 next-tag 内容(下一集名)
+     是 PER-EPISODE，其余（尤其是 <path d="...">）不可改一个字符。
+     ============================================================ -->
+<!--
+<div class="bar top"><span class="case-tag">EP0XX // 集名</span></div>  ← PER-EPISODE: 只改文字
+<div class="bar bottom">
+  <div class="brandmark">
+    <svg viewBox="0 0 100 120" aria-hidden="true" fill-rule="evenodd">
+      <path fill="var(--brand)" d="
+        M52 6
+        C40 15 24 27 17 45
+        C9 68 14 93 39 113
+        C44 99 39 85 45 71
+        C51 57 65 47 69 30
+        C71 20 62 12 52 6
+        Z
+        M45 36
+        C39 50 43 63 37 79
+        C32 91 25 99 25 99
+        C25 99 40 89 47 74
+        C53 60 52 46 45 36
+        Z
+      "/>
+    </svg>
+    <span>Verdent Skillbook</span>
+  </div>
+  <div class="next-tag" id="nextTag"></div>  ← PER-EPISODE: JS里填下一集名，末集留空
+</div>
+<div class="accent-dot"></div>
+-->
+
+<!-- ============================================================
+     LOCKED — Final Brand Lockup 动画逻辑。
+     结尾前0.6s，brandmark 轻微放大+提亮，形成明确的"落版"节拍。
+     这是 visual-system.md 里"a final brand lockup"要求的具体实现，
+     三集必须用完全相同的曲线和时长，不要各集各改一套数值。
+     ============================================================ -->
+<script id="brand-lockup-js">
+/*
+  在每集的 render(t) 函数里，必须包含这一段（T 替换成该集实际总时长变量）：
+
+  const lockup = smooth((t - (T-700)) / 500);
+  brandmark.style.transform = `scale(${(1 + lockup*0.14).toFixed(3)})`;
+  brandmark.style.opacity = (0.82 + lockup*0.18).toFixed(3);
+
+  依赖：
+  - brandmark = document.querySelector('.brandmark')
+  - smooth(v) = 三次缓动函数，定义见下方 LOCKED 工具函数
+*/
+</script>
+
+<!-- ============================================================
+     LOCKED — 时间与缓动工具函数。三集共用同一套数学，
+     保证"回弹弹入"手感完全一致，不要每集重新写一遍容易出偏差。
+     ============================================================ -->
+<script id="brand-motion-utils">
+/*
+const clamp = (v,a=0,b=1)=>v<a?a:v>b?b:v;
+const smooth = v => { v=clamp(v); return v*v*(3-2*v); };
+const backOut = x => { x=clamp(x); const c1=1.70158,c3=c1+1; return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2); };
+const env = (t,a,b,c,d)=>{
+  if(t<=a || t>=d) return 0;
+  if(t<b) return smooth((t-a)/(b-a));
+  if(t<=c) return 1;
+  return smooth(1-(t-c)/(d-c));
+};
+*/
+</script>
+
+<!-- ============================================================
+     LOCKED — 安全边距与整体舞台结构规则（非代码，是约束说明）：
+     - 画布：9:16，通过 .stage 的 aspect-ratio 强制
+     - 左右安全边距：9%（.scene 的 padding）
+     - 上下各19%高度是品牌chrome（bar top/bottom），中间62%是内容区（.frame）
+     - 所有正文文字必须落在 .frame 区域内，不允许侵入上下19%的bar区域
+     - HUD播放控件（#hud）仅用于预览调试，录屏前必须确认 body 不带
+       .clean 或已用 ?t= 冻结，保证录制画面里不出现HUD
+     ============================================================ -->

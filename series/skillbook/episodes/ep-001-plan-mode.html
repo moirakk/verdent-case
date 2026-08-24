@@ -45,7 +45,7 @@ body{display:grid;place-items:center;font-family:var(--sans);-webkit-font-smooth
 .bar.top{top:0;align-items:flex-end;padding-bottom:16px}
 .bar.bottom{bottom:0;align-items:flex-start;padding-top:16px;justify-content:space-between}
 .case-tag{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;opacity:.68}
-.brandmark{display:flex;align-items:center;gap:8px;opacity:.82}
+.brandmark{display:flex;align-items:center;gap:8px;opacity:.82;transform-origin:left center;will-change:transform}
 .brandmark svg{width:14px;height:17px}
 .brandmark span{font:700 11px var(--sans);letter-spacing:.1em;text-transform:uppercase}
 .next-tag{font:600 9.5px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;opacity:.5;align-self:flex-start;text-align:right;max-width:120px}
@@ -99,6 +99,10 @@ body{display:grid;place-items:center;font-family:var(--sans);-webkit-font-smooth
   background:var(--brand);border-radius:2px;
 }
 .sub{margin-top:16px;font:500 14px/1.5 var(--sans);opacity:.68;max-width:88%}
+
+/* Scene 0: hook line-by-line entrance */
+.hl-line{display:inline-block;opacity:0;transform:translateY(16px)}
+#hookSub{opacity:0;transform:translateY(10px)}
 
 /* Scene 1: raw input */
 .quote-wrap{border-left:2px solid currentColor;padding-left:22px}
@@ -203,8 +207,8 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     <div class="frame">
       <section class="scene on bg-sage" data-scene="0">
         <div class="eyebrow">Case file — Skillbook EP001</div>
-        <h1 class="headline">Vague brief.<br><b>Content plan.</b></h1>
-        <p class="sub">Plan Mode turns noise into a plan you can run today.</p>
+        <h1 class="headline"><span class="hl-line" data-h="0">Vague brief.</span><br><span class="hl-line" data-h="1"><b>Content plan.</b></span></h1>
+        <p class="sub" id="hookSub">Plan Mode turns noise into a plan you can run today.</p>
       </section>
 
       <section class="scene bg-cream" data-scene="1">
@@ -239,7 +243,7 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
         <p class="sub">Goal, angle, assets, first move. All in one place.</p>
         <div class="chip-row">
           <span class="chip" data-c="0">Goal</span>
-          <span class="chip" data-c="1">Angles</span>
+          <span class="chip" data-c="1">Angle</span>
           <span class="chip" data-c="2">Assets</span>
           <span class="chip" data-c="3">Checklist</span>
         </div>
@@ -272,6 +276,9 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
   const freezeAt = params.has('t') ? Math.max(0, Math.min(T - 1, Number(params.get('t')) * 1000)) : null;
 
   const scenes = [...document.querySelectorAll('.scene')];
+  const hookLines = [...document.querySelectorAll('.hl-line')];
+  const hookSub = document.querySelector('#hookSub');
+  const brandmark = document.querySelector('.brandmark');
   const fieldRows = [...document.querySelectorAll('.field-row')];
   const chips = [...document.querySelectorAll('.chip')];
   const resultRows = [...document.querySelectorAll('.result-row')];
@@ -325,6 +332,25 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     const fo = t < 160 ? 1 : t < 520 ? 1 - smooth((t-160)/360) : t > T-320 ? smooth((t-(T-320))/300) : 0;
     fade.style.opacity = fo.toFixed(3);
 
+    // Scene 0 hook: 两行标题错落弹入,而不是整段一起出现,
+    // 给前3.2s加一层"正在发生"的动感,增强抓人力。
+    hookLines.forEach((el,i)=>{
+      const s = 150 + i * 350;
+      const p = smooth((t - s) / 400);
+      const pop = backOut((t - s) / 400);
+      el.style.opacity = p.toFixed(3);
+      el.style.transform = `translateY(${(16 - 16*p).toFixed(2)}px) scale(${(1 + (pop-1)*0.03).toFixed(4)})`;
+    });
+    const hsp = smooth((t - 850) / 380);
+    hookSub.style.opacity = (hsp * .68).toFixed(3);
+    hookSub.style.transform = `translateY(${(10 - 10*hsp).toFixed(2)}px)`;
+
+    // 收尾前的品牌落版:最后0.6s让底部brandmark轻微放大+提亮,
+    // 形成一次明确的"final lockup"节拍,而不是全程同一个小图标。
+    const lockup = smooth((t - (T-700)) / 500);
+    brandmark.style.transform = `scale(${(1 + lockup*0.14).toFixed(3)})`;
+    brandmark.style.opacity = (0.82 + lockup*0.18).toFixed(3);
+
     // artifact场景开场那一下真正的"啪"——揭晓瞬间的高光闪
     flash.style.opacity = (env(t,12350,12400,12480,12750) * .85).toFixed(3);
 
@@ -342,7 +368,7 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     let statusText = statusSteps[0][1];
     for(const [st, label] of statusSteps){ if(t >= st) statusText = label; }
     toolbarStatus.textContent = statusText;
-    toolbar.classList.toggle('done', t >= 11255);
+    toolbar.classList.toggle('done', t >= 11635);
 
     chips.forEach((el,i)=>{
       const s = 13196 + i*115;
