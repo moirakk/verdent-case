@@ -10,6 +10,7 @@ motion rules.
 
 ```text
 visual-system.md   overall direction, timing, motion, and quality rules
+visual-director.md practical long-term style judgment and polish rules
 brand-lockup.html  reusable logo / lockup / motion snippets
 ```
 

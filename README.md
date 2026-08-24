@@ -111,5 +111,6 @@ logo source, expected time ranges, and no large blocking pseudo-text labels.
 - [Root preview](index.html)
 - [Skillbook index](series/skillbook/index.html)
 - [Shared visual system](system/visual-system.md)
+- [Visual director](system/visual-director.md)
 - [Brand lockup reference](system/brand-lockup.html)
 - [Version helper](scripts/save-episode-version.sh)
