@@ -71,7 +71,7 @@ Logo treatment:
 - never tiny enough to be missed
 - appears in the bottom bar and can appear in the final section
 
-Use the shared color, type, logo, and motion rules in `visual-system.md`.
+Use the shared color, type, logo, and motion rules in `../visual-system.md`.
 
 ## Screen Layout
 
