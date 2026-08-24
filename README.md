@@ -9,6 +9,7 @@ assets/   brand assets
 system/   shared visual and motion system
 series/   video series, editable episodes, and saved versions
 scripts/  local maintenance helpers
+skills/   reusable Codex skills for this project
 ```
 
 ## Preview
@@ -112,5 +113,6 @@ logo source, expected time ranges, and no large blocking pseudo-text labels.
 - [Skillbook index](series/skillbook/index.html)
 - [Shared visual system](system/visual-system.md)
 - [Visual director](system/visual-director.md)
+- [Verdent Video Director Skill](skills/verdent-video-director/SKILL.md)
 - [Brand lockup reference](system/brand-lockup.html)
 - [Version helper](scripts/save-episode-version.sh)
