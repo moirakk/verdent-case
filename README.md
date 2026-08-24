@@ -1,11 +1,33 @@
 # Verdent Video System
 
-This repository is for Verdent's long-term HTML video system.
+This repository has three entrances only:
 
-The main asset is a reusable visual system plus recordable episode files.
+```text
+system/   shared visual and motion system
+assets/   existing brand assets
+series/   video series and their episode versions
+```
 
-Skillbook is the first sub-series. Future series should reuse the same Verdent
-motion language instead of inventing a new look.
+The goal is to keep Verdent videos consistent over time. Skillbook is the first
+series, not the whole repository.
+
+## Current Series
+
+```text
+series/skillbook/
+```
+
+Current episode:
+
+```text
+series/skillbook/episodes/ep-001-plan-mode.html
+```
+
+Preview a frame:
+
+```text
+series/skillbook/episodes/ep-001-plan-mode.html?t=18
+```
 
 ## Core Rule
 
@@ -15,40 +37,14 @@ Every video should make one useful transformation clear:
 unclear input -> Verdent system/skill -> usable output
 ```
 
-## What Stays Here
-
-```text
-visual-system.md
-            shared Verdent video visual rules
-episodes/   current editable HTML video files
-versions/   saved HTML snapshots for each episode
-assets/     shared Verdent visual assets
-scripts/    helper scripts for saving episode versions
-```
-
-No PRDs, social drafts, account analysis, or unrelated content planning belong
-in this repository.
-
-## Current Focus
-
-```text
-episodes/ep-001-plan-mode.html
-```
-
-Preview a frame:
-
-```text
-episodes/ep-001-plan-mode.html?t=18
-```
-
 ## Long-Term Rules
 
-- One episode = one primary HTML file in `episodes/`.
-- Meaningful edits should be saved into `versions/`.
-- The visual system should stay reusable across sub-series.
-- Skillbook is a sub-series, not the whole repo identity.
-- The viewer should understand the transformation, not just the format.
-- Each episode should end with a clear output artifact.
+- Keep shared visual rules in `system/`.
+- Keep brand/logo assets in `assets/`.
+- Keep each video series under `series/<series-name>/`.
+- Keep current editable HTML files under that series' `episodes/`.
+- Keep saved HTML snapshots under that series' `versions/`.
+- Do not add PRDs, social drafts, account analysis, or unrelated planning files.
 
 ## Skillbook EP001
 
@@ -67,16 +63,16 @@ Current decision:
 ## Save A Version
 
 ```text
-scripts/save-episode-version.sh episodes/ep-001-plan-mode.html "short note"
+scripts/save-episode-version.sh series/skillbook/episodes/ep-001-plan-mode.html "short note"
 ```
 
 This creates a timestamped copy under:
 
 ```text
-versions/ep-001-plan-mode/
+series/skillbook/versions/ep-001-plan-mode/
 ```
 
 ## Key Files
 
-- [Current episode](/private/tmp/verdent-case-work/episodes/ep-001-plan-mode.html)
-- [Shared visual system](/private/tmp/verdent-case-work/visual-system.md)
+- [Shared visual system](/private/tmp/verdent-case-work/system/visual-system.md)
+- [Skillbook EP001](/private/tmp/verdent-case-work/series/skillbook/episodes/ep-001-plan-mode.html)

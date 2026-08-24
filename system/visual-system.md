@@ -39,7 +39,7 @@ container, but the visual system belongs to Verdent.
 Logo source:
 
 ```text
-assets/verdent-logo-ink.ai
+../assets/verdent-logo-ink.ai
 ```
 
 Use this as the source reference when creating flattened SVG or PNG logo assets
