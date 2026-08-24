@@ -58,17 +58,15 @@ body{display:grid;place-items:center;font-family:var(--sans);-webkit-font-smooth
 .bar.bottom{bottom:0;align-items:flex-start;padding-top:16px;justify-content:space-between}
 .case-tag{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;opacity:.68}
 .brandmark{display:flex;align-items:center;gap:8px;opacity:.82;transform-origin:left center;will-change:transform}
-.brandmark img{width:22px;height:28px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(31,157,108,.48))}
-.brandmark span{font:800 11px var(--sans);letter-spacing:.12em;text-transform:uppercase}
-.next-tag{font:600 9.5px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;opacity:.5;align-self:flex-start;text-align:right;max-width:120px}
-
-.accent-dot{
-  position:absolute;right:9%;top:19%;z-index:6;width:13px;height:13px;border-radius:50%;
-  background:var(--coral);transform:translate(50%,-50%);
-  box-shadow:0 0 0 4px rgba(0,0,0,.9);
-  animation:dotbreathe 3.4s ease-in-out infinite;
+.ink-logo{
+  display:block;background:var(--brand);
+  -webkit-mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
+  mask:url("../../../assets/verdent-logo-ink.svg") center/contain no-repeat;
+  filter:drop-shadow(0 0 10px rgba(31,157,108,.5));
 }
-@keyframes dotbreathe{50%{opacity:.72;transform:translate(50%,-50%) scale(.9)}}
+.brandmark .ink-logo{width:72px;height:26px}
+.brandmark span{font:900 11px var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.next-tag{font:600 9.5px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;opacity:.5;align-self:flex-start;text-align:right;max-width:120px}
 
 .frame{position:absolute;left:0;right:0;top:19%;bottom:19%;overflow:hidden;z-index:2}
 
@@ -125,10 +123,10 @@ body{display:grid;place-items:center;font-family:var(--sans);-webkit-font-smooth
 #hookSub{opacity:0;transform:translateY(10px)}
 .brand-flash{
   position:absolute;left:9%;top:9%;display:flex;align-items:center;gap:10px;
-  font:800 12px var(--sans);letter-spacing:.18em;text-transform:uppercase;
+  font:950 14px var(--sans);letter-spacing:.2em;text-transform:uppercase;
   color:var(--sage-ink);opacity:0;transform:translateY(10px);
 }
-.brand-flash img{width:28px;height:36px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(31,157,108,.42))}
+.brand-flash .ink-logo{width:86px;height:31px}
 
 /* Scene 1: raw input */
 .quote-wrap{border-left:2px solid currentColor;padding-left:22px;position:relative;z-index:2}
@@ -233,10 +231,11 @@ body{display:grid;place-items:center;font-family:var(--sans);-webkit-font-smooth
 .result-row span{font:700 clamp(19px,3.6vh,24px)/1.15 var(--serif)}
 .endline{margin-top:22px;font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(10px)}
 .final-lock{
-  display:flex;align-items:center;gap:12px;margin-top:24px;opacity:0;transform:translateY(12px);
-  font:900 18px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--sage-ink);
+  display:flex;align-items:center;gap:16px;margin-top:24px;opacity:0;transform:translateY(12px);
+  font:950 22px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--sage-ink);
 }
-.final-lock img{width:34px;height:44px;object-fit:contain;filter:drop-shadow(0 0 14px rgba(31,157,108,.4))}
+.final-lock .ink-logo{width:118px;height:43px}
+.final-lock span{font-weight:950}
 
 .fade{position:absolute;inset:0;z-index:50;pointer-events:none;background:#000;opacity:1}
 .flash{position:absolute;inset:0;z-index:45;pointer-events:none;opacity:0;background:radial-gradient(60% 46% at 50% 40%,rgba(255,255,255,.55),transparent 62%);mix-blend-mode:screen}
@@ -278,16 +277,14 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     <div class="bar top"><span class="case-tag">EP001 // PLAN MODE</span></div>
     <div class="bar bottom">
       <div class="brandmark">
-        <img src="../../../assets/verdent-icon.png" alt="">
-        <span>Verdent Skillbook</span>
+        <i class="ink-logo" aria-hidden="true"></i>
+        <span>Skillbook</span>
       </div>
       <div class="next-tag" id="nextTag"></div>
     </div>
-    <div class="accent-dot"></div>
-
     <div class="frame">
       <section class="scene on bg-sage" data-scene="0">
-        <div class="brand-flash" id="brandFlash"><img src="../../../assets/verdent-icon.png" alt=""><span>Verdent</span></div>
+        <div class="brand-flash" id="brandFlash"><i class="ink-logo" aria-hidden="true"></i><span>Verdent</span></div>
         <div class="eyebrow">Case file — Skillbook EP001</div>
         <h1 class="headline"><span class="hl-line" data-h="0">Messy ask.</span><br><span class="hl-line outline" data-h="1"><b>Working plan.</b></span></h1>
         <p class="sub" id="hookSub">Plan Mode turns unclear intent into executable steps.</p>
@@ -366,7 +363,7 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
           <div class="result-row" data-x="2"><b>Next</b><span>Design -> Visual System</span></div>
         </div>
         <p class="endline" id="endline">One skill. One workflow. One artifact.</p>
-        <div class="final-lock" id="finalLock"><img src="../../../assets/verdent-icon.png" alt=""><span>Verdent</span></div>
+        <div class="final-lock" id="finalLock"><i class="ink-logo" aria-hidden="true"></i><span>VERDENT</span></div>
       </section>
     </div>
 
