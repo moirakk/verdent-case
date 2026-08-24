@@ -196,7 +196,7 @@ Every episode has exactly one primary editable HTML file:
 ```text
 episodes/ep-001-plan-mode.html
 episodes/ep-002-visual-system.html
-episodes/ep-003-case-template.html
+episodes/ep-003-code-review.html
 ```
 
 Case folders can hold README, notes, and references, but the file you edit and record should live in `episodes/`.

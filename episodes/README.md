@@ -7,7 +7,7 @@ Every episode should be one standalone HTML file:
 ```text
 episodes/ep-001-plan-mode.html
 episodes/ep-002-visual-system.html
-episodes/ep-003-case-template.html
+episodes/ep-003-code-review.html
 ```
 
 Use this folder when you want to edit or record an episode.
@@ -45,7 +45,7 @@ Examples:
 ```text
 ep-001-plan-mode.html
 ep-002-visual-system.html
-ep-003-case-template.html
+ep-003-code-review.html
 ```
 
 ## Version Snapshots
