@@ -150,6 +150,15 @@
       text-shadow:0 0 14px rgba(57,246,173,.42),0 0 30px rgba(31,214,255,.14);
     }
 
+    .brand-chip{
+      width:104px;height:104px;border-radius:26px;margin:0 auto 28px;
+      display:grid;place-items:center;
+      background:linear-gradient(180deg,#171a19,#070908 58%,#020403);
+      border:1px solid rgba(125,255,224,.18);
+      box-shadow:0 0 40px rgba(18,205,147,.24),0 22px 46px rgba(0,0,0,.54),inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .brand-chip svg{width:66px;height:78px;filter:drop-shadow(0 0 15px rgba(18,205,147,.62))}
+
     .hook-lock{
       display:inline-block;margin-top:24px;border:1px solid rgba(125,255,224,.28);
       background:rgba(7,21,18,.62);padding:10px 13px;
@@ -164,6 +173,14 @@
       padding:20px;
       box-shadow:inset 0 0 28px rgba(57,246,173,.05);
     }
+    .boot-brand{display:flex;align-items:center;gap:14px}
+    .boot-mark{
+      width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;
+      background:linear-gradient(180deg,#171a19,#070908 58%,#020403);
+      border:1px solid rgba(125,255,224,.18);
+      box-shadow:0 0 22px rgba(18,205,147,.2),inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .boot-mark svg{width:31px;height:37px;filter:drop-shadow(0 0 9px rgba(18,205,147,.64))}
 
     .boot-head b{display:block;color:#effff7;font:800 28px var(--sans);letter-spacing:0}
     .boot-head span{display:block;margin-top:10px;color:rgba(125,255,224,.66);font-size:11px;letter-spacing:.16em}
@@ -264,11 +281,11 @@
     .verdent-logo{
       width:90px;height:90px;border-radius:23px;margin:0 auto 14px;
       display:grid;place-items:center;
-      background:radial-gradient(circle at 44% 38%,#0b332e,#041814 62%,#010303);
-      border:1px solid rgba(125,255,224,.24);
-      box-shadow:0 0 34px rgba(57,246,173,.24),0 18px 36px rgba(0,0,0,.45);
+      background:linear-gradient(180deg,#171a19,#070908 58%,#020403);
+      border:1px solid rgba(125,255,224,.2);
+      box-shadow:0 0 34px rgba(18,205,147,.24),0 18px 36px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.05);
     }
-    .verdent-logo svg{width:54px;height:66px;filter:drop-shadow(0 0 13px rgba(57,246,173,.68))}
+    .verdent-logo svg{width:56px;height:68px;filter:drop-shadow(0 0 13px rgba(18,205,147,.68))}
 
     .endline{
       color:rgba(125,255,224,.84);text-align:center;
@@ -310,6 +327,8 @@
 
     @media (max-width:420px){
       .big{font-size:47px}
+      .brand-chip{width:92px;height:92px;margin-bottom:22px}
+      .brand-chip svg{width:58px;height:70px}
       .quote{font-size:28px}
       .typed{font-size:27px}
       .skill-core b{font-size:23px}
@@ -336,6 +355,25 @@
 
       <section class="act center hook" id="hook">
         <div>
+          <div class="brand-chip" aria-label="Verdent logo">
+            <svg viewBox="0 0 100 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="heroLeafA" x1="29" y1="11" x2="60" y2="91" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#1ef4b5"/>
+                  <stop offset=".58" stop-color="#18ca91"/>
+                  <stop offset="1" stop-color="#17b681"/>
+                </linearGradient>
+                <linearGradient id="heroLeafB" x1="77" y1="28" x2="41" y2="111" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#1bd59d"/>
+                  <stop offset=".58" stop-color="#18c78f"/>
+                  <stop offset="1" stop-color="#35f0b0"/>
+                </linearGradient>
+              </defs>
+              <path d="M50 6C34 21 20 36 16 53c-4 18 5 34 31 48-7-20-2-34 9-49 10-14 11-29-6-46Z" fill="url(#heroLeafA)"/>
+              <path d="M63 28c20 8 32 24 33 43 1 20-13 35-41 47 5-18 2-31-8-43 13-12 21-28 16-47Z" fill="url(#heroLeafB)"/>
+              <path d="M51 101c-3-19 1-33 13-48 7-9 9-19 5-29 14 18 8 39-8 55-6 7-9 14-10 22Z" fill="#07100d" opacity=".9"/>
+            </svg>
+          </div>
           <div class="eyebrow">PLAN MODE TRANSMISSION</div>
           <h1 class="big">NOT A DEMO.<br>A CASE FILE.</h1>
           <div class="hook-lock">MESSY ASK -> WORKING PLAN</div>
@@ -344,8 +382,31 @@
 
       <section class="act boot" id="boot">
         <div class="boot-head">
-          <b>CASE RUNNER ONLINE</b>
-          <span>VERDENT SKILLBOOK v0.1 // NODE 01: PLAN MODE</span>
+          <div class="boot-brand">
+            <div class="boot-mark" aria-hidden="true">
+              <svg viewBox="0 0 100 120">
+                <defs>
+                  <linearGradient id="bootLeafA" x1="29" y1="11" x2="60" y2="91" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#1ef4b5"/>
+                    <stop offset=".58" stop-color="#18ca91"/>
+                    <stop offset="1" stop-color="#17b681"/>
+                  </linearGradient>
+                  <linearGradient id="bootLeafB" x1="77" y1="28" x2="41" y2="111" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#1bd59d"/>
+                    <stop offset=".58" stop-color="#18c78f"/>
+                    <stop offset="1" stop-color="#35f0b0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M50 6C34 21 20 36 16 53c-4 18 5 34 31 48-7-20-2-34 9-49 10-14 11-29-6-46Z" fill="url(#bootLeafA)"/>
+                <path d="M63 28c20 8 32 24 33 43 1 20-13 35-41 47 5-18 2-31-8-43 13-12 21-28 16-47Z" fill="url(#bootLeafB)"/>
+                <path d="M51 101c-3-19 1-33 13-48 7-9 9-19 5-29 14 18 8 39-8 55-6 7-9 14-10 22Z" fill="#07100d" opacity=".9"/>
+              </svg>
+            </div>
+            <div>
+              <b>CASE RUNNER ONLINE</b>
+              <span>VERDENT SKILLBOOK v0.1 // NODE 01: PLAN MODE</span>
+            </div>
+          </div>
         </div>
         <div class="diag">
           <div class="diag-card" id="diag1"><b>INPUT RECEIVED</b><span>WAITING</span></div>
@@ -448,20 +509,20 @@
           <div class="verdent-logo" aria-label="Verdent logo">
             <svg viewBox="0 0 100 120" aria-hidden="true">
               <defs>
-                <linearGradient id="leafA" x1="25" y1="8" x2="62" y2="98" gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#75fff7"/>
-                  <stop offset=".42" stop-color="#31f9bc"/>
-                  <stop offset="1" stop-color="#b8ff7a"/>
+                <linearGradient id="leafA" x1="29" y1="11" x2="60" y2="91" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#1ef4b5"/>
+                  <stop offset=".58" stop-color="#18ca91"/>
+                  <stop offset="1" stop-color="#17b681"/>
                 </linearGradient>
-                <linearGradient id="leafB" x1="75" y1="26" x2="36" y2="112" gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#16d8ff"/>
-                  <stop offset=".52" stop-color="#18ecc3"/>
-                  <stop offset="1" stop-color="#aaff78"/>
+                <linearGradient id="leafB" x1="77" y1="28" x2="41" y2="111" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#1bd59d"/>
+                  <stop offset=".58" stop-color="#18c78f"/>
+                  <stop offset="1" stop-color="#35f0b0"/>
                 </linearGradient>
               </defs>
-              <path d="M47 8C30 21 18 36 15 52c-4 18 5 34 28 47 2 1 4 2 7 3-8-17-5-33 8-49 10-13 12-27-11-45Z" fill="url(#leafA)"/>
-              <path d="M63 24c20 8 31 23 33 40 2 20-12 37-43 52 7-18 2-31-9-43 13-12 23-29 19-49Z" fill="url(#leafB)"/>
-              <path d="M51 101c-3-19 1-33 13-48 7-9 9-19 5-29 14 18 8 39-8 55-6 7-9 14-10 22Z" fill="#021f1b" opacity=".76"/>
+              <path d="M50 6C34 21 20 36 16 53c-4 18 5 34 31 48-7-20-2-34 9-49 10-14 11-29-6-46Z" fill="url(#leafA)"/>
+              <path d="M63 28c20 8 32 24 33 43 1 20-13 35-41 47 5-18 2-31-8-43 13-12 21-28 16-47Z" fill="url(#leafB)"/>
+              <path d="M51 101c-3-19 1-33 13-48 7-9 9-19 5-29 14 18 8 39-8 55-6 7-9 14-10 22Z" fill="#07100d" opacity=".9"/>
             </svg>
           </div>
           <div class="endline">ONE SKILL. ONE WORKFLOW. ONE ARTIFACT.</div>
