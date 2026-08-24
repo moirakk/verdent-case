@@ -1,93 +1,62 @@
 # Episodes
 
-`episodes/` is the main editing and recording folder for Verdent Skillbook videos.
+`episodes/` holds the current editable HTML files for Verdent Skillbook videos.
 
-Every episode should be one standalone HTML file:
-
-```text
-episodes/ep-001-plan-mode.html
-episodes/ep-002-visual-system.html
-episodes/ep-003-code-review.html
-```
-
-Use this folder when you want to edit or record an episode.
-
-Use `cases/` for supporting notes, README files, recording history, and retrospective material.
-
-## Series Rule
-
-Skillbook is the container. The skill is the main character.
-
-Each episode must show one Verdent skill producing a useful artifact from a real messy input.
-
-Do not make episodes about "introducing Skillbook" or "showing Verdent skills" in the abstract.
-
-Use this structure:
+Each file should be standalone and ready to screen-record in portrait format.
 
 ```text
-messy input -> Verdent skill -> reusable artifact
+ep-001-plan-mode.html
+ep-002-design-mode.html
+ep-003-ai2ui.html
 ```
 
-EP001 example:
+## Episode Principle
+
+Skillbook is only the container.
+
+The episode must show what one Verdent skill does:
 
 ```text
-Vague brief -> Plan Mode -> content plan
+messy input -> skill runs -> usable output
 ```
+
+Avoid abstract explanations. Show a real transformation.
 
 ## Naming
 
 ```text
-ep-<number>-<short-topic>.html
+ep-<number>-<skill-or-topic>.html
 ```
 
-Examples:
+## Preview
+
+Open the HTML file directly in a browser.
+
+Use `?t=seconds` to freeze a frame for review:
 
 ```text
-ep-001-plan-mode.html
-ep-002-visual-system.html
-ep-003-code-review.html
+ep-001-plan-mode.html?t=18
 ```
 
-## Version Snapshots
+## Versioning
 
-When you want to preserve a version before or after a meaningful change, run:
+Before major visual, copy, or pacing changes, save a snapshot:
 
 ```text
-scripts/save-episode-version.sh episodes/ep-001-plan-mode.html "refine pacing"
+scripts/save-episode-version.sh episodes/ep-001-plan-mode.html "short note"
 ```
 
-It creates:
+Snapshots live in:
 
 ```text
-versions/ep-001-plan-mode/ep-001-plan-mode-vYYYYMMDD-HHMM.html
+versions/<episode-name>/
 ```
 
-and creates a Git commit with a clear episode name.
+## Recording Check
 
-## Recording URL
-
-Open the file directly in a browser:
-
-```text
-episodes/ep-001-plan-mode.html
-```
-
-Freeze a frame for review:
-
-```text
-episodes/ep-001-plan-mode.html?t=16
-```
-
-Before recording, check key frames:
-
-```text
-t=0.6    brand identity
-t=1.5    hook
-t=4.2    messy input
-t=8      extraction
-t=12     skill running
-t=18.5   artifact unlock
-t=22     final result
-```
-
-No visible debug controls, timers, or top/bottom status bars should appear in the recording frame.
+- Important text stays inside safe margins.
+- No debug UI appears in the recording.
+- The logo is visible and consistent.
+- The first second identifies the series.
+- The main skill value is clear by the end.
+- The final frame shows the output artifact or next step.

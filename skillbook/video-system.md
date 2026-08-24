@@ -1,27 +1,21 @@
 # Verdent Skillbook Video System
 
-This is the long-term video system for recording Verdent Skillbook episodes.
+This is the long-term video system for Verdent Skillbook episodes.
 
-Verdent Skillbook videos are not normal landing pages and not static slides. Each episode is a cinematic case-file transmission that combines:
-
-- a short hook
-- a Verdent skill or mode
-- a real messy input
-- a visible workflow transformation
-- a reusable output artifact
-- a next episode bridge
+Skillbook is only the series name. The main character of each episode is one
+Verdent skill and the useful output it creates.
 
 ## Core Format
 
 Every episode should prove this sentence:
 
 ```text
-Real input -> Verdent skill -> reusable artifact
+Messy input -> Verdent skill -> usable output
 ```
 
-Do not make generic product demos. Do not make abstract feature explainers.
-
-Each episode should feel like watching Verdent process a case.
+Do not make generic product demos. Do not make abstract Skillbook explainers.
+Each episode should feel like watching Verdent turn something unclear into
+something usable.
 
 ## Standard Duration
 
@@ -37,7 +31,8 @@ Default timing:
 21.6-28s   Before / after / next
 ```
 
-Shorter platform cuts can remove the last 2-3 seconds, but the full HTML should keep the 28s master runtime.
+Shorter platform cuts can remove the last 2-3 seconds, but the full HTML should
+keep the 28s master runtime.
 
 ## Visual Identity
 
@@ -66,7 +61,7 @@ Always include:
 - `VERDENT SKILLBOOK`
 - episode ID, such as `CASE 001 // PLAN MODE`
 - one clear transformation line
-- one final series line
+- one final skill/output line
 - a bottom letterbox brand lockup
 
 Logo treatment:
@@ -199,7 +194,7 @@ episodes/ep-002-visual-system.html
 episodes/ep-003-code-review.html
 ```
 
-Case folders can hold README, notes, and references, but the file you edit and record should live in `episodes/`.
+The file you edit and record should live in `episodes/`.
 
 ## Version Naming
 
@@ -231,34 +226,19 @@ Before recording:
 - [ ] Final frame includes next episode bridge
 - [ ] Git commit exists before recording
 
-## Series Spine
+## Episode Spine
 
-Recommended first episodes:
+The first three episodes can form a simple skill chain:
 
 ```text
 EP 001 // PLAN MODE
 MESSY ASK -> WORKING PLAN
 
-EP 002 // VISUAL SYSTEM
-RAW DIRECTION -> RECORDABLE STYLE
+EP 002 // DESIGN
+PLAN -> VISUAL SYSTEM
 
-EP 003 // CASE TEMPLATE
-ONE VIDEO -> REUSABLE FORMAT
-
-EP 004 // SCRIPT MODE
-MESSY NOTES -> SHARP SCRIPT
-
-EP 005 // HTML BUILD
-SCRIPT -> RECORDABLE PAGE
-
-EP 006 // RECORDING CHECK
-GOOD PAGE -> POSTABLE CLIP
-
-EP 007 // DISTRIBUTION
-ONE CASE -> X / IG / TIKTOK POSTS
-
-EP 008 // FEEDBACK LOOP
-POST RESULT -> NEXT CASE
+EP 003 // AI2UI
+REQUIREMENTS -> EDITABLE UI
 ```
 
-The exact skills can change. The structure should not.
+The exact examples can change. The structure should not.
