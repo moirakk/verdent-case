@@ -30,13 +30,13 @@ Target: `25-30s`
 Default timing:
 
 ```text
-0-2s    Hook
-2-5s    Boot / case file identity
-5-9s    Messy input
-9-16s   Skill execution
-16-22s  Artifact reveal
-22-27s  Before / after / next
-27-30s  Verdent logo / series line
+0-1s    Verdent Skillbook identity
+1-4s    Skill transformation hook
+4-7s    Messy input
+7-10s   Skill extracts structure
+10-18s  Skill execution
+18-21s  Artifact reveal
+21-25s  Before / after / next
 ```
 
 Shorter platform cuts can remove the last 2-3 seconds, but the full HTML should remain 25-30 seconds.
@@ -68,6 +68,7 @@ Always include:
 - episode ID, such as `CASE 001 // PLAN MODE`
 - one clear transformation line
 - one final series line
+- a subtle Verdent leaf watermark or recurring phosphor signal
 
 Logo treatment:
 
@@ -146,15 +147,14 @@ The viewer should understand the frame in under one second.
 
 Reusable components:
 
-- `BootHeader`
 - `CaseLabel`
+- `VerdentIntro`
 - `InputCard`
 - `SkillCore`
 - `WorkflowNode`
 - `ArtifactUnlock`
 - `BeforeAfterNext`
 - `VerdentEndCard`
-- `StatusLine`
 
 Avoid adding new visual patterns unless an episode truly needs them.
 
@@ -167,13 +167,12 @@ Required:
 - `const T = 25000` to `30000`
 - scene envelopes based on millisecond ranges
 - `?t=seconds` frozen preview
-- `?clean=1` recording mode
-- replay / pause HUD
+- no visible preview controls inside the recording frame
 
 Motion rules:
 
-- hook must land within 2 seconds
-- boot sequence must be fast
+- Verdent identity must land within 1 second
+- hook must land by 4 seconds
 - nodes should light sequentially
 - artifact reveal should be the strongest moment
 - final logo should feel like a clean lock-up
@@ -195,6 +194,7 @@ Avoid:
 - long static text cards
 - decorative motion that does not explain the workflow
 - too many simultaneous labels
+- top bars, timers, bottom status strips, or debug controls in the recorded frame
 
 ## Episode File Rule
 
@@ -229,7 +229,7 @@ Before recording:
 
 - [ ] File is a single HTML page
 - [ ] Duration is 25-30 seconds
-- [ ] `?clean=1` hides controls
+- [ ] No preview controls appear inside the recording frame
 - [ ] `?t=seconds` works for preview
 - [ ] Verdent logo appears clearly
 - [ ] Important text sits inside safe margins
