@@ -248,11 +248,6 @@ body{display:grid;place-items:center;font-family:var(--sans);-webkit-font-smooth
   opacity:0;transform:translateY(12px) scale(.96);
   filter:drop-shadow(0 0 14px rgba(31,157,108,.34));
 }
-.final-lock{
-  display:none;
-}
-.final-lock .ink-logo{width:224px;height:80px}
-
 .fade{position:absolute;inset:0;z-index:50;pointer-events:none;background:#000;opacity:1}
 .flash{position:absolute;inset:0;z-index:45;pointer-events:none;opacity:0;background:radial-gradient(60% 46% at 50% 40%,rgba(255,255,255,.55),transparent 62%);mix-blend-mode:screen}
 .transition-sweep{
@@ -381,7 +376,6 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
         </div>
         <p class="endline" id="endline">One skill. One workflow. One artifact.</p>
         <i class="page-logo" id="pageLogo" aria-label="Verdent"></i>
-        <div class="final-lock" id="finalLock"><i class="ink-logo" aria-label="Verdent"></i></div>
       </section>
     </div>
 
@@ -420,7 +414,6 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
   const resultRows = [...document.querySelectorAll('.result-row')];
   const endline = document.querySelector('#endline');
   const pageLogo = document.querySelector('#pageLogo');
-  const finalLock = document.querySelector('#finalLock');
   const nextTag = document.querySelector('#nextTag');
   const fade = document.querySelector('#fade');
   const flash = document.querySelector('#flash');
@@ -592,22 +585,17 @@ body.frozen *,body.frozen *::before,body.frozen *::after{animation-play-state:pa
     resultRows.forEach((el,i)=>{
       const s = 15300 + i*290;
       const p = smooth((t - s) / 400);
-      const clear = smooth((t - 21850) / 420);
-      el.style.opacity = (p * (1 - clear)).toFixed(3);
-      el.style.transform = `translateY(${(14 - 14*p - clear*10).toFixed(2)}px)`;
+      el.style.opacity = p.toFixed(3);
+      el.style.transform = `translateY(${(14 - 14*p).toFixed(2)}px)`;
     });
 
     const ep = smooth((t - 16480) / 340);
-    const clearEnd = smooth((t - 21850) / 420);
-    endline.style.opacity = (ep * (1 - clearEnd)).toFixed(3);
-    endline.style.transform = `translateY(${(10 - 10*ep - clearEnd*10).toFixed(2)}px)`;
+    endline.style.opacity = ep.toFixed(3);
+    endline.style.transform = `translateY(${(10 - 10*ep).toFixed(2)}px)`;
 
     const pageLogoP = smooth((t - 18600) / 420);
-    const pageLogoClear = smooth((t - 22950) / 360);
-    pageLogo.style.opacity = (pageLogoP * (1 - pageLogoClear)).toFixed(3);
-    pageLogo.style.transform = `translateY(${(12 - 12*pageLogoP - pageLogoClear*8).toFixed(2)}px) scale(${(.96 + pageLogoP*.04).toFixed(3)})`;
-
-    finalLock.style.opacity = '0';
+    pageLogo.style.opacity = pageLogoP.toFixed(3);
+    pageLogo.style.transform = `translateY(${(12 - 12*pageLogoP).toFixed(2)}px) scale(${(.96 + pageLogoP*.04).toFixed(3)})`;
 
     const ntp = smooth((t - 18100) / 320);
     const nextClear = smooth((t - 21450) / 420);
