@@ -57,8 +57,9 @@ Current decision:
 
 - Skillbook is only the sub-series name.
 - EP001 should prove what Plan Mode does.
-- The example is still being selected before the HTML is rebuilt.
-- Avoid PRD, meta explanations, and long concept slides.
+- Current example: a messy idea with no structure becomes an executable plan.
+- Final result page includes the Verdent ink logo inside the light content frame.
+- Avoid PRD, meta explanations, static slide pacing, and long concept cards.
 
 ## Save A Version
 

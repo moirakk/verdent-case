@@ -14,36 +14,38 @@
 ## 通用时间轴（三集共用）
 
 ```
-0.0–3.2s    Scene 0  hook
-3.2–6.8s    Scene 1  raw input
-6.8–12.4s   Scene 2  处理过程（doc/生成 mockup）
-12.4–17.0s  Scene 3  artifact 揭晓（全片最大重音）
-17.0–24.0s  Scene 4  before/after/next + 收尾
+0.0–2.2s    Scene 0  hook + Verdent brand signal
+2.2–5.0s    Scene 1  raw input + scattered fragments
+5.0–10.2s   Scene 2  Plan Mode processing / sorting / structure
+10.2–15.0s  Scene 3  artifact reveal
+15.0–24.0s  Scene 4  before/after/next + final result page
 ```
 
 ## 通用视觉规则
 
 - 色板顺序固定：sage → cream → canvas → plum → sage
-- 每集只替换：eyebrow / headline / raw input 内容 / toolbar 状态文案 / chip 标签 / before-after 文案
+- 每集只替换：eyebrow / headline / raw input 内容 / process 状态文案 / chip 标签 / before-after 文案
 - `next-tag` 串联三集：EP001 结尾指向 EP002，EP002 结尾指向 EP003，EP003 收尾不再预告
-- 字段/chip 用统一的渐进弹入 + 短暂高光扫过效果，营造"刚被生成"的实时感
-- 全片仅一次「揭晓闪光」，出现在 artifact 场景开场（12.4s 附近）
+- 输入碎片、处理核心、输出节点构成主要视频感，不再只是字段列表
+- 片段之间使用 scan sweep / flash cut，让它像剪辑过的视频而不是幻灯片
+- 全片仅一次主要「揭晓闪光」，出现在 artifact 场景开场（10.2s 附近）
+- 最终页在浅色内容区域内放置 Verdent 墨版 logo
 
 ---
 
 ## EP001 — Plan Mode
 
-**一句话转化**：模糊 brief → 可执行的内容计划
+**一句话转化**：混乱想法 → 可执行计划
 
 | 帧 | 背景色 | 屏上内容 |
 |---|---|---|
-| 0 hook | sage | `Vague brief.` / **`Content plan.`** / sub: Plan Mode turns noise into a plan you can run today. |
-| 1 raw input | cream | quote: "Launch content. No angle. No first step." / tags: no angle / no sequence / no next step |
-| 2 处理 | canvas | toolbar 状态：parsing brief → extracting goal → mapping angle → listing assets → sequencing checklist → plan ready；字段：Goal / Angle / Assets / Checklist / Next |
-| 3 artifact | plum | `Content` **`Plan.`** / sub: Goal, angle, assets, first move. All in one place. / chips: Goal / Angles / Assets / Checklist |
-| 4 收尾 | sage | Before: a blurry content ask / After: an executable content plan / Next: first asset queued / endline: One skill. One workflow. One artifact. / next-tag: NEXT: DESIGN |
+| 0 hook | sage | `Messy ask.` / **`Working plan.`** / sub: Plan Mode turns unclear intent into executable steps. |
+| 1 raw input | cream | quote: "I have an idea. No structure. No first move." / fragments: too many ideas / what first? / no criteria / no sequence / too vague / no output |
+| 2 处理 | canvas | 状态：Sorting the mess → Extracting structure → Plan ready；节点：Outcome / Steps / Artifact / Checks |
+| 3 artifact | plum | `Working` **`Plan.`** / sub: Outcome, steps, artifact, checks. Ready to run. / chips: Outcome / Steps / Artifact / Checks |
+| 4 收尾 | sage | Before: scattered intent / After: executable plan / Next: Design -> Visual System / endline: One skill. One workflow. One artifact. / Verdent 墨版 logo |
 
-发布文案方向：「你只说了一句『做点内容』，然后呢？」
+发布文案方向：「一个模糊想法，怎么变成今天就能执行的计划？」
 
 ---
 

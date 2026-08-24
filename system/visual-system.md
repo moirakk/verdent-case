@@ -56,7 +56,8 @@ single-file HTML
 direct browser recording
 ```
 
-Default runtime is `28s` unless a specific episode needs a different cut.
+Default short-form runtime is `24s` unless a specific episode needs a different
+cut.
 
 ## Visual Language
 
@@ -133,7 +134,8 @@ Required beats:
 - A processing state with changing status labels, not a single static label.
 - A visible transformation from input into structure.
 - A concentrated artifact reveal with one flash or impact beat.
-- A clean final brand-only lockup for at least the last second.
+- A visible Verdent ink logo on the final result page, preferably inside the
+  content frame rather than as a separate late pop-in.
 
 Recommended process status pattern:
 
@@ -158,46 +160,47 @@ Each sub-series can define its own labels and episode pattern, but it should reu
 the same Verdent logo treatment, palette, motion rhythm, safe margins, and output
 artifact structure.
 
-## Brand Lockup (canonical reference)
+## Brand Lockup
 
-The exact logo SVG, chrome structure, color tokens, motion utility functions, and
-final-lockup animation are frozen in:
+The source logo is:
 
 ```text
-system/brand-lockup.html
+../assets/verdent-logo-ink.ai
 ```
 
-This file is not meant to run standalone. It is the single source of truth for
-everything marked `LOCKED` below. When building a new episode, copy the `LOCKED`
-blocks from that file byte-for-byte. Only the blocks marked `PER-EPISODE` may
-change per video.
+The HTML-ready asset is:
+
+```text
+../assets/verdent-logo-ink.svg
+```
+
+Use the SVG as a CSS mask so the logo can inherit the Verdent brand green.
 
 Do not:
 
-- edit the logo `<path>` data
+- use screenshot-based logo crops for final videos
 - change any hex color outside the token list
 - rewrite the motion utility functions (`smooth`, `backOut`, `env`, `clamp`)
-- invent a different final-lockup timing or curve per episode
+- make the final logo appear so late that viewers cannot read it
 
-## Final Brand Lockup Requirement
+Current EP001 lockup rule:
 
-Every episode must end with an explicit brand lockup beat, not just a persistent
-small logo. Concretely: in the final 700ms before loop, the `.brandmark` element
-scales up slightly and brightens, using the exact curve defined in
-`system/brand-lockup.html`. This satisfies the "final brand lockup" requirement
-from the Brand Structure section above — a persistent small chrome logo alone
-does not count as a lockup moment.
+- Keep the small Skillbook brandmark in the bottom black bar.
+- Add the larger Verdent ink logo inside the light final result page.
+- Let the logo appear with the result page and remain readable.
+- Do not add a separate last-moment logo pop-in that conflicts with the previous
+  frame.
 
 ## Pre-Publish Checklist
 
 Before recording or publishing any episode, verify:
 
-- [ ] Logo SVG path matches `system/brand-lockup.html` exactly (diff it)
+- [ ] Final logo uses `assets/verdent-logo-ink.svg`, not a screenshot crop
 - [ ] Only the six defined CSS variables are used for color — no new hex values
 - [ ] Font stack is exactly Fraunces / Inter / IBM Plex Mono
 - [ ] Total runtime and 5-scene time ranges follow the series' agreed timing plan
 - [ ] Exactly one flash/reveal beat exists, aligned to the artifact scene
-- [ ] Final brand lockup animation is present and uses the locked curve
+- [ ] Final result page has a readable Verdent ink logo inside the content frame
 - [ ] Safe margins respected — no text overflow into the top/bottom 19% bars,
       test at 390px width
 - [ ] `next-tag` correctly points to the next episode (or is empty on the final one)
