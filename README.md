@@ -1,41 +1,100 @@
 # Verdent Video System
 
-This repository has three entrances only:
+Verdent video cases, visual rules, brand assets, and editable HTML episodes.
+
+The repository is intentionally small:
 
 ```text
+assets/   brand assets
 system/   shared visual and motion system
-assets/   existing brand assets
-series/   video series and their episode versions
+series/   video series, editable episodes, and saved versions
+scripts/  local maintenance helpers
 ```
 
-The goal is to keep Verdent videos consistent over time. Skillbook is the first
-series, not the whole repository.
+## Preview
 
-## Current Series
+Open the root index:
 
 ```text
-series/skillbook/
+index.html
 ```
 
-Current episode:
+Open the Skillbook series index:
+
+```text
+series/skillbook/index.html
+```
+
+Current editable episodes:
 
 ```text
 series/skillbook/episodes/ep-001-plan-mode.html
+series/skillbook/episodes/ep-002-design.html
+series/skillbook/episodes/ep-003-ai2ui.html
 ```
 
-Preview a frame:
+Preview a frozen frame by adding `?t=<seconds>`:
 
 ```text
-series/skillbook/episodes/ep-001-plan-mode.html?t=18
+series/skillbook/episodes/ep-003-ai2ui.html?t=8.6
+```
+
+## Current Series
+
+### Skillbook
+
+One short-form chain:
+
+```text
+Think clearly -> design clearly -> build clearly
+```
+
+| Episode | Skill | Transformation |
+|---|---|---|
+| EP001 | Plan Mode | messy ask -> working plan |
+| EP002 | Design Mode | vague ask -> shippable design |
+| EP003 | AI2UI | one image -> working UI |
+
+Series files:
+
+```text
+series/skillbook/docs/skillbook-series-plan.md
+series/skillbook/docs/skillbook-prompts.md
+series/skillbook/episodes/
+series/skillbook/versions/
 ```
 
 ## Core Rule
 
-Every video should make one useful transformation clear:
+Every Verdent video should make one useful transformation visible:
 
 ```text
 unclear input -> Verdent system/skill -> usable output
 ```
+
+## Save A Version
+
+```text
+scripts/save-episode-version.sh series/skillbook/episodes/ep-003-ai2ui.html "short note"
+```
+
+This creates a timestamped copy under:
+
+```text
+series/skillbook/versions/<episode-name>/
+```
+
+and commits the editable episode plus its snapshot.
+
+## Check Episodes
+
+```text
+node scripts/check-episodes.js
+```
+
+The check validates the current Skillbook episodes for the basics that most
+often break during visual iteration: script syntax, 24s runtime, five scenes,
+logo source, expected time ranges, and no large blocking pseudo-text labels.
 
 ## Long-Term Rules
 
@@ -45,37 +104,12 @@ unclear input -> Verdent system/skill -> usable output
 - Keep current editable HTML files under that series' `episodes/`.
 - Keep saved HTML snapshots under that series' `versions/`.
 - Do not add PRDs, social drafts, account analysis, or unrelated planning files.
-
-## Skillbook EP001
-
-```text
-PLAN MODE
-Messy Ask -> Working Plan
-```
-
-Current decision:
-
-- Skillbook is only the sub-series name.
-- EP001 should prove what Plan Mode does.
-- Current example: a messy idea with no structure becomes an executable plan.
-- Final result page includes the Verdent ink logo inside the light content frame.
-- Avoid PRD, meta explanations, static slide pacing, and long concept cards.
-
-## Save A Version
-
-```text
-scripts/save-episode-version.sh series/skillbook/episodes/ep-001-plan-mode.html "short note"
-```
-
-This creates a timestamped copy under:
-
-```text
-series/skillbook/versions/ep-001-plan-mode/
-```
+- Before publishing, run `node scripts/check-episodes.js`.
 
 ## Key Files
 
-- [Visual system folder](/private/tmp/verdent-case-work/system/README.md)
-- [Shared visual system](/private/tmp/verdent-case-work/system/visual-system.md)
-- [Brand lockup reference](/private/tmp/verdent-case-work/system/brand-lockup.html)
-- [Skillbook EP001](/private/tmp/verdent-case-work/series/skillbook/episodes/ep-001-plan-mode.html)
+- [Root preview](index.html)
+- [Skillbook index](series/skillbook/index.html)
+- [Shared visual system](system/visual-system.md)
+- [Brand lockup reference](system/brand-lockup.html)
+- [Version helper](scripts/save-episode-version.sh)
